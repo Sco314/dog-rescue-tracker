@@ -1,0 +1,54 @@
+name: Dog Rescue Scraper
+
+on:
+  # Run every 4 hours
+  schedule:
+    - cron: '0 */4 * * *'
+  
+  # Also allow manual trigger from GitHub UI
+  workflow_dispatch:
+  
+  # Run on push to test changes
+  push:
+    branches: [main]
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    
+    # Give workflow permission to commit database back to repo
+    permissions:
+      contents: write
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+      
+      - name: Run scraper
+        env:
+          SENDER_EMAIL: ${{ secrets.SENDER_EMAIL }}
+          SENDER_PASSWORD: ${{ secrets.SENDER_PASSWORD }}
+          RECIPIENT_EMAILS: ${{ secrets.RECIPIENT_EMAILS }}
+        run: |
+          python scraper.py
+      
+      - name: Show report
+        run: |
+          python scraper.py --report
+      
+      - name: Commit database changes
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add dogs.db || true
+          git diff --staged --quiet || git commit -m "🐕 Update dog database [$(date +'%Y-%m-%d %H:%M')]"
+          git push || echo "Nothing to push"

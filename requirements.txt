@@ -1,0 +1,13 @@
+# Dog Rescue Scraper - Requirements
+# Core scraping
+requests>=2.28.0
+beautifulsoup4>=4.11.0
+lxml>=4.9.0
+
+# Optional: For JS-rendered sites (Doodle Rock, Doodle Dandy)
+# Uncomment if needed:
+# selenium>=4.8.0
+# webdriver-manager>=3.8.0
+
+# Database is SQLite (built-in)
+# Email uses smtplib (built-in)

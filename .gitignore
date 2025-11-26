@@ -1,1 +1,29 @@
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
 
+# Virtual environments
+venv/
+.venv/
+ENV/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Exports (generated on demand)
+dogs_export_*.csv
+
+# Logs
+*.log
+scrape.log
+
+# NOTE: dogs.db is NOT ignored - we want to track it for persistence
