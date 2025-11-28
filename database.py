@@ -120,6 +120,20 @@ def init_database():
     cursor.execute("ALTER TABLE dogs ADD COLUMN image_url TEXT")
     print("  📸 Added image_url column to dogs table")
   
+  # Add age scoring fields if they don't exist
+  if "age_years_min" not in columns:
+    cursor.execute("ALTER TABLE dogs ADD COLUMN age_years_min REAL")
+    print("  📅 Added age_years_min column to dogs table")
+  if "age_years_max" not in columns:
+    cursor.execute("ALTER TABLE dogs ADD COLUMN age_years_max REAL")
+    print("  📅 Added age_years_max column to dogs table")
+  if "age_is_range" not in columns:
+    cursor.execute("ALTER TABLE dogs ADD COLUMN age_is_range INTEGER DEFAULT 0")
+    print("  📅 Added age_is_range column to dogs table")
+  if "age_score" not in columns:
+    cursor.execute("ALTER TABLE dogs ADD COLUMN age_score INTEGER")
+    print("  📅 Added age_score column to dogs table")
+  
   conn.commit()
   conn.close()
   print("✅ Database initialized")
@@ -169,14 +183,17 @@ def insert_dog(dog: Dog) -> List[ChangeRecord]:
   cursor.execute("""
     INSERT INTO dogs (
       dog_id, dog_name, rescue_name, breed, weight, age_range, age_category,
+      age_years_min, age_years_max, age_is_range, age_score,
       sex, shedding, energy_level, good_with_kids, good_with_dogs, good_with_cats,
       training_level, training_notes, special_needs, health_notes, adoption_req,
       adoption_fee, platform, location, status, notes, source_url, image_url,
       fit_score, watch_list, date_first_seen, date_last_updated, date_status_changed
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   """, (
     dog.dog_id, dog.dog_name, dog.rescue_name, dog.breed, dog.weight,
-    dog.age_range, dog.age_category, dog.sex, dog.shedding, dog.energy_level,
+    dog.age_range, dog.age_category, dog.age_years_min, dog.age_years_max,
+    1 if dog.age_is_range else 0, dog.age_score,
+    dog.sex, dog.shedding, dog.energy_level,
     dog.good_with_kids, dog.good_with_dogs, dog.good_with_cats,
     dog.training_level, dog.training_notes, dog.special_needs, dog.health_notes,
     dog.adoption_req, dog.adoption_fee, dog.platform, dog.location, dog.status,
@@ -307,6 +324,10 @@ def update_dog(dog: Dog) -> List[ChangeRecord]:
     "weight": dog.weight,
     "age_range": dog.age_range,
     "age_category": dog.age_category,
+    "age_years_min": dog.age_years_min,
+    "age_years_max": dog.age_years_max,
+    "age_is_range": 1 if dog.age_is_range else 0,
+    "age_score": dog.age_score,
     "sex": dog.sex,
     "shedding": dog.shedding,
     "energy_level": dog.energy_level,
