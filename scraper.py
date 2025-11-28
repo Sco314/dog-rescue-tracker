@@ -293,7 +293,6 @@ def _print_recent_changes():
     print(f"  {emoji} {watch} {dog_name} (Fit: {fit_score}) [{time_str}]")
     print(f"       {msg}")
 
-
 def _print_dog_details(dog):
   """Print detailed info for a single dog"""
   # Format dates
@@ -321,9 +320,29 @@ def _print_dog_details(dog):
     except:
       pass
   
+  # Build URL - use source_url if available, otherwise construct from rescue
+  url = dog.get('source_url', '')
+  if not url:
+    rescue = dog.get('rescue_name', '')
+    if 'Doodle Rock' in rescue:
+      url = 'https://doodlerockrescue.org/adopt/available-dogs/'
+    elif 'Doodle Dandy' in rescue:
+      url = 'https://www.doodledandyrescue.org/all-adoptable-doodles'
+    elif 'Poodle Patch' in rescue:
+      url = 'https://poodlepatchrescue.com/category/adoptable-pets/'
+    else:
+      url = '(no URL available)'
+  
+  # Status indicator
+  status = dog['status']
+  if status.lower() == 'pending':
+    status_display = f"⏳ {status} (since {status_date}) - LIKELY BEING PLACED"
+  else:
+    status_display = f"{status} (since {status_date})"
+  
   print(f"\n  🐕 {dog['dog_name']}")
   print(f"     Rescue:      {dog['rescue_name']}")
-  print(f"     Status:      {dog['status']} (since {status_date})")
+  print(f"     Status:      {status_display}")
   print(f"     Fit Score:   {dog['fit_score'] or '?'}")
   print(f"     Breed:       {dog.get('breed', '?')}")
   print(f"     Weight:      {dog.get('weight', '?')} lbs")
@@ -337,9 +356,7 @@ def _print_dog_details(dog):
   print(f"     Location:    {dog.get('location', '?')}")
   print(f"     First Seen:  {first_seen}")
   print(f"     Last Update: {last_updated}")
-  if dog.get('source_url'):
-    print(f"     URL:         {dog.get('source_url')}")
-
+  print(f"     URL:         {url}")
 
 def export_csv():
   """Export current dogs to CSV"""
