@@ -53,33 +53,95 @@ class PoodlePatchScraper(BaseScraper):
     if not soup:
       return dogs
     
-    # WordPress blog-style: look for article links
-    # Pattern: links to individual dog pages like /jojo/, /zira/, etc.
-    dog_links = set()
+    # Build a map of dog URLs to their thumbnail images from the listing page
+    # The listing page has articles with post-img-wrap containing the thumbnail
+    image_map = {}
     
-    # Find all links that look like dog profile pages
+    for article in soup.find_all("article", class_=re.compile(r"post")):
+      # Find the dog page link
+      title_link = article.find("h1", class_="entry-title")
+      if title_link:
+        a_tag = title_link.find("a", href=True)
+        if a_tag:
+          dog_url = a_tag["href"]
+          
+          # Find the thumbnail image in post-img-wrap
+          img_wrap = article.find("div", class_="post-img-wrap")
+          if img_wrap:
+            img = img_wrap.find("img")
+            if img:
+              # Get the best resolution image from srcset or src
+              srcset = img.get("srcset", "")
+              src = img.get("src", "")
+              
+              # Parse srcset to get largest image
+              if srcset:
+                # srcset format: "url1 250w, url2 400w, url3 600w"
+                best_url = src
+                best_size = 0
+                for part in srcset.split(","):
+                  part = part.strip()
+                  if " " in part:
+                    img_url, size_str = part.rsplit(" ", 1)
+                    size = int(re.sub(r"[^\d]", "", size_str) or 0)
+                    if size > best_size:
+                      best_size = size
+                      best_url = img_url.strip()
+                image_map[dog_url] = best_url
+              elif src:
+                image_map[dog_url] = src
+    
+    # Also try finding images via the post-img-wrap > a structure
+    for img_wrap in soup.find_all("div", class_="post-img-wrap"):
+      a_tag = img_wrap.find("a", href=True)
+      if a_tag:
+        dog_url = a_tag["href"]
+        img = img_wrap.find("img")
+        if img and dog_url not in image_map:
+          srcset = img.get("srcset", "")
+          src = img.get("src", "")
+          
+          if srcset:
+            best_url = src
+            best_size = 0
+            for part in srcset.split(","):
+              part = part.strip()
+              if " " in part:
+                img_url, size_str = part.rsplit(" ", 1)
+                size = int(re.sub(r"[^\d]", "", size_str) or 0)
+                if size > best_size:
+                  best_size = size
+                  best_url = img_url.strip()
+            image_map[dog_url] = best_url
+          elif src:
+            image_map[dog_url] = src
+    
+    print(f"  📸 Found {len(image_map)} dog images on listing page")
+    
+    # Now get unique dog URLs
+    dog_links = set()
     for link in soup.find_all("a", href=True):
       href = link["href"]
-      # Match pattern like https://poodlepatchrescue.com/dogname/
       if re.match(r"https?://poodlepatchrescue\.com/[a-zA-Z0-9-]+/?$", href):
-        # Exclude known non-dog pages
         excluded = ["about-us", "application", "contact", "category", 
-                    "our-animals", "adoptable-pets", "donate", "foster"]
+                    "our-animals", "adoptable-pets", "donate", "foster",
+                    "happy-tails", "author", "tag", "page"]
         slug = href.rstrip("/").split("/")[-1].lower()
         if slug not in excluded and not any(ex in href for ex in excluded):
           dog_links.add(href)
     
     print(f"  🔗 Found {len(dog_links)} potential dog pages")
     
-    # Scrape each individual dog page
+    # Scrape each individual dog page, passing the image URL
     for dog_url in dog_links:
-      dog = self._scrape_dog_page(dog_url, status)
+      image_url = image_map.get(dog_url, "")
+      dog = self._scrape_dog_page(dog_url, status, image_url)
       if dog:
         dogs.append(dog)
     
     return dogs
   
-  def _scrape_dog_page(self, url: str, status: str) -> Optional[Dog]:
+  def _scrape_dog_page(self, url: str, status: str, listing_image_url: str = "") -> Optional[Dog]:
     """Scrape individual dog profile page"""
     soup = self.fetch_page(url)
     if not soup:
@@ -100,6 +162,10 @@ class PoodlePatchScraper(BaseScraper):
       print(f"  ⚠️ Could not find dog name at {url}")
       return None
     
+    # Clean up name - remove rescue suffix that sometimes appears
+    name = re.sub(r"\s*[-–—]\s*Poodle Patch Rescue.*$", "", name, flags=re.IGNORECASE)
+    name = name.strip()
+    
     # Get description/bio text
     bio = ""
     content_div = soup.find("div", class_=re.compile(r"entry-content|post-content|content"))
@@ -111,8 +177,11 @@ class PoodlePatchScraper(BaseScraper):
       if main:
         bio = main.get_text(separator=" ", strip=True)
     
-    # Extract primary image
-    image_url = self._extract_image(soup)
+    # Use image from listing page (preferred - it's the actual dog photo)
+    # Only fall back to page extraction if we don't have one
+    image_url = listing_image_url
+    if not image_url:
+      image_url = self._extract_image(soup)
     
     # Parse attributes from bio text
     weight = self._extract_weight_from_text(bio)
