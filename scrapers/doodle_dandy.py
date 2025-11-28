@@ -84,28 +84,26 @@ class DoodleDandyScraper(BaseScraper):
     Extract dog images from Wix gallery structure.
     Returns dict mapping lowercase dog names to image URLs.
     
-    Structure:
-    <a href="/all-adoptable-doodles/{slug}">
-      <wow-image>
-        <img alt="{DogName}" src="https://static.wixstatic.com/...">
-      </wow-image>
-    </a>
+    Two patterns:
+    1. Linked images (available/pending pages):
+       <a href="/all-adoptable-doodles/{slug}"><wow-image><img src="..."></wow-image></a>
+    
+    2. Non-linked images (coming-soon page):
+       <img alt="{DogName}" src="..."> followed by text with dog info
     """
     images = {}
     
     # Determine the base path based on page URL
-    # e.g., /all-adoptable-doodles, /adoption-pending-doodles, /doodles-coming-soon
     base_paths = [
       "/all-adoptable-doodles/",
       "/adoption-pending-doodles/",
       "/doodles-coming-soon/"
     ]
     
-    # Find all links that point to individual dog pages
+    # Pattern 1: Find all links that point to individual dog pages
     for a_tag in soup.find_all("a", href=True):
       href = a_tag.get("href", "")
       
-      # Check if this is a dog profile link
       is_dog_link = False
       for base in base_paths:
         if base in href and href != base.rstrip("/"):
@@ -115,47 +113,137 @@ class DoodleDandyScraper(BaseScraper):
       if not is_dog_link:
         continue
       
-      # Extract the slug (dog name) from the URL
       slug = href.rstrip("/").split("/")[-1].lower()
       if not slug or len(slug) < 2:
         continue
       
-      # Find the image inside this link
       img = a_tag.find("img")
       if img:
         src = img.get("src", "") or img.get("data-src", "")
         alt = img.get("alt", "").strip()
         
         if src and "wixstatic" in src:
-          # Upgrade to larger image size
           src = re.sub(r"/v1/fill/w_\d+,h_\d+", "/v1/fill/w_400,h_400", src)
-          
-          # Map by slug
           images[slug] = src
           
-          # Also map by cleaned alt text
           if alt:
             alt_clean = re.sub(r"[^a-z]", "", alt.lower())
             if alt_clean:
               images[alt_clean] = src
-          
-          print(f"  📸 Found image for: {slug}")
     
-    # Also look for wow-image elements that might have data-image-info
-    for wow in soup.find_all("wow-image"):
-      img = wow.find("img")
-      if img:
-        src = img.get("src", "") or img.get("data-src", "")
-        alt = img.get("alt", "").strip()
+    # Pattern 2: Direct image extraction (for coming-soon page with no links)
+    # Look for wixstatic images that might be dog photos
+    for img in soup.find_all("img"):
+      src = img.get("src", "") or img.get("data-src", "")
+      
+      if not src or "wixstatic" not in src:
+        continue
+      
+      # Skip tiny icons and UI elements
+      if any(skip in src.lower() for skip in ["logo", "icon", "button", "social", "arrow"]):
+        continue
+      
+      # Try to get image dimensions from URL or attributes
+      width = img.get("width", "")
+      height = img.get("height", "")
+      
+      # Skip very small images (likely icons)
+      try:
+        if width and int(width) < 100:
+          continue
+        if height and int(height) < 100:
+          continue
+      except ValueError:
+        pass
+      
+      # Check for size in URL (wix uses w_NNN,h_NNN format)
+      size_match = re.search(r"w_(\d+),h_(\d+)", src)
+      if size_match:
+        w, h = int(size_match.group(1)), int(size_match.group(2))
+        if w < 100 or h < 100:
+          continue
+      
+      # Upgrade to larger size
+      src = re.sub(r"/v1/fill/w_\d+,h_\d+", "/v1/fill/w_400,h_400", src)
+      
+      # Try to find the dog name associated with this image
+      # Look at the text immediately following the image in the DOM
+      parent = img.parent
+      if parent:
+        # Get next siblings' text
+        next_text = ""
+        for sibling in parent.next_siblings:
+          if hasattr(sibling, "get_text"):
+            next_text = sibling.get_text(strip=True)
+            break
+          elif isinstance(sibling, str) and sibling.strip():
+            next_text = sibling.strip()
+            break
         
-        if src and alt and "wixstatic" in src:
-          # Upgrade size
-          src = re.sub(r"/v1/fill/w_\d+,h_\d+", "/v1/fill/w_400,h_400", src)
-          alt_clean = re.sub(r"[^a-z]", "", alt.lower())
-          if alt_clean and alt_clean not in images:
-            images[alt_clean] = src
+        if next_text and len(next_text) > 1 and len(next_text) < 30:
+          # This might be the dog name
+          name_clean = re.sub(r"[^a-z]", "", next_text.lower())
+          if name_clean and name_clean not in images:
+            images[name_clean] = src
+      
+      # Also try wow-image wrapper
+      wow = img.find_parent("wow-image")
+      if wow:
+        # Get the next text element after wow-image
+        for sibling in wow.next_siblings:
+          text = ""
+          if hasattr(sibling, "get_text"):
+            text = sibling.get_text(strip=True)
+          elif isinstance(sibling, str):
+            text = sibling.strip()
+          
+          if text and len(text) > 1 and len(text) < 30:
+            name_clean = re.sub(r"[^a-z]", "", text.lower())
+            if name_clean and name_clean not in images:
+              images[name_clean] = src
+            break
     
-    print(f"  📸 Total images found: {len(images)}")
+    # Pattern 3: Extract images by sequence matching with text
+    # The coming-soon page alternates: image, name, breed, age, sex, weight, location
+    # Build a list of all wixstatic image URLs in order
+    all_images = []
+    for img in soup.find_all("img"):
+      src = img.get("src", "") or img.get("data-src", "")
+      if src and "wixstatic" in src:
+        # Skip small/icon images
+        size_match = re.search(r"w_(\d+),h_(\d+)", src)
+        if size_match:
+          w, h = int(size_match.group(1)), int(size_match.group(2))
+          if w >= 100 and h >= 100:
+            src = re.sub(r"/v1/fill/w_\d+,h_\d+", "/v1/fill/w_400,h_400", src)
+            all_images.append(src)
+    
+    # Get all text lines that look like dog names
+    text = soup.get_text(separator="\n", strip=True)
+    lines = [l.strip() for l in text.split("\n") if l.strip()]
+    
+    # Find potential dog names (followed by breed, age, sex, weight, location pattern)
+    breed_patterns = [r"doodle", r"poo\b", r"poodle", r"maltipoo", r"shih-?poo"]
+    potential_names = []
+    
+    for idx, line in enumerate(lines):
+      # Check if next line looks like a breed
+      if idx + 1 < len(lines):
+        next_line = lines[idx + 1].lower()
+        if any(re.search(p, next_line) for p in breed_patterns):
+          # This line is probably a dog name
+          name = line.strip()
+          if len(name) > 1 and len(name) < 30 and not any(re.search(p, name.lower()) for p in breed_patterns):
+            potential_names.append(name)
+    
+    # Match images to names by position
+    for i, name in enumerate(potential_names):
+      if i < len(all_images):
+        name_clean = re.sub(r"[^a-z]", "", name.lower())
+        if name_clean and name_clean not in images:
+          images[name_clean] = all_images[i]
+    
+    print(f"  📸 Total images mapped: {len(images)}")
     return images
   
   def _parse_dog_cards(self, text: str, status: str, image_urls: dict = None) -> List[Dog]:
@@ -174,16 +262,43 @@ class DoodleDandyScraper(BaseScraper):
     lines = [line.strip() for line in text.split("\n") if line.strip()]
     image_urls = image_urls or {}
     
-    # Words/patterns to skip (not dog names)
+    # Words/patterns to skip (not dog names) - EXPANDED LIST
     skip_patterns = [
-      r"\.jpg$", r"\.png$", r"\.gif$",  # Image files
-      r"^img[_-]", r"^frame\s*\d", r"^profile",  # Image prefixes
-      r"^facebook$", r"^instagram$", r"^tiktok$", r"^youtube$",  # Social
-      r"^doodle dandy", r"^welcome", r"^here are", r"^our policy",  # Headers
-      r"^adoption", r"^please", r"^follow", r"^in foster",  # Instructions
-      r"^sheds?:", r"^area:", r"^fee:",  # Labels
-      r"^\d+$",  # Just numbers
-      r"^applications? closed",  # Status text
+      # Image files
+      r"\.jpg", r"\.png", r"\.gif", r"\.jpeg", r"\.webp",
+      r"^img[_-]", r"^frame\s*\d", r"^profile", r"_edited",
+      
+      # Social media
+      r"^facebook$", r"^instagram$", r"^tiktok$", r"^youtube$",
+      
+      # Navigation and headers
+      r"^doodle dandy", r"^welcome", r"^here are", r"^our policy",
+      r"^home$", r"^about", r"^contact", r"^blog$", r"^faq",
+      r"^happy tails", r"^alumni", r"^foster", r"^donate",
+      r"^apply", r"^application", r"^adopt$", r"^available",
+      r"^pending", r"^coming soon", r"^upcoming",
+      
+      # Instructions and legal
+      r"^adoption", r"^please", r"^follow", r"^in foster",
+      r"^click", r"^read", r"^view", r"^see", r"^learn",
+      r"copyright", r"all rights", r"privacy", r"terms",
+      r"^our ", r"^the ", r"^this ", r"^that ", r"^these ",
+      r"^be sure", r"^make sure", r"^don't forget",
+      
+      # Labels
+      r"^sheds?:", r"^area:", r"^fee:", r"^energy:", r"^weight:",
+      
+      # Single words that aren't names
+      r"^\d+$", r"^yes$", r"^no$", r"^some$", r"^none$",
+      r"^low$", r"^medium$", r"^high$", r"^unknown$",
+      
+      # Status text
+      r"^applications? closed", r"^currently", r"^status",
+      
+      # Common junk phrases
+      r"policies and procedures", r"fur-ever", r"forever home",
+      r"ready for adoption", r"doodles ready", r"rescue 20",
+      r"full bio", r"right for you", r"oster family",
     ]
     
     # Valid breeds
@@ -202,6 +317,22 @@ class DoodleDandyScraper(BaseScraper):
       
       # Skip if matches skip patterns
       if any(re.search(p, line.lower()) for p in skip_patterns):
+        i += 1
+        continue
+      
+      # Skip if line is too short or too long for a name
+      if len(line) < 2 or len(line) > 25:
+        i += 1
+        continue
+      
+      # Skip if line has too many words (names are usually 1-2 words)
+      word_count = len(line.split())
+      if word_count > 3:
+        i += 1
+        continue
+      
+      # Skip if line contains numbers (except maybe a suffix like "2" or "II")
+      if re.search(r"\d{2,}", line):  # 2+ digit numbers
         i += 1
         continue
       
@@ -320,6 +451,38 @@ class DoodleDandyScraper(BaseScraper):
     name = name.strip()
     
     if not name or len(name) < 2:
+      return None
+    
+    # FINAL VALIDATION: Reject names that are clearly not dog names
+    reject_names = [
+      "yes", "no", "some", "none", "all", "any", "other",
+      "home", "about", "contact", "blog", "faq", "help",
+      "happy tails", "alumni", "foster", "donate", "apply",
+      "available", "pending", "upcoming", "coming soon",
+      "adoption", "application", "adopt", "rescue",
+      "policies", "procedures", "copyright", "privacy",
+      "facebook", "instagram", "tiktok", "youtube",
+      "male", "female", "hou", "dfw", "aus", "sa", "atx",
+      "low", "medium", "high", "unknown",
+      "our policies", "oster family", "happy tails",
+    ]
+    if name.lower() in reject_names:
+      return None
+    
+    # Reject if name contains certain substrings
+    reject_substrings = [
+      "copyright", "rescue 20", "fur-ever", "forever home",
+      "full bio", "policies and procedures", "click here",
+      "read more", "learn more", "view all", "see all",
+      "ready for adoption", "doodles ready", ".com", ".org",
+      "be sure to", "make sure", "don't forget",
+    ]
+    if any(sub in name.lower() for sub in reject_substrings):
+      return None
+    
+    # Reject if name is mostly non-alpha characters
+    alpha_count = sum(1 for c in name if c.isalpha())
+    if alpha_count < len(name) * 0.6:  # Less than 60% letters
       return None
     
     # Parse age into category
