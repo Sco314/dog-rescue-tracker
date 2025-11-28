@@ -31,9 +31,9 @@ jobs:
       
       - name: Install dependencies
         run: |
-          pip install -r requirements.txt
-          playwright install chromium
-          playwright install-deps
+          pip install requests beautifulsoup4 lxml playwright
+          python -m playwright install chromium
+          python -m playwright install-deps
       
       - name: Run scraper
         env:
