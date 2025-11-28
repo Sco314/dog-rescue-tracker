@@ -33,6 +33,7 @@ class Dog:
   status_history: str = ""
   notes: str = ""
   source_url: str = ""
+  image_url: str = ""  # Primary photo URL
   date_collected: str = ""
   date_posted: str = ""
   date_updated: str = ""
