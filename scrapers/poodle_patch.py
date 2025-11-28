@@ -111,6 +111,9 @@ class PoodlePatchScraper(BaseScraper):
       if main:
         bio = main.get_text(separator=" ", strip=True)
     
+    # Extract primary image
+    image_url = self._extract_image(soup)
+    
     # Parse attributes from bio text
     weight = self._extract_weight_from_text(bio)
     age = self._extract_age_from_text(bio)
@@ -145,6 +148,7 @@ class PoodlePatchScraper(BaseScraper):
       status=status,
       notes=bio[:500] if bio else "",  # First 500 chars of bio
       source_url=url,
+      image_url=image_url,
       date_collected=get_current_date()
     )
     
@@ -154,6 +158,40 @@ class PoodlePatchScraper(BaseScraper):
     
     print(f"  🐕 {name}: {weight or '?'}lbs | Fit: {dog.fit_score} | {status}")
     return dog
+  
+  def _extract_image(self, soup: BeautifulSoup) -> str:
+    """Extract primary dog image from page"""
+    # Try featured image first (WordPress)
+    featured = soup.find("img", class_=re.compile(r"wp-post-image|featured|attachment"))
+    if featured:
+      src = featured.get("src", "") or featured.get("data-src", "")
+      if src:
+        return src
+    
+    # Try Open Graph image
+    og_image = soup.find("meta", property="og:image")
+    if og_image and og_image.get("content"):
+      return og_image["content"]
+    
+    # Try first large image in content area
+    content = soup.find("div", class_=re.compile(r"entry-content|post-content|content"))
+    if content:
+      for img in content.find_all("img"):
+        src = img.get("src", "") or img.get("data-src", "")
+        # Skip tiny images (likely icons)
+        width = img.get("width", "")
+        if width and width.isdigit() and int(width) < 100:
+          continue
+        if src and not any(skip in src.lower() for skip in ["icon", "logo", "button", "avatar"]):
+          return src
+    
+    # Fallback: first reasonable image on page
+    for img in soup.find_all("img"):
+      src = img.get("src", "") or img.get("data-src", "")
+      if src and not any(skip in src.lower() for skip in ["icon", "logo", "button", "avatar", "widget"]):
+        return src
+    
+    return ""
   
   def _extract_weight_from_text(self, text: str) -> Optional[int]:
     """Extract weight from bio text"""
