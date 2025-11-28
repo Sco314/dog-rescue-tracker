@@ -115,11 +115,15 @@ class DoodleRockScraper(BaseScraper):
     """Parse dog listings from page HTML"""
     dogs = []
     
+    # Debug: count what we find
+    all_cols = soup.find_all("div", class_=re.compile(r"col-sm-\d"))
+    print(f"  🔍 Found {len(all_cols)} col-sm-* divs")
+    
     # Doodle Rock structure: each dog is in a col-sm-4 div with:
     # - <a href="dog-page-url"><img src="thumbnail"></a>
     # - <center><a href="dog-page-url"><strong>Name,</strong> Breed</a><br>Status</center>
     
-    for col in soup.find_all("div", class_=re.compile(r"col-sm-\d")):
+    for col in all_cols:
       # Find the image link
       img_link = col.find("a", href=re.compile(r"/rescue-dog/"))
       if not img_link:
@@ -189,18 +193,97 @@ class DoodleRockScraper(BaseScraper):
         date_collected=get_current_date()
       )
       
+      # Try to get additional details from individual dog page
+      dog = self._enrich_dog_from_page(dog, dog_url)
+      
       dog.fit_score = calculate_fit_score(dog)
       dog.watch_list = check_watch_list(dog)
       dogs.append(dog)
       
       img_status = "📸" if image_url else "🐕"
-      print(f"  {img_status} {name} | Fit: {dog.fit_score} | {dog_status}")
+      print(f"  {img_status} {name} | {dog.weight or '?'}lbs | Fit: {dog.fit_score} | {dog_status}")
     
     # Fallback: if no dogs found with structured parsing, try other methods
     if not dogs:
       dogs = self._parse_from_images(soup, status)
     
     return dogs
+  
+  def _enrich_dog_from_page(self, dog: Dog, url: str) -> Dog:
+    """Fetch individual dog page to get additional details like weight, energy, compatibility"""
+    try:
+      soup = self.fetch_page(url)
+      if not soup:
+        return dog
+      
+      # Get all text content
+      text = soup.get_text(separator=" ", strip=True).lower()
+      
+      # Extract weight
+      weight_match = re.search(r"(\d+)\s*(?:lbs?|pounds?)", text)
+      if weight_match:
+        dog.weight = int(weight_match.group(1))
+      
+      # Extract age if not already set
+      if not dog.age_range:
+        age_match = re.search(r"(\d+\.?\d*)\s*(years?|yrs?|months?|mos?|weeks?|wks?)", text)
+        if age_match:
+          num = age_match.group(1)
+          unit = age_match.group(2)
+          if "year" in unit or "yr" in unit:
+            dog.age_range = f"{num} yrs"
+          elif "month" in unit or "mo" in unit:
+            dog.age_range = f"{num} mos"
+          elif "week" in unit or "wk" in unit:
+            dog.age_range = f"{num} wks"
+      
+      # Extract energy level
+      if "high energy" in text or "very active" in text or "lots of exercise" in text:
+        dog.energy_level = "High"
+      elif "low energy" in text or "calm" in text or "couch potato" in text or "laid back" in text:
+        dog.energy_level = "Low"
+      elif "moderate energy" in text or "medium energy" in text:
+        dog.energy_level = "Medium"
+      
+      # Extract good with dogs
+      if "good with dogs" in text or "gets along with dogs" in text or "loves other dogs" in text:
+        dog.good_with_dogs = "Yes"
+      elif "no dogs" in text or "only dog" in text or "no other dogs" in text:
+        dog.good_with_dogs = "No"
+      
+      # Extract good with cats
+      if "good with cats" in text or "cat friendly" in text or "lives with cats" in text:
+        dog.good_with_cats = "Yes"
+      elif "no cats" in text or "not cat friendly" in text or "chases cats" in text:
+        dog.good_with_cats = "No"
+      
+      # Extract good with kids
+      if "good with kids" in text or "good with children" in text or "family friendly" in text:
+        dog.good_with_kids = "Yes"
+      elif "no kids" in text or "no children" in text or "no small children" in text or "older children only" in text:
+        dog.good_with_kids = "No"
+      
+      # Check for special needs indicators
+      if any(term in text for term in ["special needs", "medical needs", "ongoing medication", 
+                                         "blind", "deaf", "three legs", "wheelchair"]):
+        dog.special_needs = True
+      
+      # Try to get a better image if we don't have one
+      if not dog.image_url:
+        # Look for featured image or main dog photo
+        for img in soup.find_all("img"):
+          src = img.get("src", "")
+          if src and "wp-content/uploads" in src and "150x150" not in src:
+            # Skip tiny thumbnails
+            dog.image_url = src
+            break
+      
+      print(f"    ↳ Enriched: {dog.weight or '?'}lbs, energy={dog.energy_level}, dogs={dog.good_with_dogs or '?'}")
+      
+    except Exception as e:
+      print(f"    ⚠️ Could not enrich {dog.dog_name}: {e}")
+    
+    return dog
   
   def _parse_from_images(self, soup: BeautifulSoup, status: str) -> List[Dog]:
     """Extract dog names from image alt text"""
