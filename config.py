@@ -49,33 +49,44 @@ WATCH_LIST_DOGS = [
   "Kru",
   "Nimbi",
   "Zira",
-  "Jojo"
+  "Jojo",
+  "Skipper",
+  "Freddy Faz",
+  "Freddy Fax",  # In case of typo variations
 ]
 
 # Fit Score weights
+# NOTE: Since these are doodle-specific rescues, most dogs will be low-shedding
+# The scoring reflects YOUR priorities for finding a good match
 SCORING_WEIGHTS = {
-  "weight_threshold": 40,  # lbs
+  "weight_threshold": 40,  # lbs - you want 40+ lb dogs
   "weight_points": 2,
   
+  # Shedding - doodles typically low/none, so this is usually +1 or +2
   "shedding": {
     "None": 2,
     "Low": 1,
     "Moderate": 0,
-    "High": 0
+    "High": -1,
+    "Unknown": 1  # Assume low for doodles
   },
   
+  # Energy - you want moderate, not super high
   "energy": {
     "Low": 2,
     "Medium": 2,
-    "High": 1,
-    "Unknown": 0
+    "High": 0,  # Puppies often high energy - neutral, not negative
+    "Unknown": 1
   },
   
   "good_with_kids": 1,
-  "good_with_dogs": 1,
+  "good_with_dogs": 2,  # Increased - important for Darwin!
   "good_with_cats": 1,
   
-  "special_needs_penalty": -1
+  "special_needs_penalty": -1,
+  
+  # NEW: Bonus for being a doodle/poodle (your target breeds)
+  "doodle_bonus": 1
 }
 
 # User agent for web requests
