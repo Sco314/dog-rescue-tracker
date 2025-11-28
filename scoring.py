@@ -76,20 +76,3 @@ def is_good_fit(dog: Dog, min_score: int = 5) -> bool:
   Default threshold: 5 (adjustable)
   """
   return dog.fit_score >= min_score if dog.fit_score else False
-```
-
----
-
-### 3. `requirements.txt`
-```
-# Dog Rescue Scraper - Requirements
-# Core scraping
-requests>=2.28.0
-beautifulsoup4>=4.11.0
-lxml>=4.9.0
-
-# For JS-rendered sites (Doodle Rock Rescue)
-playwright>=1.40.0
-
-# Database is SQLite (built-in)
-# Email uses smtplib (built-in)
