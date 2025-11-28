@@ -18,6 +18,7 @@ def calculate_fit_score(dog: Dog) -> int:
   - Good with cats: +1
   - Doodle/Poodle breed: +1
   - Special needs: -1
+  - Pending status: -2 (likely being placed elsewhere)
   """
   score = 0
   
@@ -59,6 +60,10 @@ def calculate_fit_score(dog: Dog) -> int:
   breed_lower = dog.breed.lower() if dog.breed else ""
   if any(b in breed_lower for b in ["doodle", "poodle", "poo"]):
     score += SCORING_WEIGHTS.get("doodle_bonus", 0)
+  
+  # Pending penalty - likely being placed elsewhere
+  if dog.status and dog.status.strip().lower() == "pending":
+    score += SCORING_WEIGHTS.get("pending_penalty", -2)
   
   return max(0, score)  # Don't go below 0
 
