@@ -11,11 +11,12 @@ def calculate_fit_score(dog: Dog) -> int:
   
   Scoring:
   - Weight >= 40 lbs: +2
-  - Shedding (None: +2, Low: +1)
-  - Energy (Low/Medium: +2, High: +1)
+  - Shedding (None: +2, Low: +1, Unknown: +1 for doodles)
+  - Energy (Low/Medium: +2, High: 0, Unknown: +1)
+  - Good with dogs: +2 (important for Darwin!)
   - Good with kids: +1
-  - Good with dogs: +1
   - Good with cats: +1
+  - Doodle/Poodle breed: +1
   - Special needs: -1
   """
   score = 0
@@ -25,20 +26,24 @@ def calculate_fit_score(dog: Dog) -> int:
     score += SCORING_WEIGHTS["weight_points"]
   
   # Shedding score
-  shedding_value = dog.shedding.strip()
+  shedding_value = dog.shedding.strip() if dog.shedding else "Unknown"
   if shedding_value in SCORING_WEIGHTS["shedding"]:
     score += SCORING_WEIGHTS["shedding"][shedding_value]
+  else:
+    score += SCORING_WEIGHTS["shedding"].get("Unknown", 0)
   
   # Energy level score
-  energy_value = dog.energy_level.strip()
+  energy_value = dog.energy_level.strip() if dog.energy_level else "Unknown"
   if energy_value in SCORING_WEIGHTS["energy"]:
     score += SCORING_WEIGHTS["energy"][energy_value]
+  else:
+    score += SCORING_WEIGHTS["energy"].get("Unknown", 0)
   
   # Good with kids
   if dog.good_with_kids.strip().lower() == "yes":
     score += SCORING_WEIGHTS["good_with_kids"]
   
-  # Good with dogs
+  # Good with dogs - extra important!
   if dog.good_with_dogs.strip().lower() == "yes":
     score += SCORING_WEIGHTS["good_with_dogs"]
   
@@ -49,6 +54,11 @@ def calculate_fit_score(dog: Dog) -> int:
   # Special needs penalty
   if dog.special_needs.strip().lower() == "yes":
     score += SCORING_WEIGHTS["special_needs_penalty"]
+  
+  # Doodle/Poodle bonus
+  breed_lower = dog.breed.lower() if dog.breed else ""
+  if any(b in breed_lower for b in ["doodle", "poodle", "poo"]):
+    score += SCORING_WEIGHTS.get("doodle_bonus", 0)
   
   return max(0, score)  # Don't go below 0
 
@@ -66,3 +76,20 @@ def is_good_fit(dog: Dog, min_score: int = 5) -> bool:
   Default threshold: 5 (adjustable)
   """
   return dog.fit_score >= min_score if dog.fit_score else False
+```
+
+---
+
+### 3. `requirements.txt`
+```
+# Dog Rescue Scraper - Requirements
+# Core scraping
+requests>=2.28.0
+beautifulsoup4>=4.11.0
+lxml>=4.9.0
+
+# For JS-rendered sites (Doodle Rock Rescue)
+playwright>=1.40.0
+
+# Database is SQLite (built-in)
+# Email uses smtplib (built-in)
