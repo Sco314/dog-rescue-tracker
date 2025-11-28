@@ -1,6 +1,6 @@
 """
 SQLite database operations for dog rescue tracker
-v2.0.0 - Enhanced date tracking
+v2.1.0 - Enhanced date tracking with migration support
 """
 import sqlite3
 from typing import List, Optional, Dict, Any
@@ -19,7 +19,7 @@ def get_connection() -> sqlite3.Connection:
 
 
 def init_database():
-  """Initialize database schema"""
+  """Initialize database schema with migration support"""
   conn = get_connection()
   cursor = conn.cursor()
   
@@ -104,6 +104,9 @@ def init_database():
     )
   """)
   
+  # Run migrations to add any missing columns
+  _run_migrations(cursor)
+  
   # Create indexes for common queries
   cursor.execute("CREATE INDEX IF NOT EXISTS idx_dogs_status ON dogs(status)")
   cursor.execute("CREATE INDEX IF NOT EXISTS idx_dogs_rescue ON dogs(rescue_name)")
@@ -116,6 +119,95 @@ def init_database():
   conn.commit()
   conn.close()
   print("✅ Database initialized")
+
+
+def _run_migrations(cursor):
+  """
+  Add missing columns to existing tables.
+  This lets us add new fields without losing existing data.
+  
+  To add a new column in the future:
+  1. Add it to the CREATE TABLE statement above
+  2. Add it to the MIGRATIONS dict below
+  """
+  
+  # Define all columns that should exist and their defaults
+  # Format: "table.column": "TYPE DEFAULT"
+  MIGRATIONS = {
+    # Dogs table columns
+    "dogs.dog_id": "TEXT",
+    "dogs.dog_name": "TEXT",
+    "dogs.rescue_name": "TEXT",
+    "dogs.breed": "TEXT",
+    "dogs.weight": "INTEGER",
+    "dogs.age_range": "TEXT",
+    "dogs.age_category": "TEXT",
+    "dogs.sex": "TEXT",
+    "dogs.shedding": "TEXT",
+    "dogs.energy_level": "TEXT",
+    "dogs.good_with_kids": "TEXT",
+    "dogs.good_with_dogs": "TEXT",
+    "dogs.good_with_cats": "TEXT",
+    "dogs.training_level": "TEXT",
+    "dogs.training_notes": "TEXT",
+    "dogs.special_needs": "TEXT",
+    "dogs.health_notes": "TEXT",
+    "dogs.adoption_req": "TEXT",
+    "dogs.adoption_fee": "TEXT",
+    "dogs.platform": "TEXT",
+    "dogs.location": "TEXT",
+    "dogs.status": "TEXT",
+    "dogs.notes": "TEXT",
+    "dogs.source_url": "TEXT",
+    "dogs.fit_score": "INTEGER",
+    "dogs.watch_list": "TEXT",
+    "dogs.date_first_seen": "TEXT",
+    "dogs.date_last_updated": "TEXT",
+    "dogs.date_status_changed": "TEXT",
+    "dogs.date_went_pending": "TEXT",
+    "dogs.date_went_available": "TEXT",
+    "dogs.date_went_unavailable": "TEXT",
+    "dogs.is_active": "INTEGER DEFAULT 1",
+    
+    # Changes table columns
+    "changes.notified": "INTEGER DEFAULT 0",
+    
+    # Status history columns
+    "status_history.days_in_previous_status": "INTEGER",
+    
+    # === ADD FUTURE COLUMNS HERE ===
+    # Example: "dogs.adoption_date": "TEXT",
+    # Example: "dogs.foster_name": "TEXT",
+  }
+  
+  # Get existing columns for each table
+  tables = ["dogs", "changes", "scrape_runs", "status_history"]
+  existing_columns = {}
+  
+  for table in tables:
+    try:
+      cursor.execute(f"PRAGMA table_info({table})")
+      columns = cursor.fetchall()
+      existing_columns[table] = [col[1] for col in columns]  # col[1] is column name
+    except:
+      existing_columns[table] = []
+  
+  # Add missing columns
+  migrations_run = 0
+  for full_column, col_type in MIGRATIONS.items():
+    table, column = full_column.split(".")
+    
+    if table in existing_columns and column not in existing_columns[table]:
+      try:
+        cursor.execute(f"ALTER TABLE {table} ADD COLUMN {column} {col_type}")
+        print(f"  📦 Migration: Added {table}.{column}")
+        migrations_run += 1
+      except Exception as e:
+        # Column might already exist or other error
+        pass
+  
+  if migrations_run > 0:
+    print(f"  ✅ Ran {migrations_run} database migrations")
 
 
 def dog_exists(dog_id: str) -> bool:
