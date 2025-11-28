@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
-“””
+"""
 Dog Rescue Dashboard Generator
 v1.0.0
 
 Generates an interactive HTML dashboard from the database.
 
 Usage:
-python dashboard.py              # Generate static HTML
-python dashboard.py -o out.html  # Generate to specific file
-“””
+  python dashboard.py              # Generate static HTML
+  python dashboard.py -o out.html  # Generate to specific file
+"""
 import os
 import sys
 import json
@@ -16,107 +16,104 @@ import argparse
 from datetime import datetime
 
 # Add project root to path
-
-sys.path.insert(0, os.path.dirname(os.path.abspath(**file**)))
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from database import init_database, get_connection
 
+
 def get_dashboard_data():
-“”“Get all data needed for dashboard”””
-conn = get_connection()
-cursor = conn.cursor()
+  """Get all data needed for dashboard"""
+  conn = get_connection()
+  cursor = conn.cursor()
+  
+  # Get all active dogs
+  cursor.execute("""
+    SELECT * FROM dogs 
+    WHERE is_active = 1 
+    ORDER BY fit_score DESC, dog_name ASC
+  """)
+  dogs = [dict(row) for row in cursor.fetchall()]
+  
+  # Get recent changes
+  cursor.execute("""
+    SELECT c.*, d.fit_score as current_fit
+    FROM changes c
+    LEFT JOIN dogs d ON c.dog_id = d.dog_id
+    WHERE c.timestamp > datetime('now', '-7 days')
+    ORDER BY c.timestamp DESC
+    LIMIT 100
+  """)
+  changes = [dict(row) for row in cursor.fetchall()]
+  
+  conn.close()
+  
+  return {
+    "dogs": dogs,
+    "changes": changes,
+    "generated_at": datetime.now().isoformat()
+  }
 
-# Get all active dogs
-
-cursor.execute(”””
-SELECT * FROM dogs
-WHERE is_active = 1
-ORDER BY fit_score DESC, dog_name ASC
-“””)
-dogs = [dict(row) for row in cursor.fetchall()]
-
-# Get recent changes
-
-cursor.execute(”””
-SELECT c.*, d.fit_score as current_fit
-FROM changes c
-LEFT JOIN dogs d ON c.dog_id = d.dog_id
-WHERE c.timestamp > datetime(‘now’, ‘-7 days’)
-ORDER BY c.timestamp DESC
-LIMIT 100
-“””)
-changes = [dict(row) for row in cursor.fetchall()]
-
-conn.close()
-
-return {
-“dogs”: dogs,
-“changes”: changes,
-“generated_at”: datetime.now().isoformat()
-}
 
 def generate_changes_html(changes):
-“”“Generate HTML for recent changes”””
-if not changes:
-return ‘<div class="change-item"><span class="change-msg">No recent changes</span></div>’
+  """Generate HTML for recent changes"""
+  if not changes:
+    return '<div class="change-item"><span class="change-msg">No recent changes</span></div>'
+  
+  html_parts = []
+  for change in changes[:20]:
+    change_type = change.get('change_type', '')
+    dog_name = change.get('dog_name', 'Unknown')
+    old_val = change.get('old_value', '')
+    new_val = change.get('new_value', '')
+    timestamp = change.get('timestamp', '')
+    
+    try:
+      dt = datetime.fromisoformat(timestamp)
+      time_str = dt.strftime('%m/%d %H:%M')
+    except:
+      time_str = timestamp[:16] if timestamp else '?'
+    
+    if change_type == 'new_dog':
+      icon = '🆕'
+      msg = 'New dog listed'
+    elif change_type == 'status_change':
+      if 'pending' in (new_val or '').lower():
+        icon = '⏳'
+        msg = f'{old_val} → Pending'
+      elif 'available' in (new_val or '').lower():
+        icon = '✅'
+        msg = f'{old_val} → Available'
+      elif 'adopted' in (new_val or '').lower():
+        icon = '🏠'
+        msg = f'Adopted/Removed'
+      else:
+        icon = '🔄'
+        msg = f'{old_val} → {new_val}'
+    else:
+      icon = '📝'
+      field = change.get('field_changed', '')
+      msg = f'{field}: {old_val} → {new_val}'
+    
+    html_parts.append(f'''
+      <div class="change-item">
+        <span class="change-icon">{icon}</span>
+        <div class="change-details">
+          <div class="change-dog">{dog_name}</div>
+          <div class="change-msg">{msg}</div>
+        </div>
+        <span class="change-time">{time_str}</span>
+      </div>
+    ''')
+  
+  return ''.join(html_parts)
 
-html_parts = []
-for change in changes[:20]:
-change_type = change.get(‘change_type’, ‘’)
-dog_name = change.get(‘dog_name’, ‘Unknown’)
-old_val = change.get(‘old_value’, ‘’)
-new_val = change.get(‘new_value’, ‘’)
-timestamp = change.get(‘timestamp’, ‘’)
 
-```
-try:
-  dt = datetime.fromisoformat(timestamp)
-  time_str = dt.strftime('%m/%d %H:%M')
-except:
-  time_str = timestamp[:16] if timestamp else '?'
-
-if change_type == 'new_dog':
-  icon = '🆕'
-  msg = 'New dog listed'
-elif change_type == 'status_change':
-  if 'pending' in (new_val or '').lower():
-    icon = '⏳'
-    msg = f'{old_val} → Pending'
-  elif 'available' in (new_val or '').lower():
-    icon = '✅'
-    msg = f'{old_val} → Available'
-  elif 'adopted' in (new_val or '').lower():
-    icon = '🏠'
-    msg = f'Adopted/Removed'
-  else:
-    icon = '🔄'
-    msg = f'{old_val} → {new_val}'
-else:
-  icon = '📝'
-  field = change.get('field_changed', '')
-  msg = f'{field}: {old_val} → {new_val}'
-
-html_parts.append(f'''
-  <div class="change-item">
-    <span class="change-icon">{icon}</span>
-    <div class="change-details">
-      <div class="change-dog">{dog_name}</div>
-      <div class="change-msg">{msg}</div>
-    </div>
-    <span class="change-time">{time_str}</span>
-  </div>
-''')
-```
-
-return ‘’.join(html_parts)
-
-def generate_html_dashboard(output_path=“dashboard.html”):
-“”“Generate a standalone HTML dashboard file”””
-init_database()
-data = get_dashboard_data()
-
-html = ‘’’<!DOCTYPE html>
-
+def generate_html_dashboard(output_path="dashboard.html"):
+  """Generate a standalone HTML dashboard file"""
+  init_database()
+  data = get_dashboard_data()
+  
+  html = '''<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -374,140 +371,137 @@ html = ‘’’<!DOCTYPE html>
       font-size: 1rem;
     }
     .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-
-```
-/* Score Breakdown Panel */
-.score-breakdown {
-  background: var(--bg-card);
-  border: 1px solid #374151;
-  border-radius: 8px;
-  padding: 15px;
-  margin-bottom: 20px;
-}
-.score-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 12px;
-  padding-bottom: 8px;
-  border-bottom: 1px solid #374151;
-}
-.score-title { font-weight: 600; color: var(--text-secondary); }
-.score-total {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: var(--accent);
-  background: rgba(96, 165, 250, 0.15);
-  padding: 4px 12px;
-  border-radius: 6px;
-}
-.score-items {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 6px 15px;
-  font-size: 0.85rem;
-}
-.score-item {
-  display: flex;
-  justify-content: space-between;
-  padding: 4px 0;
-}
-.score-item-label { color: var(--text-secondary); }
-.score-item-value { font-weight: 600; }
-.score-item-value.positive { color: var(--success); }
-.score-item-value.negative { color: var(--danger); }
-.score-item-value.neutral { color: var(--text-secondary); }
-.score-note {
-  margin-top: 12px;
-  padding-top: 10px;
-  border-top: 1px solid #374151;
-  font-size: 0.75rem;
-  color: var(--warning);
-  text-align: center;
-}
-.score-adjust-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-.score-adjust-hint {
-  font-size: 0.8rem;
-  color: var(--text-secondary);
-}
-
-.save-btn {
-  width: 100%;
-  padding: 12px;
-  background: var(--success);
-  border: none;
-  border-radius: 6px;
-  color: white;
-  font-size: 1rem;
-  font-weight: 500;
-  cursor: pointer;
-  margin-top: 20px;
-}
-.save-btn:hover { opacity: 0.9; }
-.save-status {
-  text-align: center;
-  margin-top: 10px;
-  min-height: 20px;
-  font-size: 0.875rem;
-}
-.changes-list { max-height: 300px; overflow-y: auto; }
-.change-item {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 10px;
-  border-bottom: 1px solid #374151;
-}
-.change-icon { font-size: 1.25rem; }
-.change-details { flex: 1; }
-.change-dog { font-weight: 500; }
-.change-msg { font-size: 0.875rem; color: var(--text-secondary); }
-.change-time { font-size: 0.75rem; color: var(--text-secondary); }
-.toast {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  padding: 15px 25px;
-  background: var(--success);
-  color: white;
-  border-radius: 8px;
-  z-index: 2000;
-  animation: slideIn 0.3s ease;
-}
-@keyframes slideIn {
-  from { transform: translateX(100%); opacity: 0; }
-  to { transform: translateX(0); opacity: 1; }
-}
-.toast.error { background: var(--danger); }
-.dog-link { color: var(--accent); text-decoration: none; font-size: 0.875rem; }
-.dog-link:hover { text-decoration: underline; }
-@media (max-width: 768px) {
-  .dog-grid { grid-template-columns: 1fr; }
-  .controls { flex-direction: column; }
-  .search-box { width: 100%; }
-}
-.export-section {
-  margin-top: 20px;
-  padding: 15px;
-  background: var(--bg-card);
-  border-radius: 8px;
-}
-.export-btn {
-  padding: 10px 20px;
-  background: var(--accent);
-  border: none;
-  border-radius: 6px;
-  color: white;
-  cursor: pointer;
-  margin-right: 10px;
-}
-.export-btn:hover { opacity: 0.9; }
-```
-
+    
+    /* Score Breakdown Panel */
+    .score-breakdown {
+      background: var(--bg-card);
+      border: 1px solid #374151;
+      border-radius: 8px;
+      padding: 15px;
+      margin-bottom: 20px;
+    }
+    .score-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid #374151;
+    }
+    .score-title { font-weight: 600; color: var(--text-secondary); }
+    .score-total {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--accent);
+      background: rgba(96, 165, 250, 0.15);
+      padding: 4px 12px;
+      border-radius: 6px;
+    }
+    .score-items {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px 15px;
+      font-size: 0.85rem;
+    }
+    .score-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 4px 0;
+    }
+    .score-item-label { color: var(--text-secondary); }
+    .score-item-value { font-weight: 600; }
+    .score-item-value.positive { color: var(--success); }
+    .score-item-value.negative { color: var(--danger); }
+    .score-item-value.neutral { color: var(--text-secondary); }
+    .score-note {
+      margin-top: 12px;
+      padding-top: 10px;
+      border-top: 1px solid #374151;
+      font-size: 0.75rem;
+      color: var(--warning);
+      text-align: center;
+    }
+    .score-adjust-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .score-adjust-hint {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+    }
+    
+    .save-btn {
+      width: 100%;
+      padding: 12px;
+      background: var(--success);
+      border: none;
+      border-radius: 6px;
+      color: white;
+      font-size: 1rem;
+      font-weight: 500;
+      cursor: pointer;
+      margin-top: 20px;
+    }
+    .save-btn:hover { opacity: 0.9; }
+    .save-status {
+      text-align: center;
+      margin-top: 10px;
+      min-height: 20px;
+      font-size: 0.875rem;
+    }
+    .changes-list { max-height: 300px; overflow-y: auto; }
+    .change-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px;
+      border-bottom: 1px solid #374151;
+    }
+    .change-icon { font-size: 1.25rem; }
+    .change-details { flex: 1; }
+    .change-dog { font-weight: 500; }
+    .change-msg { font-size: 0.875rem; color: var(--text-secondary); }
+    .change-time { font-size: 0.75rem; color: var(--text-secondary); }
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      padding: 15px 25px;
+      background: var(--success);
+      color: white;
+      border-radius: 8px;
+      z-index: 2000;
+      animation: slideIn 0.3s ease;
+    }
+    @keyframes slideIn {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+    .toast.error { background: var(--danger); }
+    .dog-link { color: var(--accent); text-decoration: none; font-size: 0.875rem; }
+    .dog-link:hover { text-decoration: underline; }
+    @media (max-width: 768px) {
+      .dog-grid { grid-template-columns: 1fr; }
+      .controls { flex-direction: column; }
+      .search-box { width: 100%; }
+    }
+    .export-section {
+      margin-top: 20px;
+      padding: 15px;
+      background: var(--bg-card);
+      border-radius: 8px;
+    }
+    .export-btn {
+      padding: 10px 20px;
+      background: var(--accent);
+      border: none;
+      border-radius: 6px;
+      color: white;
+      cursor: pointer;
+      margin-right: 10px;
+    }
+    .export-btn:hover { opacity: 0.9; }
   </style>
 </head>
 <body>
@@ -540,60 +534,56 @@ html = ‘’’<!DOCTYPE html>
         </div>
       </div>
     </header>
-
-```
-<div class="controls">
-  <input type="text" class="search-box" id="searchBox" placeholder="🔍 Search dogs by name, breed, rescue...">
-  <button class="filter-btn active" data-filter="all">All</button>
-  <button class="filter-btn" data-filter="watched">⭐ Watched</button>
-  <button class="filter-btn" data-filter="high-fit">High Fit</button>
-  <button class="filter-btn" data-filter="available">Available</button>
-  <button class="filter-btn" data-filter="upcoming">Upcoming</button>
-  <select class="sort-select" id="sortSelect">
-    <option value="fit-desc">Sort: Fit Score ↓</option>
-    <option value="fit-asc">Sort: Fit Score ↑</option>
-    <option value="name-asc">Sort: Name A-Z</option>
-    <option value="weight-desc">Sort: Weight ↓</option>
-    <option value="date-desc">Sort: Newest First</option>
-  </select>
-</div>
-
-<div class="section" id="changesSection">
-  <div class="section-header">
-    <h2 class="section-title">📢 Recent Changes <span class="badge">''' + str(len(data['changes'])) + '''</span></h2>
+    
+    <div class="controls">
+      <input type="text" class="search-box" id="searchBox" placeholder="🔍 Search dogs by name, breed, rescue...">
+      <button class="filter-btn active" data-filter="all">All</button>
+      <button class="filter-btn" data-filter="watched">⭐ Watched</button>
+      <button class="filter-btn" data-filter="high-fit">High Fit</button>
+      <button class="filter-btn" data-filter="available">Available</button>
+      <button class="filter-btn" data-filter="upcoming">Upcoming</button>
+      <select class="sort-select" id="sortSelect">
+        <option value="fit-desc">Sort: Fit Score ↓</option>
+        <option value="fit-asc">Sort: Fit Score ↑</option>
+        <option value="name-asc">Sort: Name A-Z</option>
+        <option value="weight-desc">Sort: Weight ↓</option>
+        <option value="date-desc">Sort: Newest First</option>
+      </select>
+    </div>
+    
+    <div class="section" id="changesSection">
+      <div class="section-header">
+        <h2 class="section-title">📢 Recent Changes <span class="badge">''' + str(len(data['changes'])) + '''</span></h2>
+      </div>
+      <div class="changes-list" id="changesList">
+        ''' + generate_changes_html(data['changes']) + '''
+      </div>
+    </div>
+    
+    <div class="section">
+      <div class="section-header">
+        <h2 class="section-title">🐕 All Dogs <span class="badge" id="visibleCount">''' + str(len(data['dogs'])) + '''</span></h2>
+      </div>
+      <div class="dog-grid" id="dogGrid"></div>
+      
+      <div class="export-section">
+        <h3 style="margin-bottom: 10px;">📤 Backup / Restore</h3>
+        <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 10px;">
+          Your changes sync automatically to GitHub. Use these buttons to backup or transfer settings.
+        </p>
+        <p style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 15px;">
+          Your star ratings, score adjustments, and edits are saved in your browser. 
+          Export them to keep a backup or import on another device.
+        </p>
+        <button class="export-btn" onclick="exportMods()">📥 Export Changes</button>
+        <button class="export-btn" onclick="document.getElementById('importFile').click()">📤 Import Changes</button>
+        <input type="file" id="importFile" style="display:none" accept=".json" onchange="importMods(event)">
+        <button class="export-btn" style="background: var(--danger);" onclick="clearMods()">🗑️ Clear All Changes</button>
+      </div>
+    </div>
   </div>
-  <div class="changes-list" id="changesList">
-    ''' + generate_changes_html(data['changes']) + '''
-  </div>
-</div>
-
-<div class="section">
-  <div class="section-header">
-    <h2 class="section-title">🐕 All Dogs <span class="badge" id="visibleCount">''' + str(len(data['dogs'])) + '''</span></h2>
-  </div>
-  <div class="dog-grid" id="dogGrid"></div>
   
-  <div class="export-section">
-    <h3 style="margin-bottom: 10px;">📤 Backup / Restore</h3>
-    <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 10px;">
-      Your changes sync automatically to GitHub. Use these buttons to backup or transfer settings.
-    </p>
-    <p style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 15px;">
-      Your star ratings, score adjustments, and edits are saved in your browser. 
-      Export them to keep a backup or import on another device.
-    </p>
-    <button class="export-btn" onclick="exportMods()">📥 Export Changes</button>
-    <button class="export-btn" onclick="document.getElementById('importFile').click()">📤 Import Changes</button>
-    <input type="file" id="importFile" style="display:none" accept=".json" onchange="importMods(event)">
-    <button class="export-btn" style="background: var(--danger);" onclick="clearMods()">🗑️ Clear All Changes</button>
-  </div>
-</div>
-```
-
-  </div>
-
   <!-- Edit Modal -->
-
   <div class="modal" id="editModal">
     <div class="modal-content">
       <div class="modal-header">
@@ -602,120 +592,116 @@ html = ‘’’<!DOCTYPE html>
       </div>
       <form id="editForm">
         <input type="hidden" id="editDogId">
-
-```
-    <div class="form-group">
-      <label class="form-label">Dog Name</label>
-      <input type="text" class="form-input" id="editName" readonly>
+        
+        <div class="form-group">
+          <label class="form-label">Dog Name</label>
+          <input type="text" class="form-input" id="editName" readonly>
+        </div>
+        
+        <!-- Scoring Breakdown Panel -->
+        <div class="score-breakdown" id="scoreBreakdown">
+          <div class="score-header">
+            <span class="score-title">📊 Fit Score Breakdown</span>
+            <span class="score-total" id="scoreTotal">0</span>
+          </div>
+          <div class="score-items" id="scoreItems">
+            <!-- Populated by JS -->
+          </div>
+          <div class="score-note">
+            ⚠️ Changes saved in browser only (localStorage). Export to keep them.
+          </div>
+        </div>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Weight (lbs)</label>
+            <input type="number" class="form-input score-input" id="editWeight">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Age</label>
+            <input type="text" class="form-input score-input" id="editAge" placeholder="e.g., 2 yrs, 8 mos">
+          </div>
+        </div>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Energy Level</label>
+            <select class="form-select score-input" id="editEnergy">
+              <option value="Unknown">Unknown</option>
+              <option value="Low">Low</option>
+              <option value="Medium">Medium</option>
+              <option value="High">High</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Shedding</label>
+            <select class="form-select score-input" id="editShedding">
+              <option value="Unknown">Unknown</option>
+              <option value="None">None</option>
+              <option value="Low">Low</option>
+              <option value="Moderate">Moderate</option>
+              <option value="High">High</option>
+            </select>
+          </div>
+        </div>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Good with Dogs</label>
+            <select class="form-select score-input" id="editGoodDogs">
+              <option value="Unknown">Unknown</option>
+              <option value="Yes">Yes</option>
+              <option value="No">No</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Good with Kids</label>
+            <select class="form-select score-input" id="editGoodKids">
+              <option value="Unknown">Unknown</option>
+              <option value="Yes">Yes</option>
+              <option value="No">No</option>
+            </select>
+          </div>
+        </div>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Good with Cats</label>
+            <select class="form-select score-input" id="editGoodCats">
+              <option value="Unknown">Unknown</option>
+              <option value="Yes">Yes</option>
+              <option value="No">No</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Special Needs</label>
+            <select class="form-select score-input" id="editSpecialNeeds">
+              <option value="No">No</option>
+              <option value="Yes">Yes</option>
+            </select>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">Manual Score Adjustment</label>
+          <div class="score-adjust-row">
+            <input type="number" class="form-input score-input" id="editScoreModifier" value="0" style="width: 80px; text-align: center;">
+            <span class="score-adjust-hint">Add/subtract from calculated score</span>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">Notes</label>
+          <textarea class="form-input" id="editNotes" rows="2" placeholder="Add any notes..."></textarea>
+        </div>
+        
+        <button type="submit" class="save-btn" id="saveBtn">💾 Save Changes</button>
+        <div class="save-status" id="saveStatus"></div>
+      </form>
     </div>
-    
-    <!-- Scoring Breakdown Panel -->
-    <div class="score-breakdown" id="scoreBreakdown">
-      <div class="score-header">
-        <span class="score-title">📊 Fit Score Breakdown</span>
-        <span class="score-total" id="scoreTotal">0</span>
-      </div>
-      <div class="score-items" id="scoreItems">
-        <!-- Populated by JS -->
-      </div>
-      <div class="score-note">
-        ⚠️ Changes saved in browser only (localStorage). Export to keep them.
-      </div>
-    </div>
-    
-    <div class="form-row">
-      <div class="form-group">
-        <label class="form-label">Weight (lbs)</label>
-        <input type="number" class="form-input score-input" id="editWeight">
-      </div>
-      <div class="form-group">
-        <label class="form-label">Age</label>
-        <input type="text" class="form-input score-input" id="editAge" placeholder="e.g., 2 yrs, 8 mos">
-      </div>
-    </div>
-    
-    <div class="form-row">
-      <div class="form-group">
-        <label class="form-label">Energy Level</label>
-        <select class="form-select score-input" id="editEnergy">
-          <option value="Unknown">Unknown</option>
-          <option value="Low">Low</option>
-          <option value="Medium">Medium</option>
-          <option value="High">High</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Shedding</label>
-        <select class="form-select score-input" id="editShedding">
-          <option value="Unknown">Unknown</option>
-          <option value="None">None</option>
-          <option value="Low">Low</option>
-          <option value="Moderate">Moderate</option>
-          <option value="High">High</option>
-        </select>
-      </div>
-    </div>
-    
-    <div class="form-row">
-      <div class="form-group">
-        <label class="form-label">Good with Dogs</label>
-        <select class="form-select score-input" id="editGoodDogs">
-          <option value="Unknown">Unknown</option>
-          <option value="Yes">Yes</option>
-          <option value="No">No</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Good with Kids</label>
-        <select class="form-select score-input" id="editGoodKids">
-          <option value="Unknown">Unknown</option>
-          <option value="Yes">Yes</option>
-          <option value="No">No</option>
-        </select>
-      </div>
-    </div>
-    
-    <div class="form-row">
-      <div class="form-group">
-        <label class="form-label">Good with Cats</label>
-        <select class="form-select score-input" id="editGoodCats">
-          <option value="Unknown">Unknown</option>
-          <option value="Yes">Yes</option>
-          <option value="No">No</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Special Needs</label>
-        <select class="form-select score-input" id="editSpecialNeeds">
-          <option value="No">No</option>
-          <option value="Yes">Yes</option>
-        </select>
-      </div>
-    </div>
-    
-    <div class="form-group">
-      <label class="form-label">Manual Score Adjustment</label>
-      <div class="score-adjust-row">
-        <input type="number" class="form-input score-input" id="editScoreModifier" value="0" style="width: 80px; text-align: center;">
-        <span class="score-adjust-hint">Add/subtract from calculated score</span>
-      </div>
-    </div>
-    
-    <div class="form-group">
-      <label class="form-label">Notes</label>
-      <textarea class="form-input" id="editNotes" rows="2" placeholder="Add any notes..."></textarea>
-    </div>
-    
-    <button type="submit" class="save-btn" id="saveBtn">💾 Save Changes</button>
-    <div class="save-status" id="saveStatus"></div>
-  </form>
-</div>
-```
-
   </div>
-
+  
   <!-- GitHub Token Config Modal -->
-
   <div class="modal" id="configModal">
     <div class="modal-content" style="max-width: 450px;">
       <div class="modal-header">
@@ -738,7 +724,7 @@ html = ‘’’<!DOCTYPE html>
       <button class="save-btn" onclick="saveGitHubToken()">💾 Save Token</button>
     </div>
   </div>
-
+  
   <script>
     // ===========================================
     // GITHUB CONFIGURATION
@@ -1397,22 +1383,23 @@ html = ‘’’<!DOCTYPE html>
       }
     })();
   </script>
-
 </body>
 </html>
 '''
+  
+  with open(output_path, 'w', encoding='utf-8') as f:
+    f.write(html)
+  
+  print(f"✅ Dashboard generated: {output_path}")
+  return output_path
 
-with open(output_path, ‘w’, encoding=‘utf-8’) as f:
-f.write(html)
-
-print(f”✅ Dashboard generated: {output_path}”)
-return output_path
 
 def main():
-parser = argparse.ArgumentParser(description=“Dog Rescue Dashboard Generator”)
-parser.add_argument(”–output”, “-o”, default=“dashboard.html”, help=“Output HTML file”)
-args = parser.parse_args()
-generate_html_dashboard(args.output)
+  parser = argparse.ArgumentParser(description="Dog Rescue Dashboard Generator")
+  parser.add_argument("--output", "-o", default="dashboard.html", help="Output HTML file")
+  args = parser.parse_args()
+  generate_html_dashboard(args.output)
 
-if **name** == “**main**”:
-main()
+
+if __name__ == "__main__":
+  main()
