@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Dog Rescue Scraper - Main Runner
-v2.1.0
+v1.0.0
 
 Scrapes all configured rescue websites, updates database,
 detects changes, and sends notifications.
@@ -15,6 +15,7 @@ Usage:
 import sys
 import os
 import time
+import json
 import argparse
 from datetime import datetime
 from typing import List, Dict
@@ -32,6 +33,114 @@ from database import (
 from scrapers import PoodlePatchScraper, DoodleRockScraper, DoodleDandyScraper
 from notifications import send_notification, is_configured as email_configured
 from models import ChangeRecord
+from scoring import calculate_fit_score, parse_age_to_years, get_age_score
+
+
+def load_user_overrides() -> dict:
+  """Load user overrides from JSON file if it exists"""
+  overrides_path = os.path.join(os.path.dirname(__file__), 'user_overrides.json')
+  if os.path.exists(overrides_path):
+    try:
+      with open(overrides_path, 'r') as f:
+        data = json.load(f)
+        print(f"  📋 Loaded {len(data.get('dogs', {}))} user overrides")
+        return data.get('dogs', {})
+    except Exception as e:
+      print(f"  ⚠️ Error loading user_overrides.json: {e}")
+  return {}
+
+
+def apply_user_overrides(overrides: dict):
+  """Apply user overrides to database"""
+  if not overrides:
+    return
+  
+  conn = get_connection()
+  cursor = conn.cursor()
+  
+  applied = 0
+  for dog_id, override in overrides.items():
+    # Build update fields
+    update_parts = []
+    values = []
+    
+    for field in ['weight', 'age_range', 'energy_level', 'shedding', 
+                  'good_with_dogs', 'good_with_kids', 'good_with_cats',
+                  'special_needs', 'notes', 'watch_list', 'score_modifier']:
+      if field in override and override[field] is not None:
+        if field == 'score_modifier':
+          # Store as separate field (we'll recalculate fit_score)
+          continue
+        update_parts.append(f"{field} = ?")
+        values.append(override[field])
+    
+    if update_parts:
+      values.append(dog_id)
+      sql = f"UPDATE dogs SET {', '.join(update_parts)} WHERE dog_id = ?"
+      cursor.execute(sql, values)
+      if cursor.rowcount > 0:
+        applied += 1
+    
+    # Recalculate fit score if we have a score_modifier
+    if 'score_modifier' in override:
+      # Get current dog data
+      cursor.execute("SELECT * FROM dogs WHERE dog_id = ?", (dog_id,))
+      row = cursor.fetchone()
+      if row:
+        dog_data = dict(row)
+        
+        # Calculate base score components
+        score = 0
+        if dog_data.get('weight') and dog_data['weight'] >= 40:
+          score += 2
+        
+        # Age
+        age_str = dog_data.get('age_range', '')
+        if age_str:
+          min_yrs, max_yrs, is_range = parse_age_to_years(age_str)
+          score += get_age_score(min_yrs, max_yrs, is_range)
+        
+        # Shedding
+        shedding = dog_data.get('shedding', 'Unknown')
+        shed_scores = {'None': 2, 'Low': 1, 'Moderate': 0, 'High': -1, 'Unknown': 1}
+        score += shed_scores.get(shedding, 1)
+        
+        # Energy
+        energy = dog_data.get('energy_level', 'Unknown')
+        if energy in ['Low', 'Medium']:
+          score += 2
+        elif energy == 'Unknown':
+          score += 1
+        
+        # Compatibility
+        if dog_data.get('good_with_dogs') == 'Yes':
+          score += 2
+        if dog_data.get('good_with_kids') == 'Yes':
+          score += 1
+        if dog_data.get('good_with_cats') == 'Yes':
+          score += 1
+        
+        # Breed bonus
+        breed = (dog_data.get('breed') or '').lower()
+        if any(b in breed for b in ['doodle', 'poodle', 'poo']):
+          score += 1
+        
+        # Special needs
+        if dog_data.get('special_needs') == 'Yes':
+          score -= 1
+        
+        # Apply modifier
+        modifier = override.get('score_modifier', 0)
+        final_score = max(0, score + modifier)
+        
+        cursor.execute("UPDATE dogs SET fit_score = ? WHERE dog_id = ?", 
+                      (final_score, dog_id))
+  
+  conn.commit()
+  conn.close()
+  
+  if applied > 0:
+    print(f"  ✅ Applied overrides to {applied} dogs")
 
 
 def get_scraper(rescue_key: str, config: dict):
@@ -107,7 +216,7 @@ def run_scrape(test_mode: bool = False) -> Dict:
       
       # Record scrape run
       duration = time.time() - start_time
-      change_count = len([c for c in all_changes if c.dog_name])
+      change_count = len([c for c in all_changes if c.dog_name])  # Rough count
       record_scrape_run(
         rescue_config["name"],
         len(dogs),
@@ -147,6 +256,11 @@ def run_scrape(test_mode: bool = False) -> Dict:
     for err in errors:
       print(f"     - {err}")
   
+  # Apply user overrides from user_overrides.json
+  print("\n📋 Applying user overrides...")
+  user_overrides = load_user_overrides()
+  apply_user_overrides(user_overrides)
+  
   # Send notifications (unless test mode)
   if all_changes and not test_mode:
     print("\n📧 Sending notifications...")
@@ -178,34 +292,28 @@ def show_report():
   
   print("\n" + "=" * 60)
   print("🐕 DOG RESCUE TRACKER - Current Status")
-  print(f"   Report generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
   print("=" * 60)
   
-  # RECENT CHANGES (last 48 hours)
-  _print_recent_changes()
-  
-  # Watch list - DETAILED VIEW
+  # Watch list
   watch_dogs = get_watch_list_dogs()
   print(f"\n🔔 WATCH LIST ({len(watch_dogs)} dogs)")
-  print("-" * 60)
-  if not watch_dogs:
-    print("  No watch list dogs currently tracked.")
+  print("-" * 40)
   for dog in watch_dogs:
-    _print_dog_details(dog)
+    print(f"  {dog['dog_name']} | {dog['rescue_name']} | {dog['status']} | Fit: {dog['fit_score']}")
   
-  # High fit dogs - DETAILED VIEW
+  # High fit dogs
   high_fit = get_high_fit_dogs(5)
   print(f"\n⭐ HIGH FIT DOGS (score >= 5) ({len(high_fit)} dogs)")
-  print("-" * 60)
-  if not high_fit:
-    print("  No high fit dogs found.")
+  print("-" * 40)
   for dog in high_fit[:10]:  # Top 10
-    _print_dog_details(dog)
+    print(f"  {dog['dog_name']} ({dog['fit_score']}) | {dog['rescue_name']} | {dog['status']}")
+    if dog.get('weight'):
+      print(f"    Weight: {dog['weight']}lbs | {dog.get('breed', '?')}")
   
-  # All active dogs by rescue (summary only)
+  # All active dogs by rescue
   all_dogs = get_all_active_dogs()
   print(f"\n📋 ALL ACTIVE DOGS ({len(all_dogs)} total)")
-  print("-" * 60)
+  print("-" * 40)
   
   by_rescue = {}
   for dog in all_dogs:
@@ -218,146 +326,7 @@ def show_report():
     print(f"\n  {rescue} ({len(dogs)} dogs):")
     for dog in sorted(dogs, key=lambda d: -(d['fit_score'] or 0)):
       status_emoji = {"Available": "✅", "Pending": "⏳", "Upcoming": "🔜"}.get(dog['status'], "❓")
-      weight_str = f"{dog['weight']}lbs" if dog.get('weight') else "?lbs"
-      age_str = dog.get('age_range', '?')
-      print(f"    {status_emoji} {dog['dog_name']} | Fit:{dog['fit_score'] or '?'} | {weight_str} | {age_str} | {dog['status']}")
-
-
-def _print_recent_changes():
-  """Print recent changes from the database"""
-  conn = get_connection()
-  cursor = conn.cursor()
-  
-  # Get changes from last 48 hours
-  cursor.execute("""
-    SELECT c.*, d.fit_score, d.watch_list, d.breed, d.weight
-    FROM changes c
-    LEFT JOIN dogs d ON c.dog_id = d.dog_id
-    WHERE c.timestamp > datetime('now', '-48 hours')
-    ORDER BY c.timestamp DESC
-    LIMIT 50
-  """)
-  
-  changes = cursor.fetchall()
-  conn.close()
-  
-  print(f"\n📢 RECENT CHANGES (last 48 hours)")
-  print("-" * 60)
-  
-  if not changes:
-    print("  No changes detected recently.")
-    return
-  
-  for change in changes:
-    change = dict(change)
-    dog_name = change['dog_name']
-    change_type = change['change_type']
-    field = change['field_changed']
-    old_val = change['old_value'] or ''
-    new_val = change['new_value'] or ''
-    fit_score = change.get('fit_score', '?')
-    watch = "⭐" if change.get('watch_list') == 'Yes' else ""
-    
-    # Format timestamp
-    timestamp = change.get('timestamp', '')
-    if timestamp:
-      try:
-        dt = datetime.fromisoformat(timestamp)
-        time_str = dt.strftime('%m/%d %H:%M')
-      except:
-        time_str = timestamp[:16]
-    else:
-      time_str = "?"
-    
-    # Format the change message
-    if change_type == 'new_dog':
-      emoji = "🆕"
-      msg = f"NEW DOG LISTED"
-    elif change_type == 'status_change':
-      if new_val.lower() == 'pending':
-        emoji = "⏳"
-        msg = f"Status: {old_val} → PENDING"
-      elif new_val.lower() == 'available':
-        emoji = "✅"
-        msg = f"Status: {old_val} → AVAILABLE"
-      elif 'adopted' in new_val.lower() or 'removed' in new_val.lower():
-        emoji = "🏠"
-        msg = f"ADOPTED/REMOVED (was {old_val})"
-      else:
-        emoji = "🔄"
-        msg = f"Status: {old_val} → {new_val}"
-    else:
-      emoji = "📝"
-      msg = f"{field}: {old_val} → {new_val}"
-    
-    print(f"  {emoji} {watch} {dog_name} (Fit: {fit_score}) [{time_str}]")
-    print(f"       {msg}")
-
-
-def _print_dog_details(dog):
-  """Print detailed info for a single dog"""
-  # Format dates
-  first_seen = dog.get('date_first_seen', '?')
-  if first_seen and first_seen != '?':
-    try:
-      dt = datetime.fromisoformat(first_seen)
-      first_seen = dt.strftime('%Y-%m-%d')
-    except:
-      pass
-  
-  status_date = dog.get('date_status_changed', '?')
-  if status_date and status_date != '?':
-    try:
-      dt = datetime.fromisoformat(status_date)
-      status_date = dt.strftime('%Y-%m-%d')
-    except:
-      pass
-  
-  last_updated = dog.get('date_last_updated', '?')
-  if last_updated and last_updated != '?':
-    try:
-      dt = datetime.fromisoformat(last_updated)
-      last_updated = dt.strftime('%Y-%m-%d %H:%M')
-    except:
-      pass
-  
-  # Build URL - use source_url if available, otherwise construct from rescue
-  url = dog.get('source_url', '')
-  if not url:
-    rescue = dog.get('rescue_name', '')
-    if 'Doodle Rock' in rescue:
-      url = 'https://doodlerockrescue.org/adopt/available-dogs/'
-    elif 'Doodle Dandy' in rescue:
-      url = 'https://www.doodledandyrescue.org/all-adoptable-doodles'
-    elif 'Poodle Patch' in rescue:
-      url = 'https://poodlepatchrescue.com/category/adoptable-pets/'
-    else:
-      url = '(no URL available)'
-  
-  # Status indicator
-  status = dog['status']
-  if status.lower() == 'pending':
-    status_display = f"⏳ {status} (since {status_date}) - LIKELY BEING PLACED"
-  else:
-    status_display = f"{status} (since {status_date})"
-  
-  print(f"\n  🐕 {dog['dog_name']}")
-  print(f"     Rescue:      {dog['rescue_name']}")
-  print(f"     Status:      {status_display}")
-  print(f"     Fit Score:   {dog['fit_score'] or '?'}")
-  print(f"     Breed:       {dog.get('breed', '?')}")
-  print(f"     Weight:      {dog.get('weight', '?')} lbs")
-  print(f"     Age:         {dog.get('age_range', '?')} ({dog.get('age_category', '?')})")
-  print(f"     Sex:         {dog.get('sex', '?')}")
-  print(f"     Energy:      {dog.get('energy_level', '?')}")
-  print(f"     Shedding:    {dog.get('shedding', '?')}")
-  print(f"     Good w/Dogs: {dog.get('good_with_dogs', '?')}")
-  print(f"     Good w/Kids: {dog.get('good_with_kids', '?')}")
-  print(f"     Good w/Cats: {dog.get('good_with_cats', '?')}")
-  print(f"     Location:    {dog.get('location', '?')}")
-  print(f"     First Seen:  {first_seen}")
-  print(f"     Last Update: {last_updated}")
-  print(f"     URL:         {url}")
+      print(f"    {status_emoji} {dog['dog_name']} (Fit: {dog['fit_score'] or '?'}) - {dog['status']}")
 
 
 def export_csv():
