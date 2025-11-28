@@ -1,11 +1,10 @@
 """
 Scraper for Doodle Rock Rescue (Dallas, TX)
-v2.0.0 - Uses Playwright for JS rendering (works in GitHub Actions)
+v3.0.0 - Follows individual dog links to get full details
 
 This site is heavily JavaScript-rendered and requires a headless browser.
 """
 import re
-import os
 from typing import List, Optional
 from bs4 import BeautifulSoup
 from scrapers.base_scraper import BaseScraper
@@ -20,6 +19,7 @@ class DoodleRockScraper(BaseScraper):
     super().__init__("Doodle Rock Rescue", config)
     self.platform = "doodlerockrescue.org"
     self.location = config.get("location", "Dallas, TX")
+    self.base_url = "https://doodlerockrescue.org"
   
   def scrape(self) -> List[Dog]:
     """Scrape all dogs from Doodle Rock Rescue"""
@@ -32,18 +32,14 @@ class DoodleRockScraper(BaseScraper):
       available_url = self.config.get("available_url")
       if available_url:
         print(f"\n🐩 Scraping Doodle Rock - Available Dogs")
-        dogs.extend(self._scrape_with_playwright(available_url, "Available"))
+        dogs.extend(self._scrape_listing_page(available_url, "Available"))
       
       upcoming_url = self.config.get("upcoming_url")
       if upcoming_url:
         print(f"\n🐩 Scraping Doodle Rock - Upcoming Dogs")
-        dogs.extend(self._scrape_with_playwright(upcoming_url, "Upcoming"))
+        dogs.extend(self._scrape_listing_page(upcoming_url, "Upcoming"))
     else:
-      # Fallback: try basic fetch (won't get much data)
-      print("  ⚠️ Playwright not available - trying basic fetch")
-      available_url = self.config.get("available_url")
-      if available_url:
-        dogs.extend(self._scrape_basic(available_url, "Available"))
+      print("  ⚠️ Playwright not available - Doodle Rock requires JS rendering")
     
     # Deduplicate
     seen = set()
@@ -64,213 +60,281 @@ class DoodleRockScraper(BaseScraper):
     except ImportError:
       return False
   
-  def _scrape_with_playwright(self, url: str, status: str) -> List[Dog]:
-    """Scrape using Playwright for full JS rendering"""
+  def _scrape_listing_page(self, url: str, status: str) -> List[Dog]:
+    """Scrape listing page to find individual dog links, then scrape each dog"""
     dogs = []
+    dog_links = []
     
     try:
       from playwright.sync_api import sync_playwright
       
       with sync_playwright() as p:
-        # Launch browser
         browser = p.chromium.launch(headless=True)
         page = browser.new_page()
         
-        print(f"  🔍 Fetching: {url}")
+        print(f"  🔍 Fetching listing: {url}")
         page.goto(url, wait_until="networkidle", timeout=60000)
-        
-        # Wait for content to load
         page.wait_for_timeout(3000)
         
-        # Scroll to load lazy content
+        # Scroll to load all content
         page.evaluate("window.scrollTo(0, document.body.scrollHeight)")
         page.wait_for_timeout(2000)
-        page.evaluate("window.scrollTo(0, 0)")
-        page.wait_for_timeout(1000)
         
-        # Get page content
-        html = page.content()
+        # Find all dog profile links
+        # Pattern: /rescue-dog/dog-name/
+        links = page.query_selector_all('a[href*="/rescue-dog/"]')
+        
+        for link in links:
+          href = link.get_attribute('href')
+          if href and '/rescue-dog/' in href:
+            # Make absolute URL
+            if href.startswith('/'):
+              href = self.base_url + href
+            if href not in dog_links:
+              dog_links.append(href)
+        
+        print(f"  🔗 Found {len(dog_links)} dog profile links")
+        
+        # Now visit each dog's profile page
+        for dog_url in dog_links:
+          dog = self._scrape_dog_profile(page, dog_url, status)
+          if dog:
+            dogs.append(dog)
+        
         browser.close()
         
-        # Parse with BeautifulSoup
-        soup = BeautifulSoup(html, "html.parser")
-        dogs = self._parse_dog_page(soup, url, status)
-        
     except Exception as e:
-      print(f"  ❌ Playwright error: {e}")
+      print(f"  ❌ Error: {e}")
     
     return dogs
   
-  def _scrape_basic(self, url: str, status: str) -> List[Dog]:
-    """Fallback: basic HTTP fetch (limited results expected)"""
-    dogs = []
-    soup = self.fetch_page(url)
-    
-    if soup:
-      dogs = self._parse_dog_page(soup, url, status)
-    
-    return dogs
-  
-  def _parse_dog_page(self, soup: BeautifulSoup, url: str, status: str) -> List[Dog]:
-    """Parse dog listings from page HTML"""
-    dogs = []
-    
-    # Get all text for analysis
-    text = soup.get_text(separator="\n", strip=True)
-    
-    # Look for dog names and info patterns
-    # Doodle Rock typically shows: Name, Breed, Status
-    # Example: "Drizzle, Poodle Mix Available"
-    
-    # Pattern 1: Look for elements that might be dog cards
-    dog_elements = soup.find_all(["div", "article", "a"], 
-                                  class_=re.compile(r"dog|pet|card|item|gallery", re.I))
-    
-    for elem in dog_elements:
-      dog = self._parse_dog_element(elem, status)
-      if dog:
-        dogs.append(dog)
-    
-    # Pattern 2: Parse structured text (Name, Breed pattern)
-    if not dogs:
-      dogs = self._parse_text_listings(text, status)
-    
-    # Pattern 3: Look at image alt text
-    if not dogs:
-      dogs = self._parse_from_images(soup, status)
-    
-    return dogs
-  
-  def _parse_dog_element(self, elem, status: str) -> Optional[Dog]:
-    """Parse a single dog element"""
-    text = elem.get_text(separator=" ", strip=True)
-    
-    # Skip if too short or looks like navigation
-    if len(text) < 3 or len(text) > 200:
-      return None
-    
-    # Try to extract name and breed
-    # Common patterns: "Name - Breed" or "Name, Breed" or just "Name"
-    name = None
-    breed = "Poodle Mix"  # Default for this rescue
-    
-    # Pattern: "Name, Breed Status" or "Name - Breed"
-    match = re.match(r"^([A-Za-z][A-Za-z\s'#\d]+?)[\s,\-]+(?:Poodle|Doodle|Mix|Shih)", text)
-    if match:
-      name = match.group(1).strip()
-    else:
-      # Just take first word/phrase as name
-      parts = re.split(r"[\n\r,\-]", text)
-      if parts:
-        potential_name = parts[0].strip()
-        if 2 < len(potential_name) < 30:
-          name = potential_name
-    
-    if not name:
-      return None
-    
-    # Clean name
-    name = re.sub(r"#\d+", "", name).strip()
-    
-    # Skip non-dog entries
-    skip_words = ["adopt", "foster", "available", "pending", "alumni", "apply", 
-                  "rescue", "doodle rock", "facebook", "instagram"]
-    if any(word in name.lower() for word in skip_words):
-      return None
-    
-    # Create dog
-    dog = Dog(
-      dog_id=self.create_dog_id(name),
-      dog_name=name,
-      rescue_name=self.rescue_name,
-      breed=breed,
-      shedding="Low",  # Poodle mixes
-      energy_level="Medium",
-      platform=self.platform,
-      location=self.location,
-      status=status,
-      source_url=f"{self.config.get('available_url', '')}",
-      date_collected=get_current_date()
-    )
-    
-    dog.fit_score = calculate_fit_score(dog)
-    dog.watch_list = check_watch_list(dog)
-    
-    print(f"  🐕 {name} | Fit: {dog.fit_score} | {status}")
-    return dog
-  
-  def _parse_text_listings(self, text: str, status: str) -> List[Dog]:
-    """Parse dog names from text content"""
-    dogs = []
-    
-    # Look for pattern: Name, Breed Available/Pending
-    pattern = r"([A-Z][a-z]+(?:\s+#?\d+)?)\s*,?\s*(?:Poodle|Doodle)\s*(?:Mix)?\s*(?:Available|Pending)?"
-    matches = re.findall(pattern, text)
-    
-    for name in matches:
-      name = name.strip()
-      if len(name) < 2 or len(name) > 30:
-        continue
+  def _scrape_dog_profile(self, page, url: str, status: str) -> Optional[Dog]:
+    """Scrape individual dog profile page for full details"""
+    try:
+      print(f"  🔍 Fetching profile: {url}")
+      page.goto(url, wait_until="networkidle", timeout=30000)
+      page.wait_for_timeout(1500)
+      
+      html = page.content()
+      soup = BeautifulSoup(html, "html.parser")
+      
+      # Get dog name from title or h1
+      name = ""
+      h1 = soup.find("h1")
+      if h1:
+        name = h1.get_text().strip()
+      
+      if not name:
+        title = soup.find("title")
+        if title:
+          name = title.get_text().split("-")[0].split("|")[0].strip()
+      
+      if not name or len(name) < 2:
+        return None
+      
+      # Clean name - remove things like "#2" suffix
+      name = re.sub(r'\s*#\d+\s*$', '', name).strip()
+      
+      # Get all text content for parsing
+      text = soup.get_text(separator="\n", strip=True)
+      
+      # Extract details
+      weight = self._extract_weight(text)
+      age = self._extract_age(text)
+      sex = self._extract_sex(text)
+      breed = self._extract_breed(text)
+      
+      # Look for "good with" info
+      good_with_dogs = self._extract_good_with(text, "dogs")
+      good_with_kids = self._extract_good_with(text, "kids") or self._extract_good_with(text, "children")
+      good_with_cats = self._extract_good_with(text, "cats")
+      
+      # Energy level
+      energy = self._extract_energy(text)
+      
+      # Special needs
+      special_needs = self._extract_special_needs(text)
       
       dog = Dog(
         dog_id=self.create_dog_id(name),
         dog_name=name,
         rescue_name=self.rescue_name,
-        breed="Poodle Mix",
-        shedding="Low",
-        energy_level="Medium",
+        breed=breed or "Poodle Mix",
+        weight=weight,
+        age_range=age,
+        age_category=self._categorize_age(age),
+        sex=sex,
+        shedding="Low",  # Poodle mixes typically low shedding
+        energy_level=energy,
+        good_with_kids=good_with_kids,
+        good_with_dogs=good_with_dogs,
+        good_with_cats=good_with_cats,
+        special_needs=special_needs,
         platform=self.platform,
         location=self.location,
         status=status,
+        source_url=url,
         date_collected=get_current_date()
       )
       
       dog.fit_score = calculate_fit_score(dog)
       dog.watch_list = check_watch_list(dog)
-      dogs.append(dog)
-      print(f"  🐕 {name} | Fit: {dog.fit_score} | {status}")
-    
-    return dogs
+      
+      print(f"  🐕 {name}: {weight or '?'}lbs, {age or '?'} | Fit: {dog.fit_score} | {status}")
+      return dog
+      
+    except Exception as e:
+      print(f"  ⚠️ Error scraping {url}: {e}")
+      return None
   
-  def _parse_from_images(self, soup: BeautifulSoup, status: str) -> List[Dog]:
-    """Extract dog names from image alt text"""
-    dogs = []
-    seen_names = set()
+  def _extract_weight(self, text: str) -> Optional[int]:
+    """Extract weight from text"""
+    patterns = [
+      r'(\d+)\s*(?:lbs?|pounds?)',
+      r'weight[:\s]+(\d+)',
+      r'(\d+)\s*(?:lb|pound)'
+    ]
+    for pattern in patterns:
+      match = re.search(pattern, text.lower())
+      if match:
+        return int(match.group(1))
+    return None
+  
+  def _extract_age(self, text: str) -> str:
+    """Extract age from text"""
+    patterns = [
+      r'(\d+\.?\d*)\s*(?:years?|yrs?)\s*old',
+      r'(\d+)\s*(?:months?|mos?)\s*old',
+      r'age[:\s]+(\d+\.?\d*)\s*(?:years?|yrs?|months?|mos?)',
+      r'(\d+\.?\d*)\s*(?:years?|yrs?)',
+      r'(\d+)\s*(?:months?|mos?)'
+    ]
+    for pattern in patterns:
+      match = re.search(pattern, text.lower())
+      if match:
+        num = match.group(1)
+        if 'month' in pattern or 'mos' in pattern:
+          return f"{num} months"
+        return f"{num} years"
+    return ""
+  
+  def _extract_sex(self, text: str) -> str:
+    """Extract sex from text"""
+    text_lower = text.lower()
+    # Look for explicit mentions
+    if re.search(r'\b(female|girl|spayed)\b', text_lower):
+      return "Female"
+    if re.search(r'\b(male|boy|neutered)\b', text_lower):
+      return "Male"
+    return ""
+  
+  def _extract_breed(self, text: str) -> str:
+    """Extract breed from text"""
+    breeds = [
+      "goldendoodle", "labradoodle", "bernedoodle", "aussiedoodle",
+      "sheepadoodle", "poodle mix", "poodle", "doodle"
+    ]
+    text_lower = text.lower()
+    for breed in breeds:
+      if breed in text_lower:
+        return breed.title()
+    return "Poodle Mix"
+  
+  def _extract_good_with(self, text: str, animal: str) -> str:
+    """Extract good with dogs/kids/cats info"""
+    text_lower = text.lower()
     
-    for img in soup.find_all("img", alt=True):
-      alt = img.get("alt", "").strip()
-      
-      # Skip generic alts
-      if len(alt) < 3 or len(alt) > 40:
-        continue
-      
-      skip_words = ["logo", "image", "photo", "icon", "banner", "doodle rock", "rescue"]
-      if any(word in alt.lower() for word in skip_words):
-        continue
-      
-      # Clean up alt text
-      name = re.sub(r"\.(jpg|png|gif|jpeg).*$", "", alt, flags=re.I)
-      name = re.sub(r"#\d+", "", name).strip()
-      
-      if name and name not in seen_names and 2 < len(name) < 30:
-        seen_names.add(name)
-        
-        dog = Dog(
-          dog_id=self.create_dog_id(name),
-          dog_name=name,
-          rescue_name=self.rescue_name,
-          breed="Poodle Mix",
-          shedding="Low",
-          energy_level="Medium",
-          platform=self.platform,
-          location=self.location,
-          status=status,
-          date_collected=get_current_date()
-        )
-        
-        dog.fit_score = calculate_fit_score(dog)
-        dog.watch_list = check_watch_list(dog)
-        dogs.append(dog)
-        print(f"  🐕 {name} | Fit: {dog.fit_score} | {status}")
+    # Positive patterns
+    positive = [
+      f"good with {animal}",
+      f"great with {animal}",
+      f"loves {animal}",
+      f"gets along with {animal}",
+      f"does well with {animal}",
+      f"friendly with {animal}",
+      f"ok with {animal}",
+      f"yes.+{animal}",
+      f"{animal}.+yes"
+    ]
     
-    return dogs
+    # Negative patterns
+    negative = [
+      f"no {animal}",
+      f"not good with {animal}",
+      f"doesn't like {animal}",
+      f"no other {animal}",
+      f"only {animal}",
+      f"{animal}.+no"
+    ]
+    
+    for pattern in positive:
+      if re.search(pattern, text_lower):
+        return "Yes"
+    
+    for pattern in negative:
+      if re.search(pattern, text_lower):
+        return "No"
+    
+    return "Unknown"
+  
+  def _extract_energy(self, text: str) -> str:
+    """Extract energy level"""
+    text_lower = text.lower()
+    
+    low_indicators = ["calm", "mellow", "laid back", "lazy", "couch potato", "relaxed", "low energy"]
+    high_indicators = ["high energy", "very active", "energetic", "needs lots of exercise", "hyper"]
+    medium_indicators = ["moderate", "medium energy", "playful", "active"]
+    
+    for indicator in low_indicators:
+      if indicator in text_lower:
+        return "Low"
+    
+    for indicator in high_indicators:
+      if indicator in text_lower:
+        return "High"
+    
+    for indicator in medium_indicators:
+      if indicator in text_lower:
+        return "Medium"
+    
+    return "Medium"  # Default for doodles
+  
+  def _extract_special_needs(self, text: str) -> str:
+    """Check for special needs mentions"""
+    indicators = [
+      "special needs", "medical", "medication", "ongoing treatment",
+      "blind", "deaf", "diabetic", "seizure", "heart condition",
+      "requires daily", "chronic", "disabled"
+    ]
+    text_lower = text.lower()
+    for indicator in indicators:
+      if indicator in text_lower:
+        return "Yes"
+    return "No"
+  
+  def _categorize_age(self, age_str: str) -> str:
+    """Categorize age into Puppy/Adult/Senior"""
+    if not age_str:
+      return ""
+    
+    age_lower = age_str.lower()
+    
+    if "month" in age_lower:
+      match = re.search(r"(\d+)", age_str)
+      if match:
+        months = int(match.group(1))
+        return "Puppy" if months < 12 else "Adult"
+      return "Puppy"
+    
+    if "year" in age_lower:
+      match = re.search(r"(\d+\.?\d*)", age_str)
+      if match:
+        years = float(match.group(1))
+        if years < 2:
+          return "Puppy"
+        elif years >= 8:
+          return "Senior"
+        else:
+          return "Adult"
+    
+    return ""
