@@ -1,396 +1,404 @@
-#!/usr/bin/env python3
 """
-Dog Rescue Scraper - Main Runner
-v2.0.0
+Scraper for Doodle Dandy Rescue (DFW/Houston/Austin/SA)
+v3.1.0 - Much stricter junk filtering
 
-Scrapes all configured rescue websites, updates database,
-detects changes, and sends notifications.
-
-Usage:
-  python scraper.py              # Run full scrape
-  python scraper.py --test       # Test mode (no notifications)
-  python scraper.py --report     # Show current dog summary
-  python scraper.py --export     # Export to CSV
+The site outputs dog info in a structured text format:
+  Name
+  Breed
+  Age
+  Sex
+  Weight
+  Location
 """
-import sys
-import os
-import time
-import argparse
-from datetime import datetime
-from typing import List, Dict
-
-# Add project root to path
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-
-from config import RESCUES
-from database import (
-  init_database, update_dog, mark_dogs_inactive,
-  record_scrape_run, get_all_active_dogs, get_high_fit_dogs,
-  get_watch_list_dogs, get_pending_notifications, mark_notified,
-  get_connection
-)
-from scrapers import PoodlePatchScraper, DoodleRockScraper, DoodleDandyScraper
-from notifications import send_notification, is_configured as email_configured
-from models import ChangeRecord
+import re
+from typing import List, Optional
+from bs4 import BeautifulSoup
+from scrapers.base_scraper import BaseScraper
+from models import Dog, get_current_date
+from scoring import calculate_fit_score, check_watch_list
 
 
-def get_scraper(rescue_key: str, config: dict):
-  """Get appropriate scraper for rescue"""
-  scrapers = {
-    "poodle_patch": PoodlePatchScraper,
-    "doodle_rock": DoodleRockScraper,
-    "doodle_dandy": DoodleDandyScraper,
-  }
+class DoodleDandyScraper(BaseScraper):
+  """Scraper for doodledandyrescue.org"""
   
-  scraper_class = scrapers.get(rescue_key)
-  if scraper_class:
-    return scraper_class(config)
-  return None
-
-
-def run_scrape(test_mode: bool = False) -> Dict:
-  """
-  Run full scrape of all configured rescues
+  def __init__(self, config: dict):
+    super().__init__("Doodle Dandy Rescue", config)
+    self.platform = "doodledandyrescue.org"
+    self.location = config.get("location", "TX (DFW/Houston/Austin/SA)")
   
-  Returns:
-    Dict with scrape results summary
-  """
-  print("\n" + "=" * 60)
-  print("🐕 DOG RESCUE SCRAPER - Starting")
-  print(f"   Time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-  print("=" * 60)
-  
-  # Initialize database
-  init_database()
-  
-  all_changes = []
-  total_dogs = 0
-  total_new = 0
-  errors = []
-  
-  # Scrape each rescue
-  for rescue_key, rescue_config in RESCUES.items():
-    print(f"\n{'─' * 40}")
-    print(f"📍 {rescue_config['name']}")
-    print(f"{'─' * 40}")
+  def scrape(self) -> List[Dog]:
+    """Scrape all dogs from Doodle Dandy Rescue"""
+    dogs = []
     
-    start_time = time.time()
-    scraper = get_scraper(rescue_key, rescue_config)
+    # Available dogs
+    available_url = self.config.get("available_url")
+    if available_url:
+      print(f"\n🐩 Scraping Doodle Dandy - Available Dogs")
+      dogs.extend(self._scrape_page(available_url, "Available"))
     
-    if not scraper:
-      print(f"  ⚠️ No scraper configured for {rescue_key}")
-      continue
+    # Pending dogs
+    pending_url = self.config.get("pending_url")
+    if pending_url:
+      print(f"\n🐩 Scraping Doodle Dandy - Pending Dogs")
+      dogs.extend(self._scrape_page(pending_url, "Pending"))
     
-    try:
-      # Scrape dogs
-      dogs = scraper.scrape()
-      
-      # Track IDs for this rescue
-      scraped_ids = []
-      new_count = 0
-      
-      # Update database
-      for dog in dogs:
-        scraped_ids.append(dog.dog_id)
-        changes = update_dog(dog)
-        all_changes.extend(changes)
-        
-        # Count new dogs
-        for c in changes:
-          if c.change_type == "new_dog":
-            new_count += 1
-      
-      # Mark missing dogs as inactive
-      if scraped_ids:
-        inactive_changes = mark_dogs_inactive(scraped_ids, rescue_config["name"])
-        all_changes.extend(inactive_changes)
-      
-      # Record scrape run
-      duration = time.time() - start_time
-      change_count = len([c for c in all_changes if c.dog_name])  # Rough count
-      record_scrape_run(
-        rescue_config["name"],
-        len(dogs),
-        new_count,
-        change_count,
-        "",
-        duration
-      )
-      
-      total_dogs += len(dogs)
-      total_new += new_count
-      
-      print(f"\n  📊 Summary: {len(dogs)} dogs, {new_count} new, {duration:.1f}s")
-      
-    except Exception as e:
-      error_msg = f"{rescue_config['name']}: {str(e)}"
-      errors.append(error_msg)
-      print(f"  ❌ Error: {e}")
-      
-      # Record failed run
-      record_scrape_run(
-        rescue_config["name"],
-        0, 0, 0,
-        str(e),
-        time.time() - start_time
-      )
-  
-  # Summary
-  print("\n" + "=" * 60)
-  print("📊 SCRAPE COMPLETE")
-  print("=" * 60)
-  print(f"   Total dogs found: {total_dogs}")
-  print(f"   New dogs: {total_new}")
-  print(f"   Changes detected: {len(all_changes)}")
-  if errors:
-    print(f"   Errors: {len(errors)}")
-    for err in errors:
-      print(f"     - {err}")
-  
-  # Send notifications (unless test mode)
-  if all_changes and not test_mode:
-    print("\n📧 Sending notifications...")
+    # Upcoming/foster dogs
+    upcoming_url = self.config.get("upcoming_url")
+    if upcoming_url:
+      print(f"\n🐩 Scraping Doodle Dandy - Coming Soon")
+      dogs.extend(self._scrape_page(upcoming_url, "Upcoming"))
     
-    # Get pending notifications with full dog info
-    pending = get_pending_notifications()
+    # Deduplicate by dog_id
+    seen = set()
+    unique_dogs = []
+    for dog in dogs:
+      if dog.dog_id not in seen:
+        seen.add(dog.dog_id)
+        unique_dogs.append(dog)
     
-    if pending:
-      success = send_notification(pending)
-      if success:
-        # Mark as notified
-        mark_notified([p["id"] for p in pending])
-    else:
-      print("  ℹ️ No pending notifications")
-  elif test_mode:
-    print("\n⚠️ Test mode - notifications skipped")
+    print(f"  ✅ Found {len(unique_dogs)} unique dogs from Doodle Dandy")
+    return unique_dogs
   
-  return {
-    "total_dogs": total_dogs,
-    "new_dogs": total_new,
-    "changes": len(all_changes),
-    "errors": errors
-  }
-
-
-def show_report():
-  """Show summary report of current dogs"""
-  init_database()
-  
-  print("\n" + "=" * 60)
-  print("🐕 DOG RESCUE TRACKER - Current Status")
-  print(f"   Report generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-  print("=" * 60)
-  
-  # RECENT CHANGES (last 48 hours)
-  _print_recent_changes()
-  
-  # Watch list - DETAILED VIEW
-  watch_dogs = get_watch_list_dogs()
-  print(f"\n🔔 WATCH LIST ({len(watch_dogs)} dogs)")
-  print("-" * 60)
-  if not watch_dogs:
-    print("  No watch list dogs currently tracked.")
-  for dog in watch_dogs:
-    _print_dog_details(dog)
-  
-  # High fit dogs - DETAILED VIEW
-  high_fit = get_high_fit_dogs(5)
-  print(f"\n⭐ HIGH FIT DOGS (score >= 5) ({len(high_fit)} dogs)")
-  print("-" * 60)
-  if not high_fit:
-    print("  No high fit dogs found.")
-  for dog in high_fit[:10]:  # Top 10
-    _print_dog_details(dog)
-  
-  # All active dogs by rescue (summary only)
-  all_dogs = get_all_active_dogs()
-  print(f"\n📋 ALL ACTIVE DOGS ({len(all_dogs)} total)")
-  print("-" * 60)
-  
-  by_rescue = {}
-  for dog in all_dogs:
-    rescue = dog['rescue_name']
-    if rescue not in by_rescue:
-      by_rescue[rescue] = []
-    by_rescue[rescue].append(dog)
-  
-  for rescue, dogs in by_rescue.items():
-    print(f"\n  {rescue} ({len(dogs)} dogs):")
-    for dog in sorted(dogs, key=lambda d: -(d['fit_score'] or 0)):
-      status_emoji = {"Available": "✅", "Pending": "⏳", "Upcoming": "🔜"}.get(dog['status'], "❓")
-      weight_str = f"{dog['weight']}lbs" if dog.get('weight') else "?lbs"
-      age_str = dog.get('age_range', '?')
-      print(f"    {status_emoji} {dog['dog_name']} | Fit:{dog['fit_score'] or '?'} | {weight_str} | {age_str} | {dog['status']}")
-
-
-def _print_recent_changes():
-  """Print recent changes from the database"""
-  conn = get_connection()
-  cursor = conn.cursor()
-  
-  # Get changes from last 48 hours
-  cursor.execute("""
-    SELECT c.*, d.fit_score, d.watch_list, d.breed, d.weight
-    FROM changes c
-    LEFT JOIN dogs d ON c.dog_id = d.dog_id
-    WHERE c.timestamp > datetime('now', '-48 hours')
-    ORDER BY c.timestamp DESC
-    LIMIT 50
-  """)
-  
-  changes = cursor.fetchall()
-  conn.close()
-  
-  print(f"\n📢 RECENT CHANGES (last 48 hours)")
-  print("-" * 60)
-  
-  if not changes:
-    print("  No changes detected recently.")
-    return
-  
-  for change in changes:
-    change = dict(change)
-    dog_name = change['dog_name']
-    change_type = change['change_type']
-    field = change['field_changed']
-    old_val = change['old_value'] or ''
-    new_val = change['new_value'] or ''
-    fit_score = change.get('fit_score', '?')
-    watch = "⭐" if change.get('watch_list') == 'Yes' else ""
+  def _scrape_page(self, url: str, status: str) -> List[Dog]:
+    """Scrape a listing page"""
+    dogs = []
+    soup = self.fetch_page(url)
     
-    # Format timestamp
-    timestamp = change.get('timestamp', '')
-    if timestamp:
-      try:
-        dt = datetime.fromisoformat(timestamp)
-        time_str = dt.strftime('%m/%d %H:%M')
-      except:
-        time_str = timestamp[:16]
-    else:
-      time_str = "?"
+    if not soup:
+      return dogs
     
-    # Format the change message
-    if change_type == 'new_dog':
-      emoji = "🆕"
-      msg = f"NEW DOG LISTED"
-    elif change_type == 'status_change':
-      if new_val.lower() == 'pending':
-        emoji = "⏳"
-        msg = f"Status: {old_val} → PENDING"
-      elif new_val.lower() == 'available':
-        emoji = "✅"
-        msg = f"Status: {old_val} → AVAILABLE"
-      elif 'adopted' in new_val.lower() or 'removed' in new_val.lower():
-        emoji = "🏠"
-        msg = f"ADOPTED/REMOVED (was {old_val})"
-      else:
-        emoji = "🔄"
-        msg = f"Status: {old_val} → {new_val}"
-    else:
-      emoji = "📝"
-      msg = f"{field}: {old_val} → {new_val}"
+    # Get all text content
+    text = soup.get_text(separator="\n", strip=True)
     
-    print(f"  {emoji} {watch} {dog_name} (Fit: {fit_score}) [{time_str}]")
-    print(f"       {msg}")
-
-def _print_dog_details(dog):
-  """Print detailed info for a single dog"""
-  # Format dates
-  first_seen = dog.get('date_first_seen', '?')
-  if first_seen and first_seen != '?':
-    try:
-      dt = datetime.fromisoformat(first_seen)
-      first_seen = dt.strftime('%Y-%m-%d')
-    except:
-      pass
+    # Parse dog cards from text
+    dogs = self._parse_dog_cards(text, status, url)
+    
+    return dogs
   
-  status_date = dog.get('date_status_changed', '?')
-  if status_date and status_date != '?':
-    try:
-      dt = datetime.fromisoformat(status_date)
-      status_date = dt.strftime('%Y-%m-%d')
-    except:
-      pass
+  def _is_valid_dog_name(self, name: str) -> bool:
+    """Check if a string is a valid dog name (not junk)"""
+    if not name or len(name) < 2 or len(name) > 25:
+      return False
+    
+    name_lower = name.lower().strip()
+    
+    # Explicit junk entries to skip - be very thorough
+    junk_exact = [
+      # Navigation/UI
+      "more", "load more", "blog", "home", "about", "contact", "menu", "close",
+      "next", "previous", "back", "forward", "search", "submit", "apply",
+      # Social media
+      "facebook", "instagram", "tiktok", "youtube", "twitter",
+      # Site sections
+      "foster family", "foster", "adoption", "adopt", "rehome",
+      "our policies", "policies", "procedures", "happy tails",
+      "please", "read", "click", "here", "learn more", "view", "see",
+      "doodle dandy", "rescue", "available", "pending", "upcoming",
+      "donate", "volunteer", "sponsor", "events", "news",
+      "privacy", "terms", "copyright", "application", "form", "email", "phone",
+      # Status words
+      "adoption pending", "applications closed", "in foster",
+      # Field labels that might get picked up
+      "sheds:", "sheds", "area:", "area", "fee:", "fee",
+      # Locations (these are field values, not names)
+      "austin", "houston", "dallas", "san antonio", "dfw",
+      "hou", "aus", "sa", "atx", "satx", "san",
+      # Other junk
+      "no", "yes", "unknown", "male", "female", "preparation",
+      "in preparation", "for adoption", "adoption."
+    ]
+    
+    # Check exact matches
+    if name_lower in junk_exact:
+      return False
+    
+    # Check if name ends with colon (it's a label)
+    if name.endswith(':'):
+      return False
+    
+    # Check if name starts with asterisk or special char
+    if name.startswith('*') or name.startswith('.'):
+      return False
+    
+    # Check if name contains junk phrases
+    junk_contains = [
+      "make sure", "click here", "learn more", "read more",
+      "load more", "view all", "see all", "our policies",
+      "policies and procedures", "foster family", "please",
+      "preparation for", "for adoption", "adoption pending",
+      "happy tails", "sheds:", "area:"
+    ]
+    for phrase in junk_contains:
+      if phrase in name_lower:
+        return False
+    
+    # Skip if it's just a number
+    if name.replace('.', '').replace(' ', '').isdigit():
+      return False
+    
+    # Skip if it looks like a file
+    if re.search(r'\.(jpg|png|gif|pdf|doc|jpeg)$', name_lower):
+      return False
+    
+    # Skip if it starts with common junk patterns
+    junk_starts = [
+      "img", "image", "photo", "pic", "frame", "profile", "logo", "icon", 
+      "banner", "in ", "for ", "with ", "the ", "our ", "all "
+    ]
+    for start in junk_starts:
+      if name_lower.startswith(start):
+        return False
+    
+    # Name should start with a capital letter (proper noun)
+    if not name[0].isupper():
+      return False
+    
+    # Name should be mostly letters
+    alpha_count = sum(1 for c in name if c.isalpha())
+    if alpha_count < len(name) * 0.8:
+      return False
+    
+    # Name shouldn't have multiple spaces or weird characters
+    if '  ' in name or '\t' in name:
+      return False
+    
+    # Name should look like a proper name (mostly single word or two words)
+    words = name.split()
+    if len(words) > 3:
+      return False
+    
+    # Each word should be reasonable length
+    for word in words:
+      if len(word) < 2 or len(word) > 15:
+        return False
+    
+    return True
   
-  last_updated = dog.get('date_last_updated', '?')
-  if last_updated and last_updated != '?':
-    try:
-      dt = datetime.fromisoformat(last_updated)
-      last_updated = dt.strftime('%Y-%m-%d %H:%M')
-    except:
-      pass
+  def _parse_dog_cards(self, text: str, status: str, page_url: str) -> List[Dog]:
+    """
+    Parse dog info from structured text.
+    
+    Format is typically:
+      Name
+      Breed (contains 'doodle', 'poo', etc.)
+      Age (contains 'yr', 'mos', 'wks')
+      Sex (Male/Female)
+      Weight (contains 'lbs')
+      Location (HOU, DFW, AUS, SA)
+    """
+    dogs = []
+    lines = [line.strip() for line in text.split("\n") if line.strip()]
+    
+    # Valid breed patterns
+    breed_patterns = [
+      r"doodle", r"poo\b", r"poodle", r"bernedoodle", r"goldendoodle",
+      r"labradoodle", r"aussiedoodle", r"sheepadoodle", r"maltipoo",
+      r"cockapoo", r"shih-?poo", r"cavapoo"
+    ]
+    
+    # Location codes
+    locations = ["HOU", "DFW", "AUS", "SA", "ATX", "SATX", "SAN"]
+    
+    i = 0
+    while i < len(lines):
+      line = lines[i]
+      
+      # Check if this could be a dog name
+      is_breed = any(re.search(p, line.lower()) for p in breed_patterns)
+      is_age = re.search(r"^\d+\.?\d*\s*(yr|mos|wks|mo|wk|years?|months?|weeks?)s?$", line.lower())
+      is_weight = re.search(r"^\d+\s*lbs?$", line.lower())
+      is_sex = line.lower() in ["male", "female"]
+      is_location = line.upper() in locations
+      
+      # If this line looks like a name (not breed/age/weight/sex/location)
+      if not is_breed and not is_age and not is_weight and not is_sex and not is_location:
+        # Validate it's a real dog name
+        if self._is_valid_dog_name(line):
+          # Check if next lines form a dog card
+          dog_data = self._try_parse_dog_card(lines, i, breed_patterns, locations)
+          
+          if dog_data:
+            dog = self._create_dog(dog_data, status, page_url)
+            if dog:
+              dogs.append(dog)
+              print(f"  🐕 {dog.dog_name}: {dog.weight or '?'}lbs, {dog.age_range} | Fit: {dog.fit_score} | {status}")
+            # Skip past the lines we just parsed
+            i += dog_data.get("lines_consumed", 1)
+            continue
+      
+      i += 1
+    
+    return dogs
   
-  # Build URL - use source_url if available, otherwise construct from rescue
-  url = dog.get('source_url', '')
-  if not url:
-    rescue = dog.get('rescue_name', '')
-    if 'Doodle Rock' in rescue:
-      url = 'https://doodlerockrescue.org/adopt/available-dogs/'
-    elif 'Doodle Dandy' in rescue:
-      url = 'https://www.doodledandyrescue.org/all-adoptable-doodles'
-    elif 'Poodle Patch' in rescue:
-      url = 'https://poodlepatchrescue.com/category/adoptable-pets/'
-    else:
-      url = '(no URL available)'
+  def _try_parse_dog_card(self, lines: List[str], start_idx: int, 
+                          breed_patterns: List[str], locations: List[str]) -> Optional[dict]:
+    """
+    Try to parse a dog card starting at given index.
+    Returns dict with dog data if successful, None otherwise.
+    """
+    if start_idx >= len(lines):
+      return None
+    
+    name = lines[start_idx]
+    
+    # Double-check name validity
+    if not self._is_valid_dog_name(name):
+      return None
+    
+    data = {
+      "name": name,
+      "breed": "",
+      "age": "",
+      "sex": "",
+      "weight": None,
+      "location": "",
+      "lines_consumed": 1
+    }
+    
+    # Look at next 5 lines for dog attributes
+    breed_found = False
+    for j in range(1, min(6, len(lines) - start_idx)):
+      line = lines[start_idx + j]
+      line_lower = line.lower()
+      
+      # Check for breed
+      if not breed_found and any(re.search(p, line_lower) for p in breed_patterns):
+        data["breed"] = line
+        breed_found = True
+        data["lines_consumed"] = j + 1
+      
+      # Check for age
+      elif re.search(r"^\d+\.?\d*\s*(yr|mos|wks|mo|wk|years?|months?|weeks?)s?$", line_lower):
+        data["age"] = line
+        data["lines_consumed"] = j + 1
+      
+      # Check for sex
+      elif line_lower in ["male", "female"]:
+        data["sex"] = line.capitalize()
+        data["lines_consumed"] = j + 1
+      
+      # Check for weight
+      elif re.search(r"^\d+\s*lbs?$", line_lower):
+        match = re.search(r"(\d+)", line)
+        if match:
+          data["weight"] = int(match.group(1))
+        data["lines_consumed"] = j + 1
+      
+      # Check for location
+      elif line.upper() in locations:
+        data["location"] = line.upper()
+        data["lines_consumed"] = j + 1
+      
+      # If we hit another valid name, stop
+      elif self._is_valid_dog_name(line) and breed_found:
+        break
+    
+    # Only return if we found at least a breed (indicates this is a real dog entry)
+    if breed_found:
+      return data
+    
+    return None
   
-  # Status indicator
-  status = dog['status']
-  if status.lower() == 'pending':
-    status_display = f"⏳ {status} (since {status_date}) - LIKELY BEING PLACED"
-  else:
-    status_display = f"{status} (since {status_date})"
+  def _create_dog(self, data: dict, status: str, page_url: str) -> Optional[Dog]:
+    """Create Dog object from parsed data"""
+    name = data["name"]
+    
+    # Clean up name
+    name = re.sub(r"\s*-\s*applications?\s*closed", "", name, flags=re.IGNORECASE)
+    name = name.strip()
+    
+    # Final validation
+    if not self._is_valid_dog_name(name):
+      return None
+    
+    # Parse age into category
+    age_str = data.get("age", "")
+    age_category = self._categorize_age(age_str)
+    
+    # Determine shedding based on breed
+    breed = data.get("breed", "")
+    shedding = self._guess_shedding(breed)
+    
+    dog = Dog(
+      dog_id=self.create_dog_id(name),
+      dog_name=name,
+      rescue_name=self.rescue_name,
+      breed=breed,
+      weight=data.get("weight"),
+      age_range=age_str,
+      age_category=age_category,
+      sex=data.get("sex", ""),
+      shedding=shedding,
+      energy_level=self._guess_energy(age_str, breed),
+      good_with_kids="Unknown",
+      good_with_dogs="Unknown",
+      good_with_cats="Unknown",
+      platform=self.platform,
+      location=data.get("location", self.location),
+      status=status,
+      source_url=page_url,
+      date_collected=get_current_date()
+    )
+    
+    # Calculate fit score
+    dog.fit_score = calculate_fit_score(dog)
+    dog.watch_list = check_watch_list(dog)
+    
+    return dog
   
-  print(f"\n  🐕 {dog['dog_name']}")
-  print(f"     Rescue:      {dog['rescue_name']}")
-  print(f"     Status:      {status_display}")
-  print(f"     Fit Score:   {dog['fit_score'] or '?'}")
-  print(f"     Breed:       {dog.get('breed', '?')}")
-  print(f"     Weight:      {dog.get('weight', '?')} lbs")
-  print(f"     Age:         {dog.get('age_range', '?')} ({dog.get('age_category', '?')})")
-  print(f"     Sex:         {dog.get('sex', '?')}")
-  print(f"     Energy:      {dog.get('energy_level', '?')}")
-  print(f"     Shedding:    {dog.get('shedding', '?')}")
-  print(f"     Good w/Dogs: {dog.get('good_with_dogs', '?')}")
-  print(f"     Good w/Kids: {dog.get('good_with_kids', '?')}")
-  print(f"     Good w/Cats: {dog.get('good_with_cats', '?')}")
-  print(f"     Location:    {dog.get('location', '?')}")
-  print(f"     First Seen:  {first_seen}")
-  print(f"     Last Update: {last_updated}")
-  print(f"     URL:         {url}")
-
-def export_csv():
-  """Export current dogs to CSV"""
-  import csv
+  def _categorize_age(self, age_str: str) -> str:
+    """Categorize age into Puppy/Adult/Senior"""
+    if not age_str:
+      return ""
+    
+    age_lower = age_str.lower()
+    
+    # Check for weeks/months (puppy)
+    if "wk" in age_lower or "week" in age_lower:
+      return "Puppy"
+    if "mo" in age_lower or "month" in age_lower:
+      match = re.search(r"(\d+)", age_str)
+      if match:
+        months = int(match.group(1))
+        if months < 12:
+          return "Puppy"
+        else:
+          return "Adult"
+      return "Puppy"
+    
+    # Check for years
+    if "yr" in age_lower or "year" in age_lower:
+      match = re.search(r"(\d+\.?\d*)", age_str)
+      if match:
+        years = float(match.group(1))
+        if years < 2:
+          return "Puppy"
+        elif years >= 8:
+          return "Senior"
+        else:
+          return "Adult"
+    
+    return ""
   
-  init_database()
-  dogs = get_all_active_dogs()
+  def _guess_shedding(self, breed: str) -> str:
+    """Guess shedding level based on breed"""
+    breed_lower = breed.lower()
+    
+    # Poodle mixes are typically low/no shedding
+    if "poodle" in breed_lower or "doodle" in breed_lower or "poo" in breed_lower:
+      return "Low"
+    
+    return "Unknown"
   
-  filename = f"dogs_export_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv"
-  
-  with open(filename, "w", newline="") as f:
-    if dogs:
-      writer = csv.DictWriter(f, fieldnames=dogs[0].keys())
-      writer.writeheader()
-      writer.writerows(dogs)
-  
-  print(f"✅ Exported {len(dogs)} dogs to {filename}")
-
-
-def main():
-  parser = argparse.ArgumentParser(description="Dog Rescue Scraper")
-  parser.add_argument("--test", action="store_true", help="Test mode (no notifications)")
-  parser.add_argument("--report", action="store_true", help="Show current dog summary")
-  parser.add_argument("--export", action="store_true", help="Export to CSV")
-  
-  args = parser.parse_args()
-  
-  if args.report:
-    show_report()
-  elif args.export:
-    export_csv()
-  else:
-    run_scrape(test_mode=args.test)
-
-
-if __name__ == "__main__":
-  main()
+  def _guess_energy(self, age_str: str, breed: str) -> str:
+    """Guess energy level based on age and breed"""
+    # Puppies are typically high energy
+    if self._categorize_age(age_str) == "Puppy":
+      return "High"
+    
+    # Seniors are typically lower energy
+    if self._categorize_age(age_str) == "Senior":
+      return "Low"
+    
+    # Default for doodles is medium
+    return "Medium"
