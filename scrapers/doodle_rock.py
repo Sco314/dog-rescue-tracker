@@ -115,127 +115,90 @@ class DoodleRockScraper(BaseScraper):
     """Parse dog listings from page HTML"""
     dogs = []
     
-    # Get all text for analysis
-    text = soup.get_text(separator="\n", strip=True)
+    # Doodle Rock structure: each dog is in a col-sm-4 div with:
+    # - <a href="dog-page-url"><img src="thumbnail"></a>
+    # - <center><a href="dog-page-url"><strong>Name,</strong> Breed</a><br>Status</center>
     
-    # Look for dog names and info patterns
-    # Doodle Rock typically shows: Name, Breed, Status
-    # Example: "Drizzle, Poodle Mix Available"
-    
-    # Pattern 1: Look for elements that might be dog cards
-    dog_elements = soup.find_all(["div", "article", "a"], 
-                                  class_=re.compile(r"dog|pet|card|item|gallery", re.I))
-    
-    for elem in dog_elements:
-      dog = self._parse_dog_element(elem, status)
-      if dog:
-        dogs.append(dog)
-    
-    # Pattern 2: Parse structured text (Name, Breed pattern)
-    if not dogs:
-      dogs = self._parse_text_listings(text, status)
-    
-    # Pattern 3: Look at image alt text
-    if not dogs:
-      dogs = self._parse_from_images(soup, status)
-    
-    return dogs
-  
-  def _parse_dog_element(self, elem, status: str) -> Optional[Dog]:
-    """Parse a single dog element"""
-    text = elem.get_text(separator=" ", strip=True)
-    
-    # Skip if too short or looks like navigation
-    if len(text) < 3 or len(text) > 200:
-      return None
-    
-    # Try to extract name and breed
-    # Common patterns: "Name - Breed" or "Name, Breed" or just "Name"
-    name = None
-    breed = "Poodle Mix"  # Default for this rescue
-    
-    # Pattern: "Name, Breed Status" or "Name - Breed"
-    match = re.match(r"^([A-Za-z][A-Za-z\s'#\d]+?)[\s,\-]+(?:Poodle|Doodle|Mix|Shih)", text)
-    if match:
-      name = match.group(1).strip()
-    else:
-      # Just take first word/phrase as name
-      parts = re.split(r"[\n\r,\-]", text)
-      if parts:
-        potential_name = parts[0].strip()
-        if 2 < len(potential_name) < 30:
-          name = potential_name
-    
-    if not name:
-      return None
-    
-    # Clean name
-    name = re.sub(r"#\d+", "", name).strip()
-    
-    # Skip non-dog entries
-    skip_words = ["adopt", "foster", "available", "pending", "alumni", "apply", 
-                  "rescue", "doodle rock", "facebook", "instagram"]
-    if any(word in name.lower() for word in skip_words):
-      return None
-    
-    # Try to find image in element
-    image_url = ""
-    img = elem.find("img")
-    if img:
-      image_url = img.get("src", "") or img.get("data-src", "")
-    
-    # Create dog
-    dog = Dog(
-      dog_id=self.create_dog_id(name),
-      dog_name=name,
-      rescue_name=self.rescue_name,
-      breed=breed,
-      shedding="Low",  # Poodle mixes
-      energy_level="Medium",
-      platform=self.platform,
-      location=self.location,
-      status=status,
-      source_url=f"{self.config.get('available_url', '')}",
-      image_url=image_url,
-      date_collected=get_current_date()
-    )
-    
-    dog.fit_score = calculate_fit_score(dog)
-    dog.watch_list = check_watch_list(dog)
-    
-    print(f"  🐕 {name} | Fit: {dog.fit_score} | {status}")
-    return dog
-  
-  def _parse_text_listings(self, text: str, status: str) -> List[Dog]:
-    """Parse dog names from text content"""
-    dogs = []
-    
-    # Look for pattern: Name, Breed Available/Pending
-    pattern = r"([A-Z][a-z]+(?:\s+#?\d+)?)\s*,?\s*(?:Poodle|Doodle)\s*(?:Mix)?\s*(?:Available|Pending)?"
-    matches = re.findall(pattern, text)
-    
-    for name in matches:
-      name = name.strip()
-      if len(name) < 2 or len(name) > 30:
+    for col in soup.find_all("div", class_=re.compile(r"col-sm-\d")):
+      # Find the image link
+      img_link = col.find("a", href=re.compile(r"/rescue-dog/"))
+      if not img_link:
         continue
+      
+      dog_url = img_link.get("href", "")
+      if not dog_url.startswith("http"):
+        dog_url = "https://doodlerockrescue.org" + dog_url
+      
+      # Get the image
+      img = img_link.find("img")
+      image_url = ""
+      if img:
+        image_url = img.get("src", "") or img.get("data-src", "")
+      
+      # Get the name from the center text
+      center = col.find("center")
+      if not center:
+        continue
+      
+      name_link = center.find("a")
+      if not name_link:
+        continue
+      
+      text = name_link.get_text(strip=True)
+      # Format: "Name, Poodle Mix" or "Name, Breed"
+      name = text.split(",")[0].strip()
+      
+      # Clean name
+      name = re.sub(r"#\d+", "", name).strip()
+      
+      if not name or len(name) < 2 or len(name) > 40:
+        continue
+      
+      # Skip non-dog entries
+      skip_words = ["adopt", "foster", "alumni", "apply", "rescue", "doodle rock", "facebook"]
+      if any(word in name.lower() for word in skip_words):
+        continue
+      
+      # Determine breed from text
+      breed = "Poodle Mix"
+      if "," in text:
+        breed_part = text.split(",", 1)[1].strip()
+        if breed_part:
+          breed = breed_part
+      
+      # Check for status in center text (might override page-level status)
+      center_text = center.get_text(strip=True).lower()
+      dog_status = status
+      if "pending" in center_text:
+        dog_status = "Pending"
+      elif "available" in center_text:
+        dog_status = "Available"
       
       dog = Dog(
         dog_id=self.create_dog_id(name),
         dog_name=name,
         rescue_name=self.rescue_name,
-        breed="Poodle Mix",
-        shedding="Low",
+        breed=breed,
+        shedding="Low",  # Poodle mixes
         energy_level="Medium",
         platform=self.platform,
         location=self.location,
-        status=status,
+        status=dog_status,
+        source_url=dog_url,
+        image_url=image_url,
         date_collected=get_current_date()
       )
       
       dog.fit_score = calculate_fit_score(dog)
       dog.watch_list = check_watch_list(dog)
       dogs.append(dog)
-      print(f"  🐕 {name} | Fit: {dog.fit_score} | {status}")
+      
+      img_status = "📸" if image_url else "🐕"
+      print(f"  {img_status} {name} | Fit: {dog.fit_score} | {dog_status}")
+    
+    # Fallback: if no dogs found with structured parsing, try other methods
+    if not dogs:
+      dogs = self._parse_from_images(soup, status)
     
     return dogs
   
