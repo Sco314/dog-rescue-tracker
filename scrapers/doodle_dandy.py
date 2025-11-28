@@ -1,9 +1,16 @@
 """
 Scraper for Doodle Dandy Rescue (DFW/Houston/Austin/SA)
-Wix-based site - likely needs Selenium
+v2.0.0 - Rewritten to properly parse Wix text structure
+
+The site outputs dog info in a structured text format:
+  Name
+  Breed
+  Age
+  Sex
+  Weight
+  Location
 """
 import re
-import json
 from typing import List, Optional
 from bs4 import BeautifulSoup
 from scrapers.base_scraper import BaseScraper
@@ -41,207 +48,279 @@ class DoodleDandyScraper(BaseScraper):
       print(f"\n🐩 Scraping Doodle Dandy - Coming Soon")
       dogs.extend(self._scrape_page(upcoming_url, "Upcoming"))
     
-    print(f"  ✅ Found {len(dogs)} dogs from Doodle Dandy")
-    return dogs
+    # Deduplicate by dog_id
+    seen = set()
+    unique_dogs = []
+    for dog in dogs:
+      if dog.dog_id not in seen:
+        seen.add(dog.dog_id)
+        unique_dogs.append(dog)
+    
+    print(f"  ✅ Found {len(unique_dogs)} unique dogs from Doodle Dandy")
+    return unique_dogs
   
   def _scrape_page(self, url: str, status: str) -> List[Dog]:
     """Scrape a listing page"""
     dogs = []
-    
-    # Wix sites often have data in JSON format in the page
     soup = self.fetch_page(url)
-    if soup:
-      # Try to find Wix JSON data
-      dogs = self._parse_wix_data(soup, status)
-      
-      # Fallback: parse visible text/images
-      if not dogs:
-        dogs = self._parse_html_fallback(soup, url, status)
     
-    # If still no dogs, try Selenium
-    if not dogs and self._selenium_available():
-      print("  🔄 Trying Selenium for JS-rendered content...")
-      dogs = self._scrape_with_selenium(url, status)
+    if not soup:
+      return dogs
+    
+    # Get all text content
+    text = soup.get_text(separator="\n", strip=True)
+    
+    # Parse dog cards from text
+    dogs = self._parse_dog_cards(text, status)
     
     return dogs
   
-  def _parse_wix_data(self, soup: BeautifulSoup, status: str) -> List[Dog]:
-    """Try to extract dog data from Wix JSON in page"""
+  def _parse_dog_cards(self, text: str, status: str) -> List[Dog]:
+    """
+    Parse dog info from structured text.
+    
+    Format is typically:
+      Name
+      Breed (contains 'doodle', 'poo', etc.)
+      Age (contains 'yr', 'mos', 'wks')
+      Sex (Male/Female)
+      Weight (contains 'lbs')
+      Location (HOU, DFW, AUS, SA)
+    """
     dogs = []
+    lines = [line.strip() for line in text.split("\n") if line.strip()]
     
-    # Wix stores data in script tags with specific patterns
-    scripts = soup.find_all("script")
-    for script in scripts:
-      if script.string and "wixData" in script.string:
-        try:
-          # Try to find JSON data
-          match = re.search(r'"items"\s*:\s*(\[.+?\])', script.string, re.DOTALL)
-          if match:
-            items = json.loads(match.group(1))
-            for item in items:
-              dog = self._parse_wix_item(item, status)
-              if dog:
-                dogs.append(dog)
-        except:
+    # Words/patterns to skip (not dog names)
+    skip_patterns = [
+      r"\.jpg$", r"\.png$", r"\.gif$",  # Image files
+      r"^img[_-]", r"^frame\s*\d", r"^profile",  # Image prefixes
+      r"^facebook$", r"^instagram$", r"^tiktok$", r"^youtube$",  # Social
+      r"^doodle dandy", r"^welcome", r"^here are", r"^our policy",  # Headers
+      r"^adoption", r"^please", r"^follow", r"^in foster",  # Instructions
+      r"^sheds?:", r"^area:", r"^fee:",  # Labels
+      r"^\d+$",  # Just numbers
+      r"^applications? closed",  # Status text
+    ]
+    
+    # Valid breeds
+    breed_patterns = [
+      r"doodle", r"poo\b", r"poodle", r"bernedoodle", r"goldendoodle",
+      r"labradoodle", r"aussiedoodle", r"sheepadoodle", r"maltipoo",
+      r"cockapoo", r"shih-?poo", r"cavapoo"
+    ]
+    
+    # Location codes
+    locations = ["HOU", "DFW", "AUS", "SA", "ATX", "SATX"]
+    
+    i = 0
+    while i < len(lines):
+      line = lines[i]
+      
+      # Skip if matches skip patterns
+      if any(re.search(p, line.lower()) for p in skip_patterns):
+        i += 1
+        continue
+      
+      # Check if this could be a dog name (not a breed, age, weight, etc.)
+      is_breed = any(re.search(p, line.lower()) for p in breed_patterns)
+      is_age = re.search(r"\d+\s*(yr|mos|wks|mo|wk|year|month|week)", line.lower())
+      is_weight = re.search(r"\d+\s*lbs?", line.lower())
+      is_sex = line.lower() in ["male", "female"]
+      is_location = line.upper() in locations
+      
+      # If this line looks like a name (not breed/age/weight/sex/location)
+      if not is_breed and not is_age and not is_weight and not is_sex and not is_location:
+        # Check if next lines form a dog card
+        dog_data = self._try_parse_dog_card(lines, i)
+        
+        if dog_data:
+          dog = self._create_dog(dog_data, status)
+          if dog:
+            dogs.append(dog)
+            print(f"  🐕 {dog.dog_name}: {dog.weight or '?'}lbs, {dog.age_range} | Fit: {dog.fit_score} | {status}")
+          # Skip past the lines we just parsed
+          i += dog_data.get("lines_consumed", 1)
           continue
+      
+      i += 1
     
     return dogs
   
-  def _parse_wix_item(self, item: dict, status: str) -> Optional[Dog]:
-    """Parse a Wix data item into a Dog object"""
-    name = item.get("name", item.get("title", ""))
-    if not name:
+  def _try_parse_dog_card(self, lines: List[str], start_idx: int) -> Optional[dict]:
+    """
+    Try to parse a dog card starting at given index.
+    Returns dict with dog data if successful, None otherwise.
+    """
+    if start_idx >= len(lines):
       return None
     
-    dog = Dog(
-      dog_id=self.create_dog_id(name),
-      dog_name=name,
-      rescue_name=self.rescue_name,
-      breed=item.get("breed", "Doodle/Mix"),
-      weight=self._parse_weight(item.get("weight")),
-      age_range=item.get("age", ""),
-      sex=item.get("sex", item.get("gender", "")),
-      shedding="Low",  # Assume low for doodles
-      energy_level=item.get("energy", ""),
-      good_with_kids=self.normalize_yes_no(item.get("kids", "Unknown")),
-      good_with_dogs=self.normalize_yes_no(item.get("dogs", "Unknown")),
-      good_with_cats=self.normalize_yes_no(item.get("cats", "Unknown")),
-      special_needs="Yes" if item.get("specialNeeds") else "No",
-      adoption_fee=item.get("fee", ""),
-      platform=self.platform,
-      location=self.location,
-      status=status,
-      source_url=item.get("link", item.get("url", "")),
-      date_collected=get_current_date()
-    )
+    name = lines[start_idx]
     
-    dog.fit_score = calculate_fit_score(dog)
-    dog.watch_list = check_watch_list(dog)
-    
-    print(f"  🐕 {name}: {dog.weight or '?'}lbs | Fit: {dog.fit_score} | {status}")
-    return dog
-  
-  def _parse_weight(self, weight_val) -> Optional[int]:
-    """Parse weight from various formats"""
-    if not weight_val:
+    # Name validation
+    if len(name) < 2 or len(name) > 40:
       return None
-    if isinstance(weight_val, (int, float)):
-      return int(weight_val)
-    if isinstance(weight_val, str):
-      match = re.search(r"(\d+)", weight_val)
-      if match:
-        return int(match.group(1))
+    
+    # Skip if name looks like junk
+    if re.search(r"\.(jpg|png|gif|jpeg)$", name.lower()):
+      return None
+    if name.lower() in ["male", "female", "hou", "dfw", "aus", "sa"]:
+      return None
+    
+    data = {
+      "name": name,
+      "breed": "",
+      "age": "",
+      "sex": "",
+      "weight": None,
+      "location": "",
+      "lines_consumed": 1
+    }
+    
+    # Look at next 5 lines for dog attributes
+    breed_found = False
+    for j in range(1, min(6, len(lines) - start_idx)):
+      line = lines[start_idx + j]
+      line_lower = line.lower()
+      
+      # Check for breed
+      if not breed_found and any(re.search(p, line_lower) for p in 
+          [r"doodle", r"poo\b", r"poodle", r"maltipoo", r"shih-?poo", r"cavapoo"]):
+        data["breed"] = line
+        breed_found = True
+        data["lines_consumed"] = j + 1
+      
+      # Check for age
+      elif re.search(r"^\d+\.?\d*\s*(yr|mos|wks|mo|wk|years?|months?|weeks?)s?$", line_lower):
+        data["age"] = line
+        data["lines_consumed"] = j + 1
+      
+      # Check for sex
+      elif line_lower in ["male", "female"]:
+        data["sex"] = line.capitalize()
+        data["lines_consumed"] = j + 1
+      
+      # Check for weight
+      elif re.search(r"^\d+\s*lbs?$", line_lower):
+        match = re.search(r"(\d+)", line)
+        if match:
+          data["weight"] = int(match.group(1))
+        data["lines_consumed"] = j + 1
+      
+      # Check for location
+      elif line.upper() in ["HOU", "DFW", "AUS", "SA", "ATX", "SATX"]:
+        data["location"] = line.upper()
+        data["lines_consumed"] = j + 1
+      
+      # If we hit another potential name (no match), stop
+      elif len(line) > 2 and not any(c.isdigit() for c in line):
+        # Might be next dog's name
+        if breed_found:  # We got at least a breed, this is valid
+          break
+    
+    # Only return if we found at least a breed (indicates this is a real dog entry)
+    if breed_found:
+      return data
+    
     return None
   
-  def _parse_html_fallback(self, soup: BeautifulSoup, url: str, status: str) -> List[Dog]:
-    """Fallback: parse visible HTML for dog info"""
-    dogs = []
+  def _create_dog(self, data: dict, status: str) -> Optional[Dog]:
+    """Create Dog object from parsed data"""
+    name = data["name"]
     
-    # Look for dog name patterns in headings
-    headings = soup.find_all(["h1", "h2", "h3", "h4"])
-    for h in headings:
-      text = h.get_text().strip()
-      # Skip common non-name headings
-      if len(text) > 2 and len(text) < 30:
-        skip_words = ["adopt", "available", "pending", "rescue", "doodle", "about", "contact", "foster"]
-        if not any(word in text.lower() for word in skip_words):
-          dog = self._create_minimal_dog(text, status)
-          if dog:
-            dogs.append(dog)
+    # Clean up name
+    name = re.sub(r"\s*-\s*applications?\s*closed", "", name, flags=re.IGNORECASE)
+    name = name.strip()
     
-    # Also look at image alt text
-    imgs = soup.find_all("img", alt=True)
-    seen_names = {d.dog_name for d in dogs}
-    for img in imgs:
-      alt = img.get("alt", "").strip()
-      if 2 < len(alt) < 30 and alt not in seen_names:
-        skip_words = ["logo", "image", "photo", "icon", "banner"]
-        if not any(word in alt.lower() for word in skip_words):
-          dog = self._create_minimal_dog(alt, status)
-          if dog:
-            dogs.append(dog)
-            seen_names.add(alt)
+    if not name or len(name) < 2:
+      return None
     
-    return dogs
-  
-  def _create_minimal_dog(self, name: str, status: str) -> Optional[Dog]:
-    """Create dog with minimal info"""
-    name = name.strip().title()
+    # Parse age into category
+    age_str = data.get("age", "")
+    age_category = self._categorize_age(age_str)
+    
+    # Determine shedding based on breed
+    breed = data.get("breed", "")
+    shedding = self._guess_shedding(breed)
     
     dog = Dog(
       dog_id=self.create_dog_id(name),
       dog_name=name,
       rescue_name=self.rescue_name,
-      breed="Doodle/Mix",
-      shedding="Low",
+      breed=breed,
+      weight=data.get("weight"),
+      age_range=age_str,
+      age_category=age_category,
+      sex=data.get("sex", ""),
+      shedding=shedding,
+      energy_level=self._guess_energy(age_str, breed),
+      good_with_kids="Unknown",
+      good_with_dogs="Unknown",
+      good_with_cats="Unknown",
       platform=self.platform,
-      location=self.location,
+      location=data.get("location", self.location),
       status=status,
       date_collected=get_current_date()
     )
     
+    # Calculate fit score
     dog.fit_score = calculate_fit_score(dog)
     dog.watch_list = check_watch_list(dog)
     
-    print(f"  🐕 {name} | Fit: {dog.fit_score} | {status}")
     return dog
   
-  def _selenium_available(self) -> bool:
-    """Check if Selenium is available"""
-    try:
-      from selenium import webdriver
-      return True
-    except ImportError:
-      return False
+  def _categorize_age(self, age_str: str) -> str:
+    """Categorize age into Puppy/Adult/Senior"""
+    if not age_str:
+      return ""
+    
+    age_lower = age_str.lower()
+    
+    # Check for weeks/months (puppy)
+    if "wk" in age_lower or "week" in age_lower:
+      return "Puppy"
+    if "mo" in age_lower or "month" in age_lower:
+      match = re.search(r"(\d+)", age_str)
+      if match:
+        months = int(match.group(1))
+        if months < 12:
+          return "Puppy"
+        else:
+          return "Adult"
+      return "Puppy"
+    
+    # Check for years
+    if "yr" in age_lower or "year" in age_lower:
+      match = re.search(r"(\d+\.?\d*)", age_str)
+      if match:
+        years = float(match.group(1))
+        if years < 2:
+          return "Puppy"
+        elif years >= 8:
+          return "Senior"
+        else:
+          return "Adult"
+    
+    return ""
   
-  def _scrape_with_selenium(self, url: str, status: str) -> List[Dog]:
-    """Scrape using Selenium for JS-rendered content"""
-    dogs = []
+  def _guess_shedding(self, breed: str) -> str:
+    """Guess shedding level based on breed"""
+    breed_lower = breed.lower()
     
-    try:
-      from selenium import webdriver
-      from selenium.webdriver.chrome.options import Options
-      from selenium.webdriver.common.by import By
-      import time
-      
-      options = Options()
-      options.add_argument("--headless")
-      options.add_argument("--no-sandbox")
-      options.add_argument("--disable-dev-shm-usage")
-      
-      driver = webdriver.Chrome(options=options)
-      driver.get(url)
-      time.sleep(5)  # Wix sites need time to render
-      
-      # Scroll to load lazy content
-      driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-      time.sleep(2)
-      driver.execute_script("window.scrollTo(0, 0);")
-      time.sleep(1)
-      
-      soup = BeautifulSoup(driver.page_source, "html.parser")
-      
-      # Parse the rendered content
-      dogs = self._parse_html_fallback(soup, url, status)
-      
-      # Look for gallery items (common Wix pattern)
-      gallery_items = driver.find_elements(By.CSS_SELECTOR, "[data-hook='item-container'], .gallery-item, .pro-gallery-item")
-      for item in gallery_items:
-        try:
-          # Try to get text from the item
-          text = item.text.strip()
-          if text and len(text) < 50:
-            name = text.split("\n")[0]
-            if name and len(name) > 2:
-              dog = self._create_minimal_dog(name, status)
-              if dog and dog.dog_name not in [d.dog_name for d in dogs]:
-                dogs.append(dog)
-        except:
-          continue
-      
-      driver.quit()
-      
-    except Exception as e:
-      print(f"  ❌ Selenium error: {e}")
+    # Poodle mixes are typically low/no shedding
+    if "poodle" in breed_lower or "doodle" in breed_lower or "poo" in breed_lower:
+      return "Low"
     
-    return dogs
+    return "Unknown"
+  
+  def _guess_energy(self, age_str: str, breed: str) -> str:
+    """Guess energy level based on age and breed"""
+    # Puppies are typically high energy
+    if self._categorize_age(age_str) == "Puppy":
+      return "High"
+    
+    # Seniors are typically lower energy
+    if self._categorize_age(age_str) == "Senior":
+      return "Low"
+    
+    # Default for doodles is medium
+    return "Medium"
