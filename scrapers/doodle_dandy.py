@@ -67,55 +67,95 @@ class DoodleDandyScraper(BaseScraper):
     if not soup:
       return dogs
     
-    # Get all text content
-    text = soup.get_text(separator="\n", strip=True)
+    # Extract image URLs from the structured links
+    # Each dog card has: <a href="/all-adoptable-doodles/{slug}"><wow-image><img src="..."></wow-image></a>
+    image_urls = self._extract_images(soup, url)
     
-    # Extract image URLs for matching to dogs later
-    image_urls = self._extract_images(soup)
+    # Get all text content for parsing dog info
+    text = soup.get_text(separator="\n", strip=True)
     
     # Parse dog cards from text
     dogs = self._parse_dog_cards(text, status, image_urls)
     
     return dogs
   
-  def _extract_images(self, soup: BeautifulSoup) -> dict:
+  def _extract_images(self, soup: BeautifulSoup, page_url: str) -> dict:
     """
-    Extract dog images from Wix gallery.
+    Extract dog images from Wix gallery structure.
     Returns dict mapping lowercase dog names to image URLs.
+    
+    Structure:
+    <a href="/all-adoptable-doodles/{slug}">
+      <wow-image>
+        <img alt="{DogName}" src="https://static.wixstatic.com/...">
+      </wow-image>
+    </a>
     """
     images = {}
     
-    # Wix uses various image containers
-    for img in soup.find_all("img"):
-      src = img.get("src", "") or img.get("data-src", "")
-      alt = img.get("alt", "").lower().strip()
-      
-      if not src:
-        continue
-      
-      # Skip UI/icon images
-      if any(skip in src.lower() for skip in ["logo", "icon", "button", "arrow", "social"]):
-        continue
-      
-      # Wix image URLs often have /v1/fill/ for resized images
-      # Get the largest version by removing size constraints or using original
-      if "wix" in src and "/v1/fill/" in src:
-        # Try to get a reasonable size (not tiny thumbnails)
-        src = re.sub(r"/v1/fill/w_\d+,h_\d+", "/v1/fill/w_400,h_400", src)
-      
-      # Map alt text (often contains dog name) to URL
-      if alt and len(alt) > 1 and len(alt) < 50:
-        # Clean the alt text to get potential dog name
-        name = re.sub(r"[^a-z\s]", "", alt).strip()
-        if name:
-          images[name] = src
-      
-      # Also store by image filename as backup
-      filename = src.split("/")[-1].split("?")[0].lower()
-      name_from_file = re.sub(r"[^a-z]", "", filename.split(".")[0])
-      if name_from_file and len(name_from_file) > 2:
-        images[name_from_file] = src
+    # Determine the base path based on page URL
+    # e.g., /all-adoptable-doodles, /adoption-pending-doodles, /doodles-coming-soon
+    base_paths = [
+      "/all-adoptable-doodles/",
+      "/adoption-pending-doodles/",
+      "/doodles-coming-soon/"
+    ]
     
+    # Find all links that point to individual dog pages
+    for a_tag in soup.find_all("a", href=True):
+      href = a_tag.get("href", "")
+      
+      # Check if this is a dog profile link
+      is_dog_link = False
+      for base in base_paths:
+        if base in href and href != base.rstrip("/"):
+          is_dog_link = True
+          break
+      
+      if not is_dog_link:
+        continue
+      
+      # Extract the slug (dog name) from the URL
+      slug = href.rstrip("/").split("/")[-1].lower()
+      if not slug or len(slug) < 2:
+        continue
+      
+      # Find the image inside this link
+      img = a_tag.find("img")
+      if img:
+        src = img.get("src", "") or img.get("data-src", "")
+        alt = img.get("alt", "").strip()
+        
+        if src and "wixstatic" in src:
+          # Upgrade to larger image size
+          src = re.sub(r"/v1/fill/w_\d+,h_\d+", "/v1/fill/w_400,h_400", src)
+          
+          # Map by slug
+          images[slug] = src
+          
+          # Also map by cleaned alt text
+          if alt:
+            alt_clean = re.sub(r"[^a-z]", "", alt.lower())
+            if alt_clean:
+              images[alt_clean] = src
+          
+          print(f"  📸 Found image for: {slug}")
+    
+    # Also look for wow-image elements that might have data-image-info
+    for wow in soup.find_all("wow-image"):
+      img = wow.find("img")
+      if img:
+        src = img.get("src", "") or img.get("data-src", "")
+        alt = img.get("alt", "").strip()
+        
+        if src and alt and "wixstatic" in src:
+          # Upgrade size
+          src = re.sub(r"/v1/fill/w_\d+,h_\d+", "/v1/fill/w_400,h_400", src)
+          alt_clean = re.sub(r"[^a-z]", "", alt.lower())
+          if alt_clean and alt_clean not in images:
+            images[alt_clean] = src
+    
+    print(f"  📸 Total images found: {len(images)}")
     return images
   
   def _parse_dog_cards(self, text: str, status: str, image_urls: dict = None) -> List[Dog]:
