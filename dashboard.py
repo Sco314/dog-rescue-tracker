@@ -772,42 +772,61 @@ def generate_html_dashboard(output_path="dashboard.html"):
       const modDisplay = mod !== 0 ? '(' + (mod > 0 ? '+' : '') + mod + ')' : '';
       const valueClass = (val) => val === 'Yes' ? 'good' : val === 'No' ? 'bad' : 'unknown';
       const url = dog.source_url || '#';
-      const safeId = dog.dog_id.replace(/'/g, "\\'");
+      const dogId = dog.dog_id;
       
-      return '<div class="dog-card ' + (isWatched ? 'watched' : '') + ' ' + (statusClass === 'pending' ? 'pending' : '') + '">' +
-        '<div class="dog-header">' +
-          '<div>' +
-            '<div class="dog-name">' + (dog.dog_name || 'Unknown') + '</div>' +
-            '<div class="dog-rescue">' + (dog.rescue_name || 'Unknown Rescue') + '</div>' +
-          '</div>' +
-          '<button class="star-btn ' + (isWatched ? 'starred' : '') + '" onclick="toggleWatch(\x27' + safeId + '\x27)">' + (isWatched ? '★' : '☆') + '</button>' +
-        '</div>' +
-        '<div class="dog-score">' +
-          '<div class="score-display ' + scoreClass + '">' + (dog.fit_score || 0) + '</div>' +
-          '<div class="score-controls">' +
-            '<button class="score-btn" onclick="adjustScore(\x27' + safeId + '\x27, 1)">+</button>' +
-            '<button class="score-btn" onclick="adjustScore(\x27' + safeId + '\x27, -1)">−</button>' +
-          '</div>' +
-          '<div class="score-modifier">' + modDisplay + '</div>' +
-          '<span class="dog-status status-' + statusClass + '">' + (dog.status || 'Unknown') + '</span>' +
-        '</div>' +
-        '<div class="dog-details">' +
-          '<div class="detail"><span class="detail-label">Weight</span><span class="detail-value">' + (dog.weight ? dog.weight + ' lbs' : '?') + '</span></div>' +
-          '<div class="detail"><span class="detail-label">Age</span><span class="detail-value">' + (dog.age_range || '?') + '</span></div>' +
-          '<div class="detail"><span class="detail-label">Breed</span><span class="detail-value">' + (dog.breed || '?') + '</span></div>' +
-          '<div class="detail"><span class="detail-label">Energy</span><span class="detail-value">' + (dog.energy_level || '?') + '</span></div>' +
-          '<div class="detail"><span class="detail-label">Dogs</span><span class="detail-value ' + valueClass(dog.good_with_dogs) + '">' + (dog.good_with_dogs || '?') + '</span></div>' +
-          '<div class="detail"><span class="detail-label">Kids</span><span class="detail-value ' + valueClass(dog.good_with_kids) + '">' + (dog.good_with_kids || '?') + '</span></div>' +
-          '<div class="detail"><span class="detail-label">Cats</span><span class="detail-value ' + valueClass(dog.good_with_cats) + '">' + (dog.good_with_cats || '?') + '</span></div>' +
-          '<div class="detail"><span class="detail-label">Shedding</span><span class="detail-value">' + (dog.shedding || '?') + '</span></div>' +
-        '</div>' +
-        (dog.notes ? '<div style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 10px;">📝 ' + dog.notes + '</div>' : '') +
-        '<a href="' + url + '" target="_blank" class="dog-link">🔗 View on rescue site</a>' +
-        '<div class="dog-actions">' +
-          '<button class="action-btn" onclick="openEdit(\x27' + safeId + '\x27)">✏️ Edit</button>' +
-        '</div>' +
-      '</div>';
+      const card = document.createElement('div');
+      card.className = 'dog-card' + (isWatched ? ' watched' : '') + (statusClass === 'pending' ? ' pending' : '');
+      
+      card.innerHTML = `
+        <div class="dog-header">
+          <div>
+            <div class="dog-name">${dog.dog_name || 'Unknown'}</div>
+            <div class="dog-rescue">${dog.rescue_name || 'Unknown Rescue'}</div>
+          </div>
+          <button class="star-btn ${isWatched ? 'starred' : ''}" data-action="watch" data-id="${dogId}">${isWatched ? '★' : '☆'}</button>
+        </div>
+        <div class="dog-score">
+          <div class="score-display ${scoreClass}">${dog.fit_score || 0}</div>
+          <div class="score-controls">
+            <button class="score-btn" data-action="score-up" data-id="${dogId}">+</button>
+            <button class="score-btn" data-action="score-down" data-id="${dogId}">−</button>
+          </div>
+          <div class="score-modifier">${modDisplay}</div>
+          <span class="dog-status status-${statusClass}">${dog.status || 'Unknown'}</span>
+        </div>
+        <div class="dog-details">
+          <div class="detail"><span class="detail-label">Weight</span><span class="detail-value">${dog.weight ? dog.weight + ' lbs' : '?'}</span></div>
+          <div class="detail"><span class="detail-label">Age</span><span class="detail-value">${dog.age_range || '?'}</span></div>
+          <div class="detail"><span class="detail-label">Breed</span><span class="detail-value">${dog.breed || '?'}</span></div>
+          <div class="detail"><span class="detail-label">Energy</span><span class="detail-value">${dog.energy_level || '?'}</span></div>
+          <div class="detail"><span class="detail-label">Dogs</span><span class="detail-value ${valueClass(dog.good_with_dogs)}">${dog.good_with_dogs || '?'}</span></div>
+          <div class="detail"><span class="detail-label">Kids</span><span class="detail-value ${valueClass(dog.good_with_kids)}">${dog.good_with_kids || '?'}</span></div>
+          <div class="detail"><span class="detail-label">Cats</span><span class="detail-value ${valueClass(dog.good_with_cats)}">${dog.good_with_cats || '?'}</span></div>
+          <div class="detail"><span class="detail-label">Shedding</span><span class="detail-value">${dog.shedding || '?'}</span></div>
+        </div>
+        ${dog.notes ? '<div style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 10px;">📝 ' + dog.notes + '</div>' : ''}
+        <a href="${url}" target="_blank" class="dog-link">🔗 View on rescue site</a>
+        <div class="dog-actions">
+          <button class="action-btn" data-action="edit" data-id="${dogId}">✏️ Edit</button>
+        </div>
+      `;
+      
+      return card.outerHTML;
     }
+    
+    // Event delegation for dog card buttons
+    document.getElementById('dogGrid').addEventListener('click', function(e) {
+      const btn = e.target.closest('button[data-action]');
+      if (!btn) return;
+      
+      const action = btn.dataset.action;
+      const dogId = btn.dataset.id;
+      
+      if (action === 'watch') toggleWatch(dogId);
+      else if (action === 'score-up') adjustScore(dogId, 1);
+      else if (action === 'score-down') adjustScore(dogId, -1);
+      else if (action === 'edit') openEdit(dogId);
+    });
     
     function updateStats() {
       document.getElementById('totalDogs').textContent = dogsData.length;
