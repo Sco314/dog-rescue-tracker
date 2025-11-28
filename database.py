@@ -1,1162 +1,499 @@
-#!/usr/bin/env python3
 """
-Dog Rescue Dashboard Generator
-v1.0.0
-
-Generates an interactive HTML dashboard from the database.
-
-Usage:
-  python dashboard.py              # Generate static HTML
-  python dashboard.py -o out.html  # Generate to specific file
+SQLite database operations for dog rescue tracker
+v1.0.0 - Initial schema
 """
-import os
-import sys
-import json
-import argparse
+import sqlite3
+from typing import List, Optional, Dict, Any
 from datetime import datetime
-
-# Add project root to path
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-
-from database import init_database, get_connection
+from models import Dog, ChangeRecord, get_current_timestamp
 
 
-def get_dashboard_data():
-  """Get all data needed for dashboard"""
+DB_FILE = "dogs.db"
+
+
+def get_connection() -> sqlite3.Connection:
+  """Get database connection with row factory"""
+  conn = sqlite3.connect(DB_FILE)
+  conn.row_factory = sqlite3.Row
+  return conn
+
+
+def init_database():
+  """Initialize database schema"""
   conn = get_connection()
   cursor = conn.cursor()
   
-  # Get all active dogs
+  # Main dogs table - current state of each dog
   cursor.execute("""
-    SELECT * FROM dogs 
-    WHERE is_active = 1 
-    ORDER BY fit_score DESC, dog_name ASC
+    CREATE TABLE IF NOT EXISTS dogs (
+      dog_id TEXT PRIMARY KEY,
+      dog_name TEXT NOT NULL,
+      rescue_name TEXT NOT NULL,
+      breed TEXT,
+      weight INTEGER,
+      age_range TEXT,
+      age_category TEXT,
+      sex TEXT,
+      shedding TEXT,
+      energy_level TEXT,
+      good_with_kids TEXT,
+      good_with_dogs TEXT,
+      good_with_cats TEXT,
+      training_level TEXT,
+      training_notes TEXT,
+      special_needs TEXT,
+      health_notes TEXT,
+      adoption_req TEXT,
+      adoption_fee TEXT,
+      platform TEXT,
+      location TEXT,
+      status TEXT,
+      notes TEXT,
+      source_url TEXT,
+      image_url TEXT,
+      fit_score INTEGER,
+      watch_list TEXT,
+      date_first_seen TEXT,
+      date_last_updated TEXT,
+      date_status_changed TEXT,
+      date_went_pending TEXT,
+      date_went_unavailable TEXT,
+      is_active INTEGER DEFAULT 1
+    )
   """)
-  dogs = [dict(row) for row in cursor.fetchall()]
   
-  # Get recent changes
+  # Changes table - tracks all changes for analytics
   cursor.execute("""
-    SELECT c.*, d.fit_score as current_fit
-    FROM changes c
-    LEFT JOIN dogs d ON c.dog_id = d.dog_id
-    WHERE c.timestamp > datetime('now', '-7 days')
-    ORDER BY c.timestamp DESC
-    LIMIT 100
+    CREATE TABLE IF NOT EXISTS changes (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      dog_id TEXT NOT NULL,
+      dog_name TEXT NOT NULL,
+      field_changed TEXT NOT NULL,
+      old_value TEXT,
+      new_value TEXT,
+      change_type TEXT NOT NULL,
+      timestamp TEXT NOT NULL,
+      notified INTEGER DEFAULT 0,
+      FOREIGN KEY (dog_id) REFERENCES dogs(dog_id)
+    )
   """)
-  changes = [dict(row) for row in cursor.fetchall()]
   
+  # Scrape runs table - tracks each scrape for debugging/analytics
+  cursor.execute("""
+    CREATE TABLE IF NOT EXISTS scrape_runs (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      timestamp TEXT NOT NULL,
+      rescue_name TEXT,
+      dogs_found INTEGER,
+      new_dogs INTEGER,
+      changes_detected INTEGER,
+      errors TEXT,
+      duration_seconds REAL
+    )
+  """)
+  
+  # Status history table - detailed status progression per dog
+  cursor.execute("""
+    CREATE TABLE IF NOT EXISTS status_history (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      dog_id TEXT NOT NULL,
+      status TEXT NOT NULL,
+      timestamp TEXT NOT NULL,
+      days_in_previous_status INTEGER,
+      FOREIGN KEY (dog_id) REFERENCES dogs(dog_id)
+    )
+  """)
+  
+  # Create indexes for common queries
+  cursor.execute("CREATE INDEX IF NOT EXISTS idx_dogs_status ON dogs(status)")
+  cursor.execute("CREATE INDEX IF NOT EXISTS idx_dogs_rescue ON dogs(rescue_name)")
+  cursor.execute("CREATE INDEX IF NOT EXISTS idx_dogs_fit ON dogs(fit_score)")
+  cursor.execute("CREATE INDEX IF NOT EXISTS idx_dogs_watch ON dogs(watch_list)")
+  cursor.execute("CREATE INDEX IF NOT EXISTS idx_changes_dog ON changes(dog_id)")
+  cursor.execute("CREATE INDEX IF NOT EXISTS idx_changes_type ON changes(change_type)")
+  
+  # Migrations for existing databases
+  # Add image_url column if it doesn't exist
+  cursor.execute("PRAGMA table_info(dogs)")
+  columns = [col[1] for col in cursor.fetchall()]
+  if "image_url" not in columns:
+    cursor.execute("ALTER TABLE dogs ADD COLUMN image_url TEXT")
+    print("  📸 Added image_url column to dogs table")
+  
+  # Add age scoring fields if they don't exist
+  if "age_years_min" not in columns:
+    cursor.execute("ALTER TABLE dogs ADD COLUMN age_years_min REAL")
+    print("  📅 Added age_years_min column to dogs table")
+  if "age_years_max" not in columns:
+    cursor.execute("ALTER TABLE dogs ADD COLUMN age_years_max REAL")
+    print("  📅 Added age_years_max column to dogs table")
+  if "age_is_range" not in columns:
+    cursor.execute("ALTER TABLE dogs ADD COLUMN age_is_range INTEGER DEFAULT 0")
+    print("  📅 Added age_is_range column to dogs table")
+  if "age_score" not in columns:
+    cursor.execute("ALTER TABLE dogs ADD COLUMN age_score INTEGER")
+    print("  📅 Added age_score column to dogs table")
+  
+  conn.commit()
+  conn.close()
+  print("✅ Database initialized")
+
+
+def dog_exists(dog_id: str) -> bool:
+  """Check if dog already exists in database"""
+  conn = get_connection()
+  cursor = conn.cursor()
+  cursor.execute("SELECT 1 FROM dogs WHERE dog_id = ?", (dog_id,))
+  result = cursor.fetchone()
+  conn.close()
+  return result is not None
+
+
+def get_dog(dog_id: str) -> Optional[Dict]:
+  """Get dog by ID"""
+  conn = get_connection()
+  cursor = conn.cursor()
+  cursor.execute("SELECT * FROM dogs WHERE dog_id = ?", (dog_id,))
+  row = cursor.fetchone()
+  conn.close()
+  return dict(row) if row else None
+
+
+def get_all_active_dogs() -> List[Dict]:
+  """Get all active dogs"""
+  conn = get_connection()
+  cursor = conn.cursor()
+  cursor.execute("SELECT * FROM dogs WHERE is_active = 1 ORDER BY fit_score DESC")
+  rows = cursor.fetchall()
+  conn.close()
+  return [dict(row) for row in rows]
+
+
+def insert_dog(dog: Dog) -> List[ChangeRecord]:
+  """
+  Insert new dog into database
+  Returns list of changes (new dog notification)
+  """
+  changes = []
+  now = get_current_timestamp()
+  
+  conn = get_connection()
+  cursor = conn.cursor()
+  
+  cursor.execute("""
+    INSERT INTO dogs (
+      dog_id, dog_name, rescue_name, breed, weight, age_range, age_category,
+      age_years_min, age_years_max, age_is_range, age_score,
+      sex, shedding, energy_level, good_with_kids, good_with_dogs, good_with_cats,
+      training_level, training_notes, special_needs, health_notes, adoption_req,
+      adoption_fee, platform, location, status, notes, source_url, image_url,
+      fit_score, watch_list, date_first_seen, date_last_updated, date_status_changed
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  """, (
+    dog.dog_id, dog.dog_name, dog.rescue_name, dog.breed, dog.weight,
+    dog.age_range, dog.age_category, dog.age_years_min, dog.age_years_max,
+    1 if dog.age_is_range else 0, dog.age_score,
+    dog.sex, dog.shedding, dog.energy_level,
+    dog.good_with_kids, dog.good_with_dogs, dog.good_with_cats,
+    dog.training_level, dog.training_notes, dog.special_needs, dog.health_notes,
+    dog.adoption_req, dog.adoption_fee, dog.platform, dog.location, dog.status,
+    dog.notes, dog.source_url, dog.image_url, dog.fit_score, dog.watch_list,
+    now, now, now
+  ))
+  
+  # Record initial status in history
+  cursor.execute("""
+    INSERT INTO status_history (dog_id, status, timestamp)
+    VALUES (?, ?, ?)
+  """, (dog.dog_id, dog.status, now))
+  
+  # Create change record for new dog
+  change = ChangeRecord(
+    dog_id=dog.dog_id,
+    dog_name=dog.dog_name,
+    field_changed="dog",
+    old_value="",
+    new_value=f"New: {dog.status} | Fit: {dog.fit_score} | {dog.breed}",
+    timestamp=now,
+    change_type="new_dog"
+  )
+  changes.append(change)
+  
+  # Record change in database
+  cursor.execute("""
+    INSERT INTO changes (dog_id, dog_name, field_changed, old_value, new_value, change_type, timestamp)
+    VALUES (?, ?, ?, ?, ?, ?, ?)
+  """, (change.dog_id, change.dog_name, change.field_changed, 
+        change.old_value, change.new_value, change.change_type, change.timestamp))
+  
+  conn.commit()
   conn.close()
   
-  return {
-    "dogs": dogs,
-    "changes": changes,
-    "generated_at": datetime.now().isoformat()
+  print(f"  🆕 New dog: {dog.dog_name} ({dog.rescue_name}) - Fit: {dog.fit_score}")
+  return changes
+
+
+def update_dog(dog: Dog) -> List[ChangeRecord]:
+  """
+  Update existing dog, detect and record changes
+  Returns list of changes detected
+  """
+  changes = []
+  now = get_current_timestamp()
+  
+  existing = get_dog(dog.dog_id)
+  if not existing:
+    return insert_dog(dog)
+  
+  conn = get_connection()
+  cursor = conn.cursor()
+  
+  # Fields to track for changes
+  tracked_fields = [
+    ("status", "status"),
+    ("fit_score", "fit_score"),
+    ("weight", "weight"),
+    ("shedding", "shedding"),
+    ("energy_level", "energy_level"),
+    ("good_with_kids", "good_with_kids"),
+    ("good_with_dogs", "good_with_dogs"),
+    ("good_with_cats", "good_with_cats"),
+    ("special_needs", "special_needs"),
+    ("adoption_fee", "adoption_fee")
+  ]
+  
+  status_changed = False
+  
+  for field, attr in tracked_fields:
+    old_val = existing.get(field)
+    new_val = getattr(dog, attr)
+    
+    # Normalize for comparison
+    old_str = str(old_val) if old_val is not None else ""
+    new_str = str(new_val) if new_val is not None else ""
+    
+    if old_str != new_str and new_str:  # Only if actually changed and new value exists
+      change_type = "status_change" if field == "status" else "field_update"
+      
+      change = ChangeRecord(
+        dog_id=dog.dog_id,
+        dog_name=dog.dog_name,
+        field_changed=field,
+        old_value=old_str,
+        new_value=new_str,
+        timestamp=now,
+        change_type=change_type
+      )
+      changes.append(change)
+      
+      # Record change
+      cursor.execute("""
+        INSERT INTO changes (dog_id, dog_name, field_changed, old_value, new_value, change_type, timestamp)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+      """, (change.dog_id, change.dog_name, change.field_changed,
+            change.old_value, change.new_value, change.change_type, change.timestamp))
+      
+      if field == "status":
+        status_changed = True
+        print(f"  📢 Status change: {dog.dog_name} | {old_str} → {new_str}")
+        
+        # Calculate days in previous status
+        cursor.execute("""
+          SELECT timestamp FROM status_history 
+          WHERE dog_id = ? ORDER BY timestamp DESC LIMIT 1
+        """, (dog.dog_id,))
+        last_status = cursor.fetchone()
+        
+        days_in_prev = None
+        if last_status:
+          try:
+            last_dt = datetime.fromisoformat(last_status['timestamp'])
+            days_in_prev = (datetime.now() - last_dt).days
+          except:
+            pass
+        
+        # Record new status in history
+        cursor.execute("""
+          INSERT INTO status_history (dog_id, status, timestamp, days_in_previous_status)
+          VALUES (?, ?, ?, ?)
+        """, (dog.dog_id, new_str, now, days_in_prev))
+  
+  # Update the dog record
+  update_fields = {
+    "breed": dog.breed,
+    "weight": dog.weight,
+    "age_range": dog.age_range,
+    "age_category": dog.age_category,
+    "age_years_min": dog.age_years_min,
+    "age_years_max": dog.age_years_max,
+    "age_is_range": 1 if dog.age_is_range else 0,
+    "age_score": dog.age_score,
+    "sex": dog.sex,
+    "shedding": dog.shedding,
+    "energy_level": dog.energy_level,
+    "good_with_kids": dog.good_with_kids,
+    "good_with_dogs": dog.good_with_dogs,
+    "good_with_cats": dog.good_with_cats,
+    "training_level": dog.training_level,
+    "training_notes": dog.training_notes,
+    "special_needs": dog.special_needs,
+    "health_notes": dog.health_notes,
+    "adoption_req": dog.adoption_req,
+    "adoption_fee": dog.adoption_fee,
+    "platform": dog.platform,
+    "location": dog.location,
+    "status": dog.status,
+    "notes": dog.notes,
+    "source_url": dog.source_url,
+    "image_url": dog.image_url,
+    "fit_score": dog.fit_score,
+    "watch_list": dog.watch_list,
+    "date_last_updated": now,
+    "is_active": 1
   }
-
-
-def generate_changes_html(changes):
-  """Generate HTML for recent changes"""
-  if not changes:
-    return '<div class="change-item"><span class="change-msg">No recent changes</span></div>'
   
-  html_parts = []
-  for change in changes[:20]:
-    change_type = change.get('change_type', '')
-    dog_name = change.get('dog_name', 'Unknown')
-    old_val = change.get('old_value', '')
-    new_val = change.get('new_value', '')
-    timestamp = change.get('timestamp', '')
-    
-    try:
-      dt = datetime.fromisoformat(timestamp)
-      time_str = dt.strftime('%m/%d %H:%M')
-    except:
-      time_str = timestamp[:16] if timestamp else '?'
-    
-    if change_type == 'new_dog':
-      icon = '🆕'
-      msg = 'New dog listed'
-    elif change_type == 'status_change':
-      if 'pending' in (new_val or '').lower():
-        icon = '⏳'
-        msg = f'{old_val} → Pending'
-      elif 'available' in (new_val or '').lower():
-        icon = '✅'
-        msg = f'{old_val} → Available'
-      elif 'adopted' in (new_val or '').lower():
-        icon = '🏠'
-        msg = f'Adopted/Removed'
-      else:
-        icon = '🔄'
-        msg = f'{old_val} → {new_val}'
-    else:
-      icon = '📝'
-      field = change.get('field_changed', '')
-      msg = f'{field}: {old_val} → {new_val}'
-    
-    html_parts.append(f'''
-      <div class="change-item">
-        <span class="change-icon">{icon}</span>
-        <div class="change-details">
-          <div class="change-dog">{dog_name}</div>
-          <div class="change-msg">{msg}</div>
-        </div>
-        <span class="change-time">{time_str}</span>
-      </div>
-    ''')
+  if status_changed:
+    update_fields["date_status_changed"] = now
+    if dog.status.lower() == "pending":
+      update_fields["date_went_pending"] = now
+    elif dog.status.lower() in ["adopted", "unavailable"]:
+      update_fields["date_went_unavailable"] = now
   
-  return ''.join(html_parts)
+  set_clause = ", ".join([f"{k} = ?" for k in update_fields.keys()])
+  values = list(update_fields.values()) + [dog.dog_id]
+  
+  cursor.execute(f"UPDATE dogs SET {set_clause} WHERE dog_id = ?", values)
+  
+  conn.commit()
+  conn.close()
+  
+  return changes
 
 
-def generate_html_dashboard(output_path="dashboard.html"):
-  """Generate a standalone HTML dashboard file"""
-  init_database()
-  data = get_dashboard_data()
+def mark_dogs_inactive(active_dog_ids: List[str], rescue_name: str) -> List[ChangeRecord]:
+  """
+  Mark dogs as inactive if they weren't found in current scrape
+  (Dog removed from website = likely adopted)
+  """
+  changes = []
+  now = get_current_timestamp()
   
-  html = '''<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>🐕 Dog Rescue Dashboard</title>
-  <style>
-    :root {
-      --bg-primary: #1a1a2e;
-      --bg-secondary: #16213e;
-      --bg-card: #1f2937;
-      --text-primary: #e2e8f0;
-      --text-secondary: #94a3b8;
-      --accent: #3b82f6;
-      --success: #10b981;
-      --warning: #f59e0b;
-      --danger: #ef4444;
-      --star: #fbbf24;
-    }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background: var(--bg-primary);
-      color: var(--text-primary);
-      line-height: 1.6;
-      padding: 20px;
-    }
-    .container { max-width: 1400px; margin: 0 auto; }
-    header {
-      text-align: center;
-      margin-bottom: 30px;
-      padding: 20px;
-      background: var(--bg-secondary);
-      border-radius: 12px;
-    }
-    header h1 { font-size: 2rem; margin-bottom: 10px; }
-    .stats { display: flex; justify-content: center; gap: 30px; flex-wrap: wrap; }
-    .stat { text-align: center; }
-    .stat-value { font-size: 2rem; font-weight: bold; color: var(--accent); }
-    .stat-label { color: var(--text-secondary); font-size: 0.875rem; }
-    .controls {
-      display: flex;
-      gap: 15px;
-      margin-bottom: 20px;
-      flex-wrap: wrap;
-      align-items: center;
-    }
-    .search-box {
-      flex: 1;
-      min-width: 200px;
-      padding: 10px 15px;
-      border: 1px solid #374151;
-      border-radius: 8px;
-      background: var(--bg-card);
-      color: var(--text-primary);
-      font-size: 1rem;
-    }
-    .filter-btn {
-      padding: 10px 20px;
-      border: 1px solid #374151;
-      border-radius: 8px;
-      background: var(--bg-card);
-      color: var(--text-primary);
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-    .filter-btn:hover, .filter-btn.active {
-      background: var(--accent);
-      border-color: var(--accent);
-    }
-    .sort-select {
-      padding: 10px 15px;
-      border: 1px solid #374151;
-      border-radius: 8px;
-      background: var(--bg-card);
-      color: var(--text-primary);
-      font-size: 1rem;
-    }
-    .section {
-      background: var(--bg-secondary);
-      border-radius: 12px;
-      padding: 20px;
-      margin-bottom: 30px;
-    }
-    .section-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 15px;
-      padding-bottom: 10px;
-      border-bottom: 1px solid #374151;
-    }
-    .section-title {
-      font-size: 1.25rem;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-    .badge {
-      background: var(--accent);
-      color: white;
-      padding: 2px 10px;
-      border-radius: 20px;
-      font-size: 0.875rem;
-    }
-    .dog-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-      gap: 20px;
-    }
-    .dog-card {
-      background: var(--bg-card);
-      border-radius: 10px;
-      padding: 20px;
-      transition: transform 0.2s, box-shadow 0.2s;
-    }
-    .dog-card:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-    }
-    .dog-card.watched { border: 2px solid var(--star); }
-    .dog-card.pending { opacity: 0.7; }
-    .dog-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      margin-bottom: 15px;
-    }
-    .dog-name { font-size: 1.25rem; font-weight: bold; }
-    .dog-rescue { font-size: 0.875rem; color: var(--text-secondary); }
-    .star-btn {
-      background: none;
-      border: none;
-      font-size: 1.5rem;
-      cursor: pointer;
-      transition: transform 0.2s;
-    }
-    .star-btn:hover { transform: scale(1.2); }
-    .star-btn.starred { color: var(--star); }
-    .star-btn:not(.starred) { color: #4b5563; }
-    .dog-score {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 15px;
-    }
-    .score-display {
-      font-size: 2rem;
-      font-weight: bold;
-      min-width: 50px;
-      text-align: center;
-    }
-    .score-high { color: var(--success); }
-    .score-medium { color: var(--warning); }
-    .score-low { color: var(--danger); }
-    .score-controls { display: flex; flex-direction: column; gap: 2px; }
-    .score-btn {
-      width: 30px;
-      height: 24px;
-      border: 1px solid #374151;
-      border-radius: 4px;
-      background: var(--bg-secondary);
-      color: var(--text-primary);
-      cursor: pointer;
-      font-weight: bold;
-    }
-    .score-btn:hover { background: var(--accent); }
-    .score-modifier { font-size: 0.75rem; color: var(--text-secondary); }
-    .dog-details {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-      font-size: 0.875rem;
-      margin-bottom: 15px;
-    }
-    .detail { display: flex; justify-content: space-between; }
-    .detail-label { color: var(--text-secondary); }
-    .detail-value { font-weight: 500; }
-    .detail-value.good { color: var(--success); }
-    .detail-value.bad { color: var(--danger); }
-    .detail-value.unknown { color: var(--text-secondary); }
-    .dog-status {
-      display: inline-block;
-      padding: 4px 12px;
-      border-radius: 20px;
-      font-size: 0.875rem;
-      font-weight: 500;
-    }
-    .status-available { background: rgba(16, 185, 129, 0.2); color: var(--success); }
-    .status-pending { background: rgba(245, 158, 11, 0.2); color: var(--warning); }
-    .status-upcoming { background: rgba(59, 130, 246, 0.2); color: var(--accent); }
-    .dog-actions {
-      display: flex;
-      gap: 10px;
-      margin-top: 15px;
-      padding-top: 15px;
-      border-top: 1px solid #374151;
-    }
-    .action-btn {
-      flex: 1;
-      padding: 8px 15px;
-      border: 1px solid #374151;
-      border-radius: 6px;
-      background: var(--bg-secondary);
-      color: var(--text-primary);
-      cursor: pointer;
-      font-size: 0.875rem;
-      transition: all 0.2s;
-    }
-    .action-btn:hover { background: var(--accent); border-color: var(--accent); }
-    .modal {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0,0,0,0.8);
-      z-index: 1000;
-      justify-content: center;
-      align-items: center;
-    }
-    .modal.active { display: flex; }
-    .modal-content {
-      background: var(--bg-secondary);
-      border-radius: 12px;
-      padding: 30px;
-      max-width: 500px;
-      width: 90%;
-      max-height: 90vh;
-      overflow-y: auto;
-    }
-    .modal-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 20px;
-    }
-    .modal-title { font-size: 1.5rem; }
-    .modal-close {
-      background: none;
-      border: none;
-      font-size: 1.5rem;
-      color: var(--text-secondary);
-      cursor: pointer;
-    }
-    .form-group { margin-bottom: 15px; }
-    .form-label { display: block; margin-bottom: 5px; color: var(--text-secondary); font-size: 0.875rem; }
-    .form-input, .form-select {
-      width: 100%;
-      padding: 10px;
-      border: 1px solid #374151;
-      border-radius: 6px;
-      background: var(--bg-card);
-      color: var(--text-primary);
-      font-size: 1rem;
-    }
-    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-    
-    /* Score Breakdown Panel */
-    .score-breakdown {
-      background: var(--bg-card);
-      border: 1px solid #374151;
-      border-radius: 8px;
-      padding: 15px;
-      margin-bottom: 20px;
-    }
-    .score-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 12px;
-      padding-bottom: 8px;
-      border-bottom: 1px solid #374151;
-    }
-    .score-title { font-weight: 600; color: var(--text-secondary); }
-    .score-total {
-      font-size: 1.5rem;
-      font-weight: 700;
-      color: var(--accent);
-      background: rgba(96, 165, 250, 0.15);
-      padding: 4px 12px;
-      border-radius: 6px;
-    }
-    .score-items {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 6px 15px;
-      font-size: 0.85rem;
-    }
-    .score-item {
-      display: flex;
-      justify-content: space-between;
-      padding: 4px 0;
-    }
-    .score-item-label { color: var(--text-secondary); }
-    .score-item-value { font-weight: 600; }
-    .score-item-value.positive { color: var(--success); }
-    .score-item-value.negative { color: var(--danger); }
-    .score-item-value.neutral { color: var(--text-secondary); }
-    .score-note {
-      margin-top: 12px;
-      padding-top: 10px;
-      border-top: 1px solid #374151;
-      font-size: 0.75rem;
-      color: var(--warning);
-      text-align: center;
-    }
-    .score-adjust-row {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-    .score-adjust-hint {
-      font-size: 0.8rem;
-      color: var(--text-secondary);
-    }
-    
-    .save-btn {
-      width: 100%;
-      padding: 12px;
-      background: var(--success);
-      border: none;
-      border-radius: 6px;
-      color: white;
-      font-size: 1rem;
-      font-weight: 500;
-      cursor: pointer;
-      margin-top: 20px;
-    }
-    .save-btn:hover { opacity: 0.9; }
-    .changes-list { max-height: 300px; overflow-y: auto; }
-    .change-item {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 10px;
-      border-bottom: 1px solid #374151;
-    }
-    .change-icon { font-size: 1.25rem; }
-    .change-details { flex: 1; }
-    .change-dog { font-weight: 500; }
-    .change-msg { font-size: 0.875rem; color: var(--text-secondary); }
-    .change-time { font-size: 0.75rem; color: var(--text-secondary); }
-    .toast {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      padding: 15px 25px;
-      background: var(--success);
-      color: white;
-      border-radius: 8px;
-      z-index: 2000;
-      animation: slideIn 0.3s ease;
-    }
-    @keyframes slideIn {
-      from { transform: translateX(100%); opacity: 0; }
-      to { transform: translateX(0); opacity: 1; }
-    }
-    .toast.error { background: var(--danger); }
-    .dog-link { color: var(--accent); text-decoration: none; font-size: 0.875rem; }
-    .dog-link:hover { text-decoration: underline; }
-    @media (max-width: 768px) {
-      .dog-grid { grid-template-columns: 1fr; }
-      .controls { flex-direction: column; }
-      .search-box { width: 100%; }
-    }
-    .export-section {
-      margin-top: 20px;
-      padding: 15px;
-      background: var(--bg-card);
-      border-radius: 8px;
-    }
-    .export-btn {
-      padding: 10px 20px;
-      background: var(--accent);
-      border: none;
-      border-radius: 6px;
-      color: white;
-      cursor: pointer;
-      margin-right: 10px;
-    }
-    .export-btn:hover { opacity: 0.9; }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <header>
-      <h1>🐕 Dog Rescue Dashboard</h1>
-      <p style="color: var(--text-secondary); margin-bottom: 15px;">
-        Last updated: ''' + datetime.now().strftime('%Y-%m-%d %H:%M:%S') + '''
-      </p>
-      <div class="stats">
-        <div class="stat">
-          <div class="stat-value" id="totalDogs">''' + str(len(data['dogs'])) + '''</div>
-          <div class="stat-label">Total Dogs</div>
-        </div>
-        <div class="stat">
-          <div class="stat-value" id="watchCount">''' + str(len([d for d in data['dogs'] if d.get('watch_list') == 'Yes'])) + '''</div>
-          <div class="stat-label">Watching</div>
-        </div>
-        <div class="stat">
-          <div class="stat-value" id="highFitCount">''' + str(len([d for d in data['dogs'] if (d.get('fit_score') or 0) >= 5])) + '''</div>
-          <div class="stat-label">High Fit (5+)</div>
-        </div>
-        <div class="stat">
-          <div class="stat-value" id="availableCount">''' + str(len([d for d in data['dogs'] if d.get('status') == 'Available'])) + '''</div>
-          <div class="stat-label">Available</div>
-        </div>
-      </div>
-    </header>
-    
-    <div class="controls">
-      <input type="text" class="search-box" id="searchBox" placeholder="🔍 Search dogs by name, breed, rescue...">
-      <button class="filter-btn active" data-filter="all">All</button>
-      <button class="filter-btn" data-filter="watched">⭐ Watched</button>
-      <button class="filter-btn" data-filter="high-fit">High Fit</button>
-      <button class="filter-btn" data-filter="available">Available</button>
-      <button class="filter-btn" data-filter="upcoming">Upcoming</button>
-      <select class="sort-select" id="sortSelect">
-        <option value="fit-desc">Sort: Fit Score ↓</option>
-        <option value="fit-asc">Sort: Fit Score ↑</option>
-        <option value="name-asc">Sort: Name A-Z</option>
-        <option value="weight-desc">Sort: Weight ↓</option>
-        <option value="date-desc">Sort: Newest First</option>
-      </select>
-    </div>
-    
-    <div class="section" id="changesSection">
-      <div class="section-header">
-        <h2 class="section-title">📢 Recent Changes <span class="badge">''' + str(len(data['changes'])) + '''</span></h2>
-      </div>
-      <div class="changes-list" id="changesList">
-        ''' + generate_changes_html(data['changes']) + '''
-      </div>
-    </div>
-    
-    <div class="section">
-      <div class="section-header">
-        <h2 class="section-title">🐕 All Dogs <span class="badge" id="visibleCount">''' + str(len(data['dogs'])) + '''</span></h2>
-      </div>
-      <div class="dog-grid" id="dogGrid"></div>
-      
-      <div class="export-section">
-        <h3 style="margin-bottom: 10px;">💾 Export Your Changes</h3>
-        <p style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 15px;">
-          Your star ratings, score adjustments, and edits are saved in your browser. 
-          Export them to keep a backup or import on another device.
-        </p>
-        <button class="export-btn" onclick="exportMods()">📥 Export Changes</button>
-        <button class="export-btn" onclick="document.getElementById('importFile').click()">📤 Import Changes</button>
-        <input type="file" id="importFile" style="display:none" accept=".json" onchange="importMods(event)">
-        <button class="export-btn" style="background: var(--danger);" onclick="clearMods()">🗑️ Clear All Changes</button>
-      </div>
-    </div>
-  </div>
+  if not active_dog_ids:
+    return changes
   
-  <!-- Edit Modal -->
-  <div class="modal" id="editModal">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h3 class="modal-title">✏️ Edit Dog</h3>
-        <button class="modal-close" onclick="closeModal()">&times;</button>
-      </div>
-      <form id="editForm">
-        <input type="hidden" id="editDogId">
-        
-        <div class="form-group">
-          <label class="form-label">Dog Name</label>
-          <input type="text" class="form-input" id="editName" readonly>
-        </div>
-        
-        <!-- Scoring Breakdown Panel -->
-        <div class="score-breakdown" id="scoreBreakdown">
-          <div class="score-header">
-            <span class="score-title">📊 Fit Score Breakdown</span>
-            <span class="score-total" id="scoreTotal">0</span>
-          </div>
-          <div class="score-items" id="scoreItems">
-            <!-- Populated by JS -->
-          </div>
-          <div class="score-note">
-            ⚠️ Changes saved in browser only (localStorage). Export to keep them.
-          </div>
-        </div>
-        
-        <div class="form-row">
-          <div class="form-group">
-            <label class="form-label">Weight (lbs)</label>
-            <input type="number" class="form-input score-input" id="editWeight">
-          </div>
-          <div class="form-group">
-            <label class="form-label">Age</label>
-            <input type="text" class="form-input score-input" id="editAge" placeholder="e.g., 2 yrs, 8 mos">
-          </div>
-        </div>
-        
-        <div class="form-row">
-          <div class="form-group">
-            <label class="form-label">Energy Level</label>
-            <select class="form-select score-input" id="editEnergy">
-              <option value="Unknown">Unknown</option>
-              <option value="Low">Low</option>
-              <option value="Medium">Medium</option>
-              <option value="High">High</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label class="form-label">Shedding</label>
-            <select class="form-select score-input" id="editShedding">
-              <option value="Unknown">Unknown</option>
-              <option value="None">None</option>
-              <option value="Low">Low</option>
-              <option value="Moderate">Moderate</option>
-              <option value="High">High</option>
-            </select>
-          </div>
-        </div>
-        
-        <div class="form-row">
-          <div class="form-group">
-            <label class="form-label">Good with Dogs</label>
-            <select class="form-select score-input" id="editGoodDogs">
-              <option value="Unknown">Unknown</option>
-              <option value="Yes">Yes</option>
-              <option value="No">No</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label class="form-label">Good with Kids</label>
-            <select class="form-select score-input" id="editGoodKids">
-              <option value="Unknown">Unknown</option>
-              <option value="Yes">Yes</option>
-              <option value="No">No</option>
-            </select>
-          </div>
-        </div>
-        
-        <div class="form-row">
-          <div class="form-group">
-            <label class="form-label">Good with Cats</label>
-            <select class="form-select score-input" id="editGoodCats">
-              <option value="Unknown">Unknown</option>
-              <option value="Yes">Yes</option>
-              <option value="No">No</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label class="form-label">Special Needs</label>
-            <select class="form-select score-input" id="editSpecialNeeds">
-              <option value="No">No</option>
-              <option value="Yes">Yes</option>
-            </select>
-          </div>
-        </div>
-        
-        <div class="form-group">
-          <label class="form-label">Manual Score Adjustment</label>
-          <div class="score-adjust-row">
-            <input type="number" class="form-input score-input" id="editScoreModifier" value="0" style="width: 80px; text-align: center;">
-            <span class="score-adjust-hint">Add/subtract from calculated score</span>
-          </div>
-        </div>
-        
-        <div class="form-group">
-          <label class="form-label">Notes</label>
-          <textarea class="form-input" id="editNotes" rows="2" placeholder="Add any notes..."></textarea>
-        </div>
-        
-        <button type="submit" class="save-btn">💾 Save Changes (Browser Only)</button>
-      </form>
-    </div>
-  </div>
+  conn = get_connection()
+  cursor = conn.cursor()
   
-  <script>
-    // Dog data embedded in page
-    let dogsData = ''' + json.dumps(data['dogs'], default=str) + ''';
-    
-    // Local storage for modifications
-    let localMods = JSON.parse(localStorage.getItem('dogMods') || '{}');
-    
-    function applyLocalMods() {
-      dogsData.forEach(dog => {
-        if (localMods[dog.dog_id]) {
-          Object.assign(dog, localMods[dog.dog_id]);
-        }
-      });
-    }
-    
-    function saveMod(dogId, changes) {
-      if (!localMods[dogId]) localMods[dogId] = {};
-      Object.assign(localMods[dogId], changes);
-      localStorage.setItem('dogMods', JSON.stringify(localMods));
-      const dog = dogsData.find(d => d.dog_id === dogId);
-      if (dog) Object.assign(dog, changes);
-    }
-    
-    function toggleWatch(dogId) {
-      const dog = dogsData.find(d => d.dog_id === dogId);
-      if (!dog) return;
-      const newValue = dog.watch_list === 'Yes' ? '' : 'Yes';
-      saveMod(dogId, { watch_list: newValue });
-      renderDogs();
-      updateStats();
-      showToast(newValue === 'Yes' ? '⭐ Added to watch list' : 'Removed from watch list');
-    }
-    
-    function adjustScore(dogId, delta) {
-      const dog = dogsData.find(d => d.dog_id === dogId);
-      if (!dog) return;
-      const currentMod = localMods[dogId]?.score_modifier || 0;
-      const newMod = currentMod + delta;
-      const baseScore = (dog.base_fit_score !== undefined) ? dog.base_fit_score : (dog.fit_score || 0);
-      if (dog.base_fit_score === undefined) {
-        saveMod(dogId, { base_fit_score: dog.fit_score || 0 });
-      }
-      const newScore = Math.max(0, baseScore + newMod);
-      saveMod(dogId, { score_modifier: newMod, fit_score: newScore });
-      renderDogs();
-      updateStats();
-      showToast('Score adjusted to ' + newScore);
-    }
-    
-    function openEdit(dogId) {
-      const dog = dogsData.find(d => d.dog_id === dogId);
-      if (!dog) return;
-      document.getElementById('editDogId').value = dogId;
-      document.getElementById('editName').value = dog.dog_name || '';
-      document.getElementById('editWeight').value = dog.weight || '';
-      document.getElementById('editAge').value = dog.age_range || '';
-      document.getElementById('editEnergy').value = dog.energy_level || 'Unknown';
-      document.getElementById('editShedding').value = dog.shedding || 'Unknown';
-      document.getElementById('editGoodDogs').value = dog.good_with_dogs || 'Unknown';
-      document.getElementById('editGoodKids').value = dog.good_with_kids || 'Unknown';
-      document.getElementById('editGoodCats').value = dog.good_with_cats || 'Unknown';
-      document.getElementById('editSpecialNeeds').value = dog.special_needs || 'No';
-      document.getElementById('editScoreModifier').value = localMods[dogId]?.score_modifier || 0;
-      document.getElementById('editNotes').value = dog.notes || '';
-      updateScoreBreakdown();
-      document.getElementById('editModal').classList.add('active');
-    }
-    
-    function updateScoreBreakdown() {
-      const dogId = document.getElementById('editDogId').value;
-      const dog = dogsData.find(d => d.dog_id === dogId);
-      if (!dog) return;
-      
-      const data = {
-        weight: parseInt(document.getElementById('editWeight').value) || null,
-        age_range: document.getElementById('editAge').value,
-        energy_level: document.getElementById('editEnergy').value,
-        shedding: document.getElementById('editShedding').value,
-        good_with_dogs: document.getElementById('editGoodDogs').value,
-        good_with_kids: document.getElementById('editGoodKids').value,
-        good_with_cats: document.getElementById('editGoodCats').value,
-        special_needs: document.getElementById('editSpecialNeeds').value,
-        breed: dog.breed || ''
-      };
-      const mod = parseInt(document.getElementById('editScoreModifier').value) || 0;
-      
-      // Calculate each component
-      const breakdown = calculateScoreBreakdown(data);
-      breakdown.push({ label: 'Manual Adjust', value: mod });
-      
-      // Build HTML
-      let html = '';
-      let total = 0;
-      breakdown.forEach(item => {
-        const valueClass = item.value > 0 ? 'positive' : (item.value < 0 ? 'negative' : 'neutral');
-        const sign = item.value > 0 ? '+' : '';
-        html += '<div class="score-item">';
-        html += '<span class="score-item-label">' + item.label + '</span>';
-        html += '<span class="score-item-value ' + valueClass + '">' + sign + item.value + '</span>';
-        html += '</div>';
-        total += item.value;
-      });
-      
-      total = Math.max(0, total);
-      document.getElementById('scoreItems').innerHTML = html;
-      document.getElementById('scoreTotal').textContent = total;
-    }
-    
-    function calculateScoreBreakdown(data) {
-      const items = [];
-      
-      // Weight (40+ lbs = +2)
-      if (data.weight && data.weight >= 40) {
-        items.push({ label: 'Weight ≥40 lbs', value: 2 });
-      } else if (data.weight) {
-        items.push({ label: 'Weight <40 lbs', value: 0 });
-      } else {
-        items.push({ label: 'Weight (unknown)', value: 0 });
-      }
-      
-      // Age scoring
-      const ageScore = calculateAgeScore(data.age_range);
-      items.push({ label: 'Age: ' + (data.age_range || '?'), value: ageScore });
-      
-      // Shedding
-      const shedScores = { 'None': 2, 'Low': 1, 'Moderate': 0, 'High': -1, 'Unknown': 1 };
-      items.push({ label: 'Shedding: ' + data.shedding, value: shedScores[data.shedding] || 1 });
-      
-      // Energy
-      const energyScores = { 'Low': 2, 'Medium': 2, 'High': 0, 'Unknown': 1 };
-      items.push({ label: 'Energy: ' + data.energy_level, value: energyScores[data.energy_level] || 1 });
-      
-      // Good with dogs (+2)
-      if (data.good_with_dogs === 'Yes') {
-        items.push({ label: 'Good w/ Dogs ✓', value: 2 });
-      } else {
-        items.push({ label: 'Good w/ Dogs: ' + data.good_with_dogs, value: 0 });
-      }
-      
-      // Good with kids (+1)
-      if (data.good_with_kids === 'Yes') {
-        items.push({ label: 'Good w/ Kids ✓', value: 1 });
-      } else {
-        items.push({ label: 'Good w/ Kids: ' + data.good_with_kids, value: 0 });
-      }
-      
-      // Good with cats (+1)
-      if (data.good_with_cats === 'Yes') {
-        items.push({ label: 'Good w/ Cats ✓', value: 1 });
-      } else {
-        items.push({ label: 'Good w/ Cats: ' + data.good_with_cats, value: 0 });
-      }
-      
-      // Doodle bonus (+1)
-      const breed = (data.breed || '').toLowerCase();
-      if (breed.includes('doodle') || breed.includes('poodle') || breed.includes('poo')) {
-        items.push({ label: 'Doodle Breed ✓', value: 1 });
-      } else {
-        items.push({ label: 'Non-doodle breed', value: 0 });
-      }
-      
-      // Special needs (-1)
-      if (data.special_needs === 'Yes') {
-        items.push({ label: 'Special Needs', value: -1 });
-      }
-      
-      return items;
-    }
-    
-    function calculateAgeScore(ageStr) {
-      if (!ageStr) return 0;
-      ageStr = ageStr.toLowerCase().replace(/–/g, '-').replace(/—/g, '-');
-      
-      // Try range first: "1-3 yrs"
-      let match = ageStr.match(/(\\d+\\.?\\d*)\\s*-\\s*(\\d+\\.?\\d*)\\s*(yr|year|mo|month|wk|week)/);
-      if (match) {
-        let min = parseFloat(match[1]);
-        let max = parseFloat(match[2]);
-        const unit = match[3];
-        if (unit.startsWith('mo')) { min /= 12; max /= 12; }
-        else if (unit.startsWith('wk') || unit.startsWith('week')) { min /= 52; max /= 52; }
-        return Math.max(ageToScore(min), ageToScore(max));
-      }
-      
-      // Single value: "2 yrs", "8 mos"
-      match = ageStr.match(/(\\d+\\.?\\d*)\\s*(yr|year|mo|month|wk|week)/);
-      if (match) {
-        let age = parseFloat(match[1]);
-        const unit = match[2];
-        if (unit.startsWith('mo')) age /= 12;
-        else if (unit.startsWith('wk') || unit.startsWith('week')) age /= 52;
-        return ageToScore(age);
-      }
-      
-      return 0;
-    }
-    
-    function ageToScore(years) {
-      if (years < 0.75) return 0;
-      if (years < 1.0) return 1;
-      if (years < 2.0) return 2;
-      if (years < 3.0) return 1;
-      if (years < 4.0) return 0;
-      if (years < 5.0) return -1;
-      if (years < 6.0) return -2;
-      return -4;
-    }
-    
-    // Add event listeners to update breakdown on field changes
-    document.querySelectorAll('.score-input').forEach(el => {
-      el.addEventListener('change', updateScoreBreakdown);
-      el.addEventListener('input', updateScoreBreakdown);
-    });
-    
-    function closeModal() {
-      document.getElementById('editModal').classList.remove('active');
-    }
-    
-    document.getElementById('editForm').addEventListener('submit', function(e) {
-      e.preventDefault();
-      const dogId = document.getElementById('editDogId').value;
-      const scoreModifier = parseInt(document.getElementById('editScoreModifier').value) || 0;
-      const changes = {
-        weight: parseInt(document.getElementById('editWeight').value) || null,
-        age_range: document.getElementById('editAge').value,
-        energy_level: document.getElementById('editEnergy').value,
-        shedding: document.getElementById('editShedding').value,
-        good_with_dogs: document.getElementById('editGoodDogs').value,
-        good_with_kids: document.getElementById('editGoodKids').value,
-        good_with_cats: document.getElementById('editGoodCats').value,
-        special_needs: document.getElementById('editSpecialNeeds').value,
-        notes: document.getElementById('editNotes').value,
-        score_modifier: scoreModifier
-      };
-      changes.fit_score = calculateFitScore(dogId, changes);
-      saveMod(dogId, changes);
-      closeModal();
-      renderDogs();
-      updateStats();
-      showToast('✅ Changes saved (browser only)');
-    });
-    
-    function calculateFitScore(dogId, changes) {
-      const dog = dogsData.find(d => d.dog_id === dogId);
-      if (!dog) return 0;
-      let score = 0;
-      const data = { ...dog, ...changes };
-      
-      // Weight (40+ = +2)
-      if (data.weight && data.weight >= 40) score += 2;
-      
-      // Age scoring
-      score += calculateAgeScore(data.age_range);
-      
-      // Shedding
-      if (data.shedding === 'None') score += 2;
-      else if (data.shedding === 'Low') score += 1;
-      else if (data.shedding === 'High') score -= 1;
-      else if (data.shedding === 'Unknown') score += 1;
-      
-      // Energy
-      if (data.energy_level === 'Low' || data.energy_level === 'Medium') score += 2;
-      else if (data.energy_level === 'Unknown') score += 1;
-      
-      // Compatibility
-      if (data.good_with_dogs === 'Yes') score += 2;
-      if (data.good_with_kids === 'Yes') score += 1;
-      if (data.good_with_cats === 'Yes') score += 1;
-      
-      // Breed bonus
-      const breed = (data.breed || '').toLowerCase();
-      if (breed.includes('doodle') || breed.includes('poodle') || breed.includes('poo')) score += 1;
-      
-      // Special needs
-      if (data.special_needs === 'Yes') score -= 1;
-      
-      // Manual modifier
-      const mod = changes.score_modifier || localMods[dogId]?.score_modifier || 0;
-      return Math.max(0, score + mod);
-    }
-    
-    function showToast(message, isError = false) {
-      const toast = document.createElement('div');
-      toast.className = 'toast' + (isError ? ' error' : '');
-      toast.textContent = message;
-      document.body.appendChild(toast);
-      setTimeout(() => toast.remove(), 3000);
-    }
-    
-    function renderDogs() {
-      const grid = document.getElementById('dogGrid');
-      const searchTerm = document.getElementById('searchBox').value.toLowerCase();
-      const activeFilter = document.querySelector('.filter-btn.active').dataset.filter;
-      const sortBy = document.getElementById('sortSelect').value;
-      
-      let filtered = dogsData.filter(dog => {
-        const searchMatch = !searchTerm || 
-          (dog.dog_name || '').toLowerCase().includes(searchTerm) ||
-          (dog.breed || '').toLowerCase().includes(searchTerm) ||
-          (dog.rescue_name || '').toLowerCase().includes(searchTerm);
-        if (!searchMatch) return false;
-        switch (activeFilter) {
-          case 'watched': return dog.watch_list === 'Yes';
-          case 'high-fit': return (dog.fit_score || 0) >= 5;
-          case 'available': return dog.status === 'Available';
-          case 'upcoming': return dog.status === 'Upcoming';
-          default: return true;
-        }
-      });
-      
-      filtered.sort((a, b) => {
-        switch (sortBy) {
-          case 'fit-desc': return (b.fit_score || 0) - (a.fit_score || 0);
-          case 'fit-asc': return (a.fit_score || 0) - (b.fit_score || 0);
-          case 'name-asc': return (a.dog_name || '').localeCompare(b.dog_name || '');
-          case 'weight-desc': return (b.weight || 0) - (a.weight || 0);
-          case 'date-desc': return (b.date_first_seen || '').localeCompare(a.date_first_seen || '');
-          default: return 0;
-        }
-      });
-      
-      document.getElementById('visibleCount').textContent = filtered.length;
-      grid.innerHTML = filtered.map(dog => generateDogCard(dog)).join('');
-    }
-    
-    function generateDogCard(dog) {
-      const isWatched = dog.watch_list === 'Yes';
-      const scoreClass = (dog.fit_score || 0) >= 5 ? 'score-high' : (dog.fit_score || 0) >= 3 ? 'score-medium' : 'score-low';
-      const statusClass = (dog.status || '').toLowerCase();
-      const mod = localMods[dog.dog_id]?.score_modifier || 0;
-      const modDisplay = mod !== 0 ? '(' + (mod > 0 ? '+' : '') + mod + ')' : '';
-      const valueClass = (val) => val === 'Yes' ? 'good' : val === 'No' ? 'bad' : 'unknown';
-      const url = dog.source_url || '#';
-      const dogId = dog.dog_id;
-      
-      const card = document.createElement('div');
-      card.className = 'dog-card' + (isWatched ? ' watched' : '') + (statusClass === 'pending' ? ' pending' : '');
-      
-      card.innerHTML = `
-        <div class="dog-header">
-          <div>
-            <div class="dog-name">${dog.dog_name || 'Unknown'}</div>
-            <div class="dog-rescue">${dog.rescue_name || 'Unknown Rescue'}</div>
-          </div>
-          <button class="star-btn ${isWatched ? 'starred' : ''}" data-action="watch" data-id="${dogId}">${isWatched ? '★' : '☆'}</button>
-        </div>
-        <div class="dog-score">
-          <div class="score-display ${scoreClass}">${dog.fit_score || 0}</div>
-          <div class="score-controls">
-            <button class="score-btn" data-action="score-up" data-id="${dogId}">+</button>
-            <button class="score-btn" data-action="score-down" data-id="${dogId}">−</button>
-          </div>
-          <div class="score-modifier">${modDisplay}</div>
-          <span class="dog-status status-${statusClass}">${dog.status || 'Unknown'}</span>
-        </div>
-        <div class="dog-details">
-          <div class="detail"><span class="detail-label">Weight</span><span class="detail-value">${dog.weight ? dog.weight + ' lbs' : '?'}</span></div>
-          <div class="detail"><span class="detail-label">Age</span><span class="detail-value">${dog.age_range || '?'}</span></div>
-          <div class="detail"><span class="detail-label">Breed</span><span class="detail-value">${dog.breed || '?'}</span></div>
-          <div class="detail"><span class="detail-label">Energy</span><span class="detail-value">${dog.energy_level || '?'}</span></div>
-          <div class="detail"><span class="detail-label">Dogs</span><span class="detail-value ${valueClass(dog.good_with_dogs)}">${dog.good_with_dogs || '?'}</span></div>
-          <div class="detail"><span class="detail-label">Kids</span><span class="detail-value ${valueClass(dog.good_with_kids)}">${dog.good_with_kids || '?'}</span></div>
-          <div class="detail"><span class="detail-label">Cats</span><span class="detail-value ${valueClass(dog.good_with_cats)}">${dog.good_with_cats || '?'}</span></div>
-          <div class="detail"><span class="detail-label">Shedding</span><span class="detail-value">${dog.shedding || '?'}</span></div>
-        </div>
-        ${dog.notes ? '<div style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 10px;">📝 ' + dog.notes + '</div>' : ''}
-        <a href="${url}" target="_blank" class="dog-link">🔗 View on rescue site</a>
-        <div class="dog-actions">
-          <button class="action-btn" data-action="edit" data-id="${dogId}">✏️ Edit</button>
-        </div>
-      `;
-      
-      return card.outerHTML;
-    }
-    
-    // Event delegation for dog card buttons
-    document.getElementById('dogGrid').addEventListener('click', function(e) {
-      const btn = e.target.closest('button[data-action]');
-      if (!btn) return;
-      
-      const action = btn.dataset.action;
-      const dogId = btn.dataset.id;
-      
-      if (action === 'watch') toggleWatch(dogId);
-      else if (action === 'score-up') adjustScore(dogId, 1);
-      else if (action === 'score-down') adjustScore(dogId, -1);
-      else if (action === 'edit') openEdit(dogId);
-    });
-    
-    function updateStats() {
-      document.getElementById('totalDogs').textContent = dogsData.length;
-      document.getElementById('watchCount').textContent = dogsData.filter(d => d.watch_list === 'Yes').length;
-      document.getElementById('highFitCount').textContent = dogsData.filter(d => (d.fit_score || 0) >= 5).length;
-      document.getElementById('availableCount').textContent = dogsData.filter(d => d.status === 'Available').length;
-    }
-    
-    function exportMods() {
-      const data = JSON.stringify(localMods, null, 2);
-      const blob = new Blob([data], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'dog-dashboard-changes.json';
-      a.click();
-      URL.revokeObjectURL(url);
-      showToast('✅ Changes exported!');
-    }
-    
-    function importMods(event) {
-      const file = event.target.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        try {
-          const imported = JSON.parse(e.target.result);
-          Object.assign(localMods, imported);
-          localStorage.setItem('dogMods', JSON.stringify(localMods));
-          applyLocalMods();
-          renderDogs();
-          updateStats();
-          showToast('✅ Changes imported!');
-        } catch (err) {
-          showToast('❌ Invalid file', true);
-        }
-      };
-      reader.readAsText(file);
-    }
-    
-    function clearMods() {
-      if (confirm('Are you sure you want to clear all your changes? This cannot be undone.')) {
-        localMods = {};
-        localStorage.removeItem('dogMods');
-        location.reload();
-      }
-    }
-    
-    document.getElementById('searchBox').addEventListener('input', renderDogs);
-    document.getElementById('sortSelect').addEventListener('change', renderDogs);
-    document.querySelectorAll('.filter-btn').forEach(btn => {
-      btn.addEventListener('click', function() {
-        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-        this.classList.add('active');
-        renderDogs();
-      });
-    });
-    document.getElementById('editModal').addEventListener('click', function(e) {
-      if (e.target === this) closeModal();
-    });
-    
-    applyLocalMods();
-    renderDogs();
-    updateStats();
-  </script>
-</body>
-</html>
-'''
+  # Find dogs from this rescue that are active but not in current scrape
+  placeholders = ",".join("?" * len(active_dog_ids))
+  cursor.execute(f"""
+    SELECT dog_id, dog_name, status FROM dogs 
+    WHERE rescue_name = ? AND is_active = 1 AND dog_id NOT IN ({placeholders})
+  """, [rescue_name] + active_dog_ids)
   
-  with open(output_path, 'w', encoding='utf-8') as f:
-    f.write(html)
+  missing_dogs = cursor.fetchall()
   
-  print(f"✅ Dashboard generated: {output_path}")
-  return output_path
+  for row in missing_dogs:
+    # Mark as inactive/adopted
+    cursor.execute("""
+      UPDATE dogs SET is_active = 0, status = 'Adopted/Removed', 
+      date_went_unavailable = ?, date_last_updated = ?
+      WHERE dog_id = ?
+    """, (now, now, row['dog_id']))
+    
+    change = ChangeRecord(
+      dog_id=row['dog_id'],
+      dog_name=row['dog_name'],
+      field_changed="status",
+      old_value=row['status'],
+      new_value="Adopted/Removed",
+      timestamp=now,
+      change_type="status_change"
+    )
+    changes.append(change)
+    
+    cursor.execute("""
+      INSERT INTO changes (dog_id, dog_name, field_changed, old_value, new_value, change_type, timestamp)
+      VALUES (?, ?, ?, ?, ?, ?, ?)
+    """, (change.dog_id, change.dog_name, change.field_changed,
+          change.old_value, change.new_value, change.change_type, change.timestamp))
+    
+    print(f"  🏠 Likely adopted: {row['dog_name']}")
+  
+  conn.commit()
+  conn.close()
+  
+  return changes
 
 
-def main():
-  parser = argparse.ArgumentParser(description="Dog Rescue Dashboard Generator")
-  parser.add_argument("--output", "-o", default="dashboard.html", help="Output HTML file")
-  args = parser.parse_args()
-  generate_html_dashboard(args.output)
+def record_scrape_run(rescue_name: str, dogs_found: int, new_dogs: int, 
+                      changes_detected: int, errors: str, duration: float):
+  """Record scrape run statistics"""
+  conn = get_connection()
+  cursor = conn.cursor()
+  cursor.execute("""
+    INSERT INTO scrape_runs (timestamp, rescue_name, dogs_found, new_dogs, 
+                             changes_detected, errors, duration_seconds)
+    VALUES (?, ?, ?, ?, ?, ?, ?)
+  """, (get_current_timestamp(), rescue_name, dogs_found, new_dogs, 
+        changes_detected, errors, duration))
+  conn.commit()
+  conn.close()
 
 
+def get_watch_list_dogs() -> List[Dict]:
+  """Get all dogs on watch list"""
+  conn = get_connection()
+  cursor = conn.cursor()
+  cursor.execute("SELECT * FROM dogs WHERE watch_list = 'Yes' AND is_active = 1")
+  rows = cursor.fetchall()
+  conn.close()
+  return [dict(row) for row in rows]
+
+
+def get_high_fit_dogs(min_score: int = 5) -> List[Dict]:
+  """Get all high fit score dogs"""
+  conn = get_connection()
+  cursor = conn.cursor()
+  cursor.execute("""
+    SELECT * FROM dogs WHERE fit_score >= ? AND is_active = 1
+    ORDER BY fit_score DESC
+  """, (min_score,))
+  rows = cursor.fetchall()
+  conn.close()
+  return [dict(row) for row in rows]
+
+
+def get_pending_notifications() -> List[Dict]:
+  """Get changes that haven't been notified yet"""
+  conn = get_connection()
+  cursor = conn.cursor()
+  cursor.execute("""
+    SELECT c.*, d.fit_score, d.watch_list, d.rescue_name
+    FROM changes c
+    JOIN dogs d ON c.dog_id = d.dog_id
+    WHERE c.notified = 0
+    ORDER BY c.timestamp DESC
+  """)
+  rows = cursor.fetchall()
+  conn.close()
+  return [dict(row) for row in rows]
+
+
+def mark_notified(change_ids: List[int]):
+  """Mark changes as notified"""
+  if not change_ids:
+    return
+  conn = get_connection()
+  cursor = conn.cursor()
+  cursor.execute(
+    f"UPDATE changes SET notified = 1 WHERE id IN ({','.join('?' * len(change_ids))})",
+    change_ids
+  )
+  conn.commit()
+  conn.close()
+
+
+# Initialize on import
 if __name__ == "__main__":
-  main()
+  init_database()
