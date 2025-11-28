@@ -1,6 +1,6 @@
 """
 SQLite database operations for dog rescue tracker
-v2.1.0 - Enhanced date tracking with migration support
+v1.0.0 - Initial schema
 """
 import sqlite3
 from typing import List, Optional, Dict, Any
@@ -19,7 +19,7 @@ def get_connection() -> sqlite3.Connection:
 
 
 def init_database():
-  """Initialize database schema with migration support"""
+  """Initialize database schema"""
   conn = get_connection()
   cursor = conn.cursor()
   
@@ -50,13 +50,13 @@ def init_database():
       status TEXT,
       notes TEXT,
       source_url TEXT,
+      image_url TEXT,
       fit_score INTEGER,
       watch_list TEXT,
       date_first_seen TEXT,
       date_last_updated TEXT,
       date_status_changed TEXT,
       date_went_pending TEXT,
-      date_went_available TEXT,
       date_went_unavailable TEXT,
       is_active INTEGER DEFAULT 1
     )
@@ -104,9 +104,6 @@ def init_database():
     )
   """)
   
-  # Run migrations to add any missing columns
-  _run_migrations(cursor)
-  
   # Create indexes for common queries
   cursor.execute("CREATE INDEX IF NOT EXISTS idx_dogs_status ON dogs(status)")
   cursor.execute("CREATE INDEX IF NOT EXISTS idx_dogs_rescue ON dogs(rescue_name)")
@@ -114,100 +111,18 @@ def init_database():
   cursor.execute("CREATE INDEX IF NOT EXISTS idx_dogs_watch ON dogs(watch_list)")
   cursor.execute("CREATE INDEX IF NOT EXISTS idx_changes_dog ON changes(dog_id)")
   cursor.execute("CREATE INDEX IF NOT EXISTS idx_changes_type ON changes(change_type)")
-  cursor.execute("CREATE INDEX IF NOT EXISTS idx_changes_timestamp ON changes(timestamp)")
+  
+  # Migrations for existing databases
+  # Add image_url column if it doesn't exist
+  cursor.execute("PRAGMA table_info(dogs)")
+  columns = [col[1] for col in cursor.fetchall()]
+  if "image_url" not in columns:
+    cursor.execute("ALTER TABLE dogs ADD COLUMN image_url TEXT")
+    print("  📸 Added image_url column to dogs table")
   
   conn.commit()
   conn.close()
   print("✅ Database initialized")
-
-
-def _run_migrations(cursor):
-  """
-  Add missing columns to existing tables.
-  This lets us add new fields without losing existing data.
-  
-  To add a new column in the future:
-  1. Add it to the CREATE TABLE statement above
-  2. Add it to the MIGRATIONS dict below
-  """
-  
-  # Define all columns that should exist and their defaults
-  # Format: "table.column": "TYPE DEFAULT"
-  MIGRATIONS = {
-    # Dogs table columns
-    "dogs.dog_id": "TEXT",
-    "dogs.dog_name": "TEXT",
-    "dogs.rescue_name": "TEXT",
-    "dogs.breed": "TEXT",
-    "dogs.weight": "INTEGER",
-    "dogs.age_range": "TEXT",
-    "dogs.age_category": "TEXT",
-    "dogs.sex": "TEXT",
-    "dogs.shedding": "TEXT",
-    "dogs.energy_level": "TEXT",
-    "dogs.good_with_kids": "TEXT",
-    "dogs.good_with_dogs": "TEXT",
-    "dogs.good_with_cats": "TEXT",
-    "dogs.training_level": "TEXT",
-    "dogs.training_notes": "TEXT",
-    "dogs.special_needs": "TEXT",
-    "dogs.health_notes": "TEXT",
-    "dogs.adoption_req": "TEXT",
-    "dogs.adoption_fee": "TEXT",
-    "dogs.platform": "TEXT",
-    "dogs.location": "TEXT",
-    "dogs.status": "TEXT",
-    "dogs.notes": "TEXT",
-    "dogs.source_url": "TEXT",
-    "dogs.fit_score": "INTEGER",
-    "dogs.watch_list": "TEXT",
-    "dogs.date_first_seen": "TEXT",
-    "dogs.date_last_updated": "TEXT",
-    "dogs.date_status_changed": "TEXT",
-    "dogs.date_went_pending": "TEXT",
-    "dogs.date_went_available": "TEXT",
-    "dogs.date_went_unavailable": "TEXT",
-    "dogs.is_active": "INTEGER DEFAULT 1",
-    
-    # Changes table columns
-    "changes.notified": "INTEGER DEFAULT 0",
-    
-    # Status history columns
-    "status_history.days_in_previous_status": "INTEGER",
-    
-    # === ADD FUTURE COLUMNS HERE ===
-    # Example: "dogs.adoption_date": "TEXT",
-    # Example: "dogs.foster_name": "TEXT",
-  }
-  
-  # Get existing columns for each table
-  tables = ["dogs", "changes", "scrape_runs", "status_history"]
-  existing_columns = {}
-  
-  for table in tables:
-    try:
-      cursor.execute(f"PRAGMA table_info({table})")
-      columns = cursor.fetchall()
-      existing_columns[table] = [col[1] for col in columns]  # col[1] is column name
-    except:
-      existing_columns[table] = []
-  
-  # Add missing columns
-  migrations_run = 0
-  for full_column, col_type in MIGRATIONS.items():
-    table, column = full_column.split(".")
-    
-    if table in existing_columns and column not in existing_columns[table]:
-      try:
-        cursor.execute(f"ALTER TABLE {table} ADD COLUMN {column} {col_type}")
-        print(f"  📦 Migration: Added {table}.{column}")
-        migrations_run += 1
-      except Exception as e:
-        # Column might already exist or other error
-        pass
-  
-  if migrations_run > 0:
-    print(f"  ✅ Ran {migrations_run} database migrations")
 
 
 def dog_exists(dog_id: str) -> bool:
@@ -256,16 +171,16 @@ def insert_dog(dog: Dog) -> List[ChangeRecord]:
       dog_id, dog_name, rescue_name, breed, weight, age_range, age_category,
       sex, shedding, energy_level, good_with_kids, good_with_dogs, good_with_cats,
       training_level, training_notes, special_needs, health_notes, adoption_req,
-      adoption_fee, platform, location, status, notes, source_url,
+      adoption_fee, platform, location, status, notes, source_url, image_url,
       fit_score, watch_list, date_first_seen, date_last_updated, date_status_changed
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   """, (
     dog.dog_id, dog.dog_name, dog.rescue_name, dog.breed, dog.weight,
     dog.age_range, dog.age_category, dog.sex, dog.shedding, dog.energy_level,
     dog.good_with_kids, dog.good_with_dogs, dog.good_with_cats,
     dog.training_level, dog.training_notes, dog.special_needs, dog.health_notes,
     dog.adoption_req, dog.adoption_fee, dog.platform, dog.location, dog.status,
-    dog.notes, dog.source_url, dog.fit_score, dog.watch_list,
+    dog.notes, dog.source_url, dog.image_url, dog.fit_score, dog.watch_list,
     now, now, now
   ))
   
@@ -331,7 +246,6 @@ def update_dog(dog: Dog) -> List[ChangeRecord]:
   ]
   
   status_changed = False
-  new_status = None
   
   for field, attr in tracked_fields:
     old_val = existing.get(field)
@@ -364,7 +278,6 @@ def update_dog(dog: Dog) -> List[ChangeRecord]:
       
       if field == "status":
         status_changed = True
-        new_status = new_str
         print(f"  📢 Status change: {dog.dog_name} | {old_str} → {new_str}")
         
         # Calculate days in previous status
@@ -411,6 +324,7 @@ def update_dog(dog: Dog) -> List[ChangeRecord]:
     "status": dog.status,
     "notes": dog.notes,
     "source_url": dog.source_url,
+    "image_url": dog.image_url,
     "fit_score": dog.fit_score,
     "watch_list": dog.watch_list,
     "date_last_updated": now,
@@ -419,11 +333,9 @@ def update_dog(dog: Dog) -> List[ChangeRecord]:
   
   if status_changed:
     update_fields["date_status_changed"] = now
-    if new_status and new_status.lower() == "pending":
+    if dog.status.lower() == "pending":
       update_fields["date_went_pending"] = now
-    elif new_status and new_status.lower() == "available":
-      update_fields["date_went_available"] = now
-    elif new_status and new_status.lower() in ["adopted", "unavailable", "adopted/removed"]:
+    elif dog.status.lower() in ["adopted", "unavailable"]:
       update_fields["date_went_unavailable"] = now
   
   set_clause = ", ".join([f"{k} = ?" for k in update_fields.keys()])
@@ -464,9 +376,9 @@ def mark_dogs_inactive(active_dog_ids: List[str], rescue_name: str) -> List[Chan
     # Mark as inactive/adopted
     cursor.execute("""
       UPDATE dogs SET is_active = 0, status = 'Adopted/Removed', 
-      date_went_unavailable = ?, date_last_updated = ?, date_status_changed = ?
+      date_went_unavailable = ?, date_last_updated = ?
       WHERE dog_id = ?
-    """, (now, now, now, row['dog_id']))
+    """, (now, now, row['dog_id']))
     
     change = ChangeRecord(
       dog_id=row['dog_id'],
@@ -484,12 +396,6 @@ def mark_dogs_inactive(active_dog_ids: List[str], rescue_name: str) -> List[Chan
       VALUES (?, ?, ?, ?, ?, ?, ?)
     """, (change.dog_id, change.dog_name, change.field_changed,
           change.old_value, change.new_value, change.change_type, change.timestamp))
-    
-    # Record in status history
-    cursor.execute("""
-      INSERT INTO status_history (dog_id, status, timestamp)
-      VALUES (?, ?, ?)
-    """, (row['dog_id'], "Adopted/Removed", now))
     
     print(f"  🏠 Likely adopted: {row['dog_name']}")
   
@@ -565,22 +471,6 @@ def mark_notified(change_ids: List[int]):
   )
   conn.commit()
   conn.close()
-
-
-def get_recent_changes(hours: int = 48) -> List[Dict]:
-  """Get recent changes"""
-  conn = get_connection()
-  cursor = conn.cursor()
-  cursor.execute(f"""
-    SELECT c.*, d.fit_score, d.watch_list, d.breed, d.weight, d.rescue_name
-    FROM changes c
-    LEFT JOIN dogs d ON c.dog_id = d.dog_id
-    WHERE c.timestamp > datetime('now', '-{hours} hours')
-    ORDER BY c.timestamp DESC
-  """)
-  rows = cursor.fetchall()
-  conn.close()
-  return [dict(row) for row in rows]
 
 
 # Initialize on import
