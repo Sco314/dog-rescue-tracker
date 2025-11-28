@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Dog Rescue Scraper - Main Runner
-v1.0.0
+v2.0.0
 
 Scrapes all configured rescue websites, updates database,
 detects changes, and sends notifications.
@@ -26,7 +26,8 @@ from config import RESCUES
 from database import (
   init_database, update_dog, mark_dogs_inactive,
   record_scrape_run, get_all_active_dogs, get_high_fit_dogs,
-  get_watch_list_dogs, get_pending_notifications, mark_notified
+  get_watch_list_dogs, get_pending_notifications, mark_notified,
+  get_connection
 )
 from scrapers import PoodlePatchScraper, DoodleRockScraper, DoodleDandyScraper
 from notifications import send_notification, is_configured as email_configured
@@ -177,28 +178,34 @@ def show_report():
   
   print("\n" + "=" * 60)
   print("🐕 DOG RESCUE TRACKER - Current Status")
+  print(f"   Report generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
   print("=" * 60)
   
-  # Watch list
+  # RECENT CHANGES (last 48 hours)
+  _print_recent_changes()
+  
+  # Watch list - DETAILED VIEW
   watch_dogs = get_watch_list_dogs()
   print(f"\n🔔 WATCH LIST ({len(watch_dogs)} dogs)")
-  print("-" * 40)
+  print("-" * 60)
+  if not watch_dogs:
+    print("  No watch list dogs currently tracked.")
   for dog in watch_dogs:
-    print(f"  {dog['dog_name']} | {dog['rescue_name']} | {dog['status']} | Fit: {dog['fit_score']}")
+    _print_dog_details(dog)
   
-  # High fit dogs
+  # High fit dogs - DETAILED VIEW
   high_fit = get_high_fit_dogs(5)
   print(f"\n⭐ HIGH FIT DOGS (score >= 5) ({len(high_fit)} dogs)")
-  print("-" * 40)
+  print("-" * 60)
+  if not high_fit:
+    print("  No high fit dogs found.")
   for dog in high_fit[:10]:  # Top 10
-    print(f"  {dog['dog_name']} ({dog['fit_score']}) | {dog['rescue_name']} | {dog['status']}")
-    if dog.get('weight'):
-      print(f"    Weight: {dog['weight']}lbs | {dog.get('breed', '?')}")
+    _print_dog_details(dog)
   
-  # All active dogs by rescue
+  # All active dogs by rescue (summary only)
   all_dogs = get_all_active_dogs()
   print(f"\n📋 ALL ACTIVE DOGS ({len(all_dogs)} total)")
-  print("-" * 40)
+  print("-" * 60)
   
   by_rescue = {}
   for dog in all_dogs:
@@ -211,7 +218,127 @@ def show_report():
     print(f"\n  {rescue} ({len(dogs)} dogs):")
     for dog in sorted(dogs, key=lambda d: -(d['fit_score'] or 0)):
       status_emoji = {"Available": "✅", "Pending": "⏳", "Upcoming": "🔜"}.get(dog['status'], "❓")
-      print(f"    {status_emoji} {dog['dog_name']} (Fit: {dog['fit_score'] or '?'}) - {dog['status']}")
+      weight_str = f"{dog['weight']}lbs" if dog.get('weight') else "?lbs"
+      age_str = dog.get('age_range', '?')
+      print(f"    {status_emoji} {dog['dog_name']} | Fit:{dog['fit_score'] or '?'} | {weight_str} | {age_str} | {dog['status']}")
+
+
+def _print_recent_changes():
+  """Print recent changes from the database"""
+  conn = get_connection()
+  cursor = conn.cursor()
+  
+  # Get changes from last 48 hours
+  cursor.execute("""
+    SELECT c.*, d.fit_score, d.watch_list, d.breed, d.weight
+    FROM changes c
+    LEFT JOIN dogs d ON c.dog_id = d.dog_id
+    WHERE c.timestamp > datetime('now', '-48 hours')
+    ORDER BY c.timestamp DESC
+    LIMIT 50
+  """)
+  
+  changes = cursor.fetchall()
+  conn.close()
+  
+  print(f"\n📢 RECENT CHANGES (last 48 hours)")
+  print("-" * 60)
+  
+  if not changes:
+    print("  No changes detected recently.")
+    return
+  
+  for change in changes:
+    change = dict(change)
+    dog_name = change['dog_name']
+    change_type = change['change_type']
+    field = change['field_changed']
+    old_val = change['old_value'] or ''
+    new_val = change['new_value'] or ''
+    fit_score = change.get('fit_score', '?')
+    watch = "⭐" if change.get('watch_list') == 'Yes' else ""
+    
+    # Format timestamp
+    timestamp = change.get('timestamp', '')
+    if timestamp:
+      try:
+        dt = datetime.fromisoformat(timestamp)
+        time_str = dt.strftime('%m/%d %H:%M')
+      except:
+        time_str = timestamp[:16]
+    else:
+      time_str = "?"
+    
+    # Format the change message
+    if change_type == 'new_dog':
+      emoji = "🆕"
+      msg = f"NEW DOG LISTED"
+    elif change_type == 'status_change':
+      if new_val.lower() == 'pending':
+        emoji = "⏳"
+        msg = f"Status: {old_val} → PENDING"
+      elif new_val.lower() == 'available':
+        emoji = "✅"
+        msg = f"Status: {old_val} → AVAILABLE"
+      elif 'adopted' in new_val.lower() or 'removed' in new_val.lower():
+        emoji = "🏠"
+        msg = f"ADOPTED/REMOVED (was {old_val})"
+      else:
+        emoji = "🔄"
+        msg = f"Status: {old_val} → {new_val}"
+    else:
+      emoji = "📝"
+      msg = f"{field}: {old_val} → {new_val}"
+    
+    print(f"  {emoji} {watch} {dog_name} (Fit: {fit_score}) [{time_str}]")
+    print(f"       {msg}")
+
+
+def _print_dog_details(dog):
+  """Print detailed info for a single dog"""
+  # Format dates
+  first_seen = dog.get('date_first_seen', '?')
+  if first_seen and first_seen != '?':
+    try:
+      dt = datetime.fromisoformat(first_seen)
+      first_seen = dt.strftime('%Y-%m-%d')
+    except:
+      pass
+  
+  status_date = dog.get('date_status_changed', '?')
+  if status_date and status_date != '?':
+    try:
+      dt = datetime.fromisoformat(status_date)
+      status_date = dt.strftime('%Y-%m-%d')
+    except:
+      pass
+  
+  last_updated = dog.get('date_last_updated', '?')
+  if last_updated and last_updated != '?':
+    try:
+      dt = datetime.fromisoformat(last_updated)
+      last_updated = dt.strftime('%Y-%m-%d %H:%M')
+    except:
+      pass
+  
+  print(f"\n  🐕 {dog['dog_name']}")
+  print(f"     Rescue:      {dog['rescue_name']}")
+  print(f"     Status:      {dog['status']} (since {status_date})")
+  print(f"     Fit Score:   {dog['fit_score'] or '?'}")
+  print(f"     Breed:       {dog.get('breed', '?')}")
+  print(f"     Weight:      {dog.get('weight', '?')} lbs")
+  print(f"     Age:         {dog.get('age_range', '?')} ({dog.get('age_category', '?')})")
+  print(f"     Sex:         {dog.get('sex', '?')}")
+  print(f"     Energy:      {dog.get('energy_level', '?')}")
+  print(f"     Shedding:    {dog.get('shedding', '?')}")
+  print(f"     Good w/Dogs: {dog.get('good_with_dogs', '?')}")
+  print(f"     Good w/Kids: {dog.get('good_with_kids', '?')}")
+  print(f"     Good w/Cats: {dog.get('good_with_cats', '?')}")
+  print(f"     Location:    {dog.get('location', '?')}")
+  print(f"     First Seen:  {first_seen}")
+  print(f"     Last Update: {last_updated}")
+  if dog.get('source_url'):
+    print(f"     URL:         {dog.get('source_url')}")
 
 
 def export_csv():
