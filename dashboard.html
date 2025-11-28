@@ -28,7 +28,7 @@
     .container { max-width: 1400px; margin: 0 auto; }
     header {
       text-align: center;
-      margin-bottom: 30px;
+      margin-bottom: 20px;
       padding: 20px;
       background: var(--bg-secondary);
       border-radius: 12px;
@@ -38,6 +38,64 @@
     .stat { text-align: center; }
     .stat-value { font-size: 2rem; font-weight: bold; color: var(--accent); }
     .stat-label { color: var(--text-secondary); font-size: 0.875rem; }
+    
+    /* Recent Changes - Compact */
+    .recent-changes {
+      background: var(--bg-secondary);
+      border-radius: 12px;
+      padding: 15px;
+      margin-bottom: 20px;
+    }
+    .recent-changes-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    .recent-changes h2 { font-size: 1.1rem; }
+    .changes-container {
+      max-height: 140px;
+      overflow-y: auto;
+    }
+    .change-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 10px;
+      background: var(--bg-card);
+      border-radius: 8px;
+      margin-bottom: 6px;
+      font-size: 0.875rem;
+    }
+    .change-item.acknowledged {
+      opacity: 0.4;
+      text-decoration: line-through;
+    }
+    .change-thumb {
+      width: 40px;
+      height: 40px;
+      border-radius: 6px;
+      object-fit: cover;
+      background: var(--bg-secondary);
+    }
+    .change-icon { font-size: 1.2rem; flex-shrink: 0; }
+    .change-details { flex: 1; min-width: 0; }
+    .change-dog { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .change-msg { color: var(--text-secondary); font-size: 0.8rem; }
+    .change-time { color: var(--text-secondary); font-size: 0.75rem; flex-shrink: 0; }
+    .ack-btn {
+      padding: 4px 8px;
+      border: 1px solid #374151;
+      border-radius: 4px;
+      background: transparent;
+      color: var(--text-secondary);
+      cursor: pointer;
+      font-size: 0.75rem;
+      flex-shrink: 0;
+    }
+    .ack-btn:hover { background: var(--accent); color: white; border-color: var(--accent); }
+    .ack-btn.acked { background: var(--success); color: white; border-color: var(--success); }
+    
     .controls {
       display: flex;
       gap: 15px;
@@ -74,33 +132,6 @@
       border-radius: 8px;
       background: var(--bg-card);
       color: var(--text-primary);
-      font-size: 1rem;
-    }
-    .section {
-      background: var(--bg-secondary);
-      border-radius: 12px;
-      padding: 20px;
-      margin-bottom: 30px;
-    }
-    .section-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 15px;
-      padding-bottom: 10px;
-      border-bottom: 1px solid #374151;
-    }
-    .section-title {
-      font-size: 1.25rem;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-    .badge {
-      background: var(--accent);
-      color: white;
-      padding: 2px 10px;
-      border-radius: 20px;
       font-size: 0.875rem;
     }
     .dog-grid {
@@ -110,34 +141,62 @@
     }
     .dog-card {
       background: var(--bg-card);
-      border-radius: 10px;
+      border-radius: 12px;
       padding: 20px;
+      position: relative;
       transition: transform 0.2s, box-shadow 0.2s;
     }
     .dog-card:hover {
       transform: translateY(-2px);
-      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+      box-shadow: 0 10px 40px rgba(0,0,0,0.3);
     }
     .dog-card.watched { border: 2px solid var(--star); }
     .dog-card.pending { opacity: 0.7; }
+    
+    /* Dog card with image */
     .dog-header {
+      display: flex;
+      gap: 15px;
+      margin-bottom: 15px;
+    }
+    .dog-image {
+      width: 80px;
+      height: 80px;
+      border-radius: 10px;
+      object-fit: cover;
+      background: var(--bg-secondary);
+      flex-shrink: 0;
+    }
+    .dog-image-placeholder {
+      width: 80px;
+      height: 80px;
+      border-radius: 10px;
+      background: var(--bg-secondary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      flex-shrink: 0;
+    }
+    .dog-info { flex: 1; min-width: 0; }
+    .dog-name-row {
       display: flex;
       justify-content: space-between;
       align-items: flex-start;
-      margin-bottom: 15px;
     }
-    .dog-name { font-size: 1.25rem; font-weight: bold; }
-    .dog-rescue { font-size: 0.875rem; color: var(--text-secondary); }
+    .dog-name { font-size: 1.3rem; font-weight: 700; }
+    .dog-rescue { color: var(--text-secondary); font-size: 0.875rem; margin-top: 2px; }
     .star-btn {
-      background: none;
+      background: transparent;
       border: none;
       font-size: 1.5rem;
       cursor: pointer;
-      transition: transform 0.2s;
+      color: var(--text-secondary);
+      padding: 0;
+      line-height: 1;
     }
-    .star-btn:hover { transform: scale(1.2); }
     .star-btn.starred { color: var(--star); }
-    .star-btn:not(.starred) { color: #4b5563; }
+    
     .dog-score {
       display: flex;
       align-items: center;
@@ -145,40 +204,31 @@
       margin-bottom: 15px;
     }
     .score-display {
-      font-size: 2rem;
+      font-size: 1.5rem;
       font-weight: bold;
-      min-width: 50px;
-      text-align: center;
+      width: 45px;
+      height: 45px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 10px;
     }
-    .score-high { color: var(--success); }
-    .score-medium { color: var(--warning); }
-    .score-low { color: var(--danger); }
-    .score-controls { display: flex; flex-direction: column; gap: 2px; }
+    .score-high { background: rgba(16, 185, 129, 0.2); color: var(--success); }
+    .score-medium { background: rgba(245, 158, 11, 0.2); color: var(--warning); }
+    .score-low { background: rgba(239, 68, 68, 0.2); color: var(--danger); }
+    .score-controls { display: flex; gap: 5px; }
     .score-btn {
-      width: 30px;
-      height: 24px;
+      width: 28px;
+      height: 28px;
       border: 1px solid #374151;
-      border-radius: 4px;
+      border-radius: 6px;
       background: var(--bg-secondary);
       color: var(--text-primary);
       cursor: pointer;
-      font-weight: bold;
+      font-size: 1rem;
     }
     .score-btn:hover { background: var(--accent); }
-    .score-modifier { font-size: 0.75rem; color: var(--text-secondary); }
-    .dog-details {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-      font-size: 0.875rem;
-      margin-bottom: 15px;
-    }
-    .detail { display: flex; justify-content: space-between; }
-    .detail-label { color: var(--text-secondary); }
-    .detail-value { font-weight: 500; }
-    .detail-value.good { color: var(--success); }
-    .detail-value.bad { color: var(--danger); }
-    .detail-value.unknown { color: var(--text-secondary); }
+    .score-modifier { color: var(--text-secondary); font-size: 0.875rem; margin-left: 5px; }
     .dog-status {
       display: inline-block;
       padding: 4px 12px;
@@ -189,6 +239,29 @@
     .status-available { background: rgba(16, 185, 129, 0.2); color: var(--success); }
     .status-pending { background: rgba(245, 158, 11, 0.2); color: var(--warning); }
     .status-upcoming { background: rgba(59, 130, 246, 0.2); color: var(--accent); }
+    
+    .dog-details {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+      margin-bottom: 15px;
+    }
+    .detail { display: flex; justify-content: space-between; }
+    .detail-label { color: var(--text-secondary); }
+    .detail-value { font-weight: 500; }
+    .detail-value.good { color: var(--success); }
+    .detail-value.bad { color: var(--danger); }
+    .detail-value.unknown { color: var(--text-secondary); }
+    
+    .dog-link {
+      display: block;
+      text-align: center;
+      padding: 8px;
+      color: var(--accent);
+      text-decoration: none;
+      font-size: 0.875rem;
+    }
+    .dog-link:hover { text-decoration: underline; }
     .dog-actions {
       display: flex;
       gap: 10px;
@@ -208,6 +281,8 @@
       transition: all 0.2s;
     }
     .action-btn:hover { background: var(--accent); border-color: var(--accent); }
+    
+    /* Modal */
     .modal {
       display: none;
       position: fixed;
@@ -223,65 +298,55 @@
     .modal.active { display: flex; }
     .modal-content {
       background: var(--bg-secondary);
-      border-radius: 12px;
       padding: 30px;
-      max-width: 500px;
+      border-radius: 12px;
       width: 90%;
+      max-width: 500px;
       max-height: 90vh;
       overflow-y: auto;
     }
-    .modal-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 20px;
-    }
-    .modal-title { font-size: 1.5rem; }
-    .modal-close {
-      background: none;
-      border: none;
-      font-size: 1.5rem;
-      color: var(--text-secondary);
-      cursor: pointer;
-    }
+    .modal h2 { margin-bottom: 20px; }
     .form-group { margin-bottom: 15px; }
-    .form-label { display: block; margin-bottom: 5px; color: var(--text-secondary); font-size: 0.875rem; }
-    .form-input, .form-select {
+    .form-group label { display: block; margin-bottom: 5px; color: var(--text-secondary); }
+    .form-group input, .form-group select {
       width: 100%;
       padding: 10px;
       border: 1px solid #374151;
       border-radius: 6px;
       background: var(--bg-card);
       color: var(--text-primary);
-      font-size: 1rem;
     }
-    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-    .save-btn {
-      width: 100%;
+    .modal-buttons { display: flex; gap: 10px; margin-top: 20px; }
+    .modal-buttons button {
+      flex: 1;
       padding: 12px;
-      background: var(--success);
       border: none;
       border-radius: 6px;
-      color: white;
-      font-size: 1rem;
-      font-weight: 500;
       cursor: pointer;
-      margin-top: 20px;
+      font-size: 1rem;
     }
-    .save-btn:hover { opacity: 0.9; }
-    .changes-list { max-height: 300px; overflow-y: auto; }
-    .change-item {
+    .btn-save { background: var(--success); color: white; }
+    .btn-cancel { background: var(--bg-card); color: var(--text-primary); }
+    
+    /* Utility buttons */
+    .utility-buttons {
       display: flex;
-      align-items: center;
       gap: 10px;
-      padding: 10px;
-      border-bottom: 1px solid #374151;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
     }
-    .change-icon { font-size: 1.25rem; }
-    .change-details { flex: 1; }
-    .change-dog { font-weight: 500; }
-    .change-msg { font-size: 0.875rem; color: var(--text-secondary); }
-    .change-time { font-size: 0.75rem; color: var(--text-secondary); }
+    .utility-btn {
+      padding: 8px 15px;
+      border: 1px solid #374151;
+      border-radius: 6px;
+      background: var(--bg-card);
+      color: var(--text-secondary);
+      cursor: pointer;
+      font-size: 0.875rem;
+    }
+    .utility-btn:hover { background: var(--accent); color: white; }
+    
+    /* Toast */
     .toast {
       position: fixed;
       bottom: 20px;
@@ -290,526 +355,392 @@
       background: var(--success);
       color: white;
       border-radius: 8px;
+      display: none;
       z-index: 2000;
-      animation: slideIn 0.3s ease;
     }
-    @keyframes slideIn {
-      from { transform: translateX(100%); opacity: 0; }
-      to { transform: translateX(0); opacity: 1; }
-    }
-    .toast.error { background: var(--danger); }
-    .dog-link { color: var(--accent); text-decoration: none; font-size: 0.875rem; }
-    .dog-link:hover { text-decoration: underline; }
-    @media (max-width: 768px) {
-      .dog-grid { grid-template-columns: 1fr; }
-      .controls { flex-direction: column; }
-      .search-box { width: 100%; }
-    }
-    .export-section {
-      margin-top: 20px;
-      padding: 15px;
-      background: var(--bg-card);
-      border-radius: 8px;
-    }
-    .export-btn {
-      padding: 10px 20px;
-      background: var(--accent);
-      border: none;
-      border-radius: 6px;
-      color: white;
-      cursor: pointer;
-      margin-right: 10px;
-    }
-    .export-btn:hover { opacity: 0.9; }
+    .toast.show { display: block; animation: fadeIn 0.3s; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: var(--bg-primary); }
+    ::-webkit-scrollbar-thumb { background: #374151; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #4b5563; }
   </style>
 </head>
 <body>
   <div class="container">
     <header>
       <h1>🐕 Dog Rescue Dashboard</h1>
-      <p style="color: var(--text-secondary); margin-bottom: 15px;">
-        Last updated: 2025-11-28 15:08:00
-      </p>
       <div class="stats">
         <div class="stat">
-          <div class="stat-value" id="totalDogs">50</div>
+          <div class="stat-value" id="totalDogs">0</div>
           <div class="stat-label">Total Dogs</div>
         </div>
         <div class="stat">
-          <div class="stat-value" id="watchCount">5</div>
+          <div class="stat-value" id="watchCount">0</div>
           <div class="stat-label">Watching</div>
         </div>
         <div class="stat">
-          <div class="stat-value" id="highFitCount">22</div>
+          <div class="stat-value" id="highFitCount">0</div>
           <div class="stat-label">High Fit (5+)</div>
         </div>
         <div class="stat">
-          <div class="stat-value" id="availableCount">27</div>
+          <div class="stat-value" id="availableCount">0</div>
           <div class="stat-label">Available</div>
         </div>
       </div>
     </header>
     
+    <div class="recent-changes">
+      <div class="recent-changes-header">
+        <h2>📢 Recent Changes</h2>
+        <span id="changesCount" style="color: var(--text-secondary); font-size: 0.875rem;"></span>
+      </div>
+      <div class="changes-container" id="changesContainer"></div>
+    </div>
+    
     <div class="controls">
-      <input type="text" class="search-box" id="searchBox" placeholder="🔍 Search dogs by name, breed, rescue...">
-      <button class="filter-btn active" data-filter="all">All</button>
+      <input type="text" class="search-box" placeholder="Search dogs..." id="searchBox">
+      <button class="filter-btn active" data-filter="all">🐕 All Dogs <span id="visibleCount"></span></button>
       <button class="filter-btn" data-filter="watched">⭐ Watched</button>
-      <button class="filter-btn" data-filter="high-fit">High Fit</button>
-      <button class="filter-btn" data-filter="available">Available</button>
-      <button class="filter-btn" data-filter="upcoming">Upcoming</button>
+      <button class="filter-btn" data-filter="high-fit">🎯 High Fit</button>
+      <button class="filter-btn" data-filter="available">✅ Available</button>
+      <button class="filter-btn" data-filter="upcoming">🔜 Upcoming</button>
       <select class="sort-select" id="sortSelect">
-        <option value="fit-desc">Sort: Fit Score ↓</option>
-        <option value="fit-asc">Sort: Fit Score ↑</option>
-        <option value="name-asc">Sort: Name A-Z</option>
-        <option value="weight-desc">Sort: Weight ↓</option>
-        <option value="date-desc">Sort: Newest First</option>
+        <option value="fit-desc">Score: High → Low</option>
+        <option value="fit-asc">Score: Low → High</option>
+        <option value="name-asc">Name: A → Z</option>
+        <option value="weight-desc">Weight: Heavy → Light</option>
+        <option value="date-desc">Newest First</option>
       </select>
     </div>
     
-    <div class="section" id="changesSection">
-      <div class="section-header">
-        <h2 class="section-title">📢 Recent Changes <span class="badge">50</span></h2>
-      </div>
-      <div class="changes-list" id="changesList">
-        
-      <div class="change-item">
-        <span class="change-icon">🆕</span>
-        <div class="change-details">
-          <div class="change-dog">Happy Tails – Poodle Patch Rescue Inc 501 (c) 3 non profit Texarkana, TX</div>
-          <div class="change-msg">New dog listed</div>
-        </div>
-        <span class="change-time">11/28 03:41</span>
-      </div>
-    
-      <div class="change-item">
-        <span class="change-icon">🆕</span>
-        <div class="change-details">
-          <div class="change-dog">Lacey</div>
-          <div class="change-msg">New dog listed</div>
-        </div>
-        <span class="change-time">11/28 03:41</span>
-      </div>
-    
-      <div class="change-item">
-        <span class="change-icon">🆕</span>
-        <div class="change-details">
-          <div class="change-dog">Dancer</div>
-          <div class="change-msg">New dog listed</div>
-        </div>
-        <span class="change-time">11/28 03:41</span>
-      </div>
-    
-      <div class="change-item">
-        <span class="change-icon">🆕</span>
-        <div class="change-details">
-          <div class="change-dog">Charlie 2 pending – Poodle Patch Rescue Inc 501 (c) 3 non profit Texarkana, TX</div>
-          <div class="change-msg">New dog listed</div>
-        </div>
-        <span class="change-time">11/28 03:41</span>
-      </div>
-    
-      <div class="change-item">
-        <span class="change-icon">🆕</span>
-        <div class="change-details">
-          <div class="change-dog">Zira – Poodle Patch Rescue Inc 501 (c) 3 non profit Texarkana, TX</div>
-          <div class="change-msg">New dog listed</div>
-        </div>
-        <span class="change-time">11/28 03:41</span>
-      </div>
-    
-      <div class="change-item">
-        <span class="change-icon">🆕</span>
-        <div class="change-details">
-          <div class="change-dog">Koda – Poodle Patch Rescue Inc 501 (c) 3 non profit Texarkana, TX</div>
-          <div class="change-msg">New dog listed</div>
-        </div>
-        <span class="change-time">11/28 03:41</span>
-      </div>
-    
-      <div class="change-item">
-        <span class="change-icon">🆕</span>
-        <div class="change-details">
-          <div class="change-dog">Charlie – Poodle Patch Rescue Inc 501 (c) 3 non profit Texarkana, TX</div>
-          <div class="change-msg">New dog listed</div>
-        </div>
-        <span class="change-time">11/28 03:41</span>
-      </div>
-    
-      <div class="change-item">
-        <span class="change-icon">🆕</span>
-        <div class="change-details">
-          <div class="change-dog">Memphis – Poodle Patch Rescue Inc 501 (c) 3 non profit Texarkana, TX</div>
-          <div class="change-msg">New dog listed</div>
-        </div>
-        <span class="change-time">11/28 03:41</span>
-      </div>
-    
-      <div class="change-item">
-        <span class="change-icon">🆕</span>
-        <div class="change-details">
-          <div class="change-dog">Whiskey</div>
-          <div class="change-msg">New dog listed</div>
-        </div>
-        <span class="change-time">11/28 03:41</span>
-      </div>
-    
-      <div class="change-item">
-        <span class="change-icon">🆕</span>
-        <div class="change-details">
-          <div class="change-dog">Jojo – Poodle Patch Rescue Inc 501 (c) 3 non profit Texarkana, TX</div>
-          <div class="change-msg">New dog listed</div>
-        </div>
-        <span class="change-time">11/28 03:41</span>
-      </div>
-    
-      <div class="change-item">
-        <span class="change-icon">🆕</span>
-        <div class="change-details">
-          <div class="change-dog">Oliver – Poodle Patch Rescue Inc 501 (c) 3 non profit Texarkana, TX</div>
-          <div class="change-msg">New dog listed</div>
-        </div>
-        <span class="change-time">11/28 03:41</span>
-      </div>
-    
-      <div class="change-item">
-        <span class="change-icon">🆕</span>
-        <div class="change-details">
-          <div class="change-dog">Hazelnut</div>
-          <div class="change-msg">New dog listed</div>
-        </div>
-        <span class="change-time">11/28 03:41</span>
-      </div>
-    
-      <div class="change-item">
-        <span class="change-icon">🆕</span>
-        <div class="change-details">
-          <div class="change-dog">Matcha</div>
-          <div class="change-msg">New dog listed</div>
-        </div>
-        <span class="change-time">11/28 03:41</span>
-      </div>
-    
-      <div class="change-item">
-        <span class="change-icon">🆕</span>
-        <div class="change-details">
-          <div class="change-dog">Blitz</div>
-          <div class="change-msg">New dog listed</div>
-        </div>
-        <span class="change-time">11/28 03:41</span>
-      </div>
-    
-      <div class="change-item">
-        <span class="change-icon">🆕</span>
-        <div class="change-details">
-          <div class="change-dog">EleanorB</div>
-          <div class="change-msg">New dog listed</div>
-        </div>
-        <span class="change-time">11/28 03:41</span>
-      </div>
-    
-      <div class="change-item">
-        <span class="change-icon">🆕</span>
-        <div class="change-details">
-          <div class="change-dog">Susanna</div>
-          <div class="change-msg">New dog listed</div>
-        </div>
-        <span class="change-time">11/28 03:41</span>
-      </div>
-    
-      <div class="change-item">
-        <span class="change-icon">🆕</span>
-        <div class="change-details">
-          <div class="change-dog">MaryB</div>
-          <div class="change-msg">New dog listed</div>
-        </div>
-        <span class="change-time">11/28 03:41</span>
-      </div>
-    
-      <div class="change-item">
-        <span class="change-icon">🆕</span>
-        <div class="change-details">
-          <div class="change-dog">Lizabeth</div>
-          <div class="change-msg">New dog listed</div>
-        </div>
-        <span class="change-time">11/28 03:41</span>
-      </div>
-    
-      <div class="change-item">
-        <span class="change-icon">🆕</span>
-        <div class="change-details">
-          <div class="change-dog">Lucabrasi</div>
-          <div class="change-msg">New dog listed</div>
-        </div>
-        <span class="change-time">11/28 03:41</span>
-      </div>
-    
-      <div class="change-item">
-        <span class="change-icon">🆕</span>
-        <div class="change-details">
-          <div class="change-dog">Dolce</div>
-          <div class="change-msg">New dog listed</div>
-        </div>
-        <span class="change-time">11/28 03:41</span>
-      </div>
-    
-      </div>
+    <div class="utility-buttons">
+      <button class="utility-btn" onclick="exportMods()">📤 Export Changes</button>
+      <button class="utility-btn" onclick="document.getElementById('importInput').click()">📥 Import Changes</button>
+      <button class="utility-btn" onclick="clearMods()">🗑️ Clear Local Changes</button>
+      <input type="file" id="importInput" style="display:none" accept=".json" onchange="importMods(event)">
     </div>
     
-    <div class="section">
-      <div class="section-header">
-        <h2 class="section-title">🐕 All Dogs <span class="badge" id="visibleCount">50</span></h2>
-      </div>
-      <div class="dog-grid" id="dogGrid"></div>
-      
-      <div class="export-section">
-        <h3 style="margin-bottom: 10px;">💾 Export Your Changes</h3>
-        <p style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 15px;">
-          Your star ratings, score adjustments, and edits are saved in your browser. 
-          Export them to keep a backup or import on another device.
-        </p>
-        <button class="export-btn" onclick="exportMods()">📥 Export Changes</button>
-        <button class="export-btn" onclick="document.getElementById('importFile').click()">📤 Import Changes</button>
-        <input type="file" id="importFile" style="display:none" accept=".json" onchange="importMods(event)">
-        <button class="export-btn" style="background: var(--danger);" onclick="clearMods()">🗑️ Clear All Changes</button>
-      </div>
-    </div>
+    <div class="dog-grid" id="dogGrid"></div>
   </div>
   
-  <!-- Edit Modal -->
   <div class="modal" id="editModal">
     <div class="modal-content">
-      <div class="modal-header">
-        <h3 class="modal-title">✏️ Edit Dog</h3>
-        <button class="modal-close" onclick="closeModal()">&times;</button>
+      <h2>✏️ Edit Dog</h2>
+      <input type="hidden" id="editDogId">
+      <div class="form-group">
+        <label>Weight (lbs)</label>
+        <input type="number" id="editWeight">
       </div>
-      <form id="editForm">
-        <input type="hidden" id="editDogId">
-        
-        <div class="form-group">
-          <label class="form-label">Dog Name</label>
-          <input type="text" class="form-input" id="editName" readonly>
-        </div>
-        
-        <div class="form-row">
-          <div class="form-group">
-            <label class="form-label">Weight (lbs)</label>
-            <input type="number" class="form-input" id="editWeight">
-          </div>
-          <div class="form-group">
-            <label class="form-label">Age</label>
-            <input type="text" class="form-input" id="editAge" placeholder="e.g., 2 years">
-          </div>
-        </div>
-        
-        <div class="form-row">
-          <div class="form-group">
-            <label class="form-label">Energy Level</label>
-            <select class="form-select" id="editEnergy">
-              <option value="Unknown">Unknown</option>
-              <option value="Low">Low</option>
-              <option value="Medium">Medium</option>
-              <option value="High">High</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label class="form-label">Shedding</label>
-            <select class="form-select" id="editShedding">
-              <option value="Unknown">Unknown</option>
-              <option value="None">None</option>
-              <option value="Low">Low</option>
-              <option value="Moderate">Moderate</option>
-              <option value="High">High</option>
-            </select>
-          </div>
-        </div>
-        
-        <div class="form-row">
-          <div class="form-group">
-            <label class="form-label">Good with Dogs</label>
-            <select class="form-select" id="editGoodDogs">
-              <option value="Unknown">Unknown</option>
-              <option value="Yes">Yes</option>
-              <option value="No">No</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label class="form-label">Good with Kids</label>
-            <select class="form-select" id="editGoodKids">
-              <option value="Unknown">Unknown</option>
-              <option value="Yes">Yes</option>
-              <option value="No">No</option>
-            </select>
-          </div>
-        </div>
-        
-        <div class="form-row">
-          <div class="form-group">
-            <label class="form-label">Good with Cats</label>
-            <select class="form-select" id="editGoodCats">
-              <option value="Unknown">Unknown</option>
-              <option value="Yes">Yes</option>
-              <option value="No">No</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label class="form-label">Special Needs</label>
-            <select class="form-select" id="editSpecialNeeds">
-              <option value="No">No</option>
-              <option value="Yes">Yes</option>
-            </select>
-          </div>
-        </div>
-        
-        <div class="form-group">
-          <label class="form-label">Notes</label>
-          <textarea class="form-input" id="editNotes" rows="3" placeholder="Add any notes..."></textarea>
-        </div>
-        
-        <button type="submit" class="save-btn">💾 Save Changes</button>
-      </form>
+      <div class="form-group">
+        <label>Age</label>
+        <input type="text" id="editAge" placeholder="e.g., 2 yrs, 6 mos">
+      </div>
+      <div class="form-group">
+        <label>Energy Level</label>
+        <select id="editEnergy">
+          <option value="">Unknown</option>
+          <option value="Low">Low</option>
+          <option value="Medium">Medium</option>
+          <option value="High">High</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Shedding</label>
+        <select id="editShedding">
+          <option value="">Unknown</option>
+          <option value="None">None</option>
+          <option value="Low">Low</option>
+          <option value="Moderate">Moderate</option>
+          <option value="High">High</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Good with Dogs</label>
+        <select id="editDogs">
+          <option value="Unknown">Unknown</option>
+          <option value="Yes">Yes</option>
+          <option value="No">No</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Good with Kids</label>
+        <select id="editKids">
+          <option value="Unknown">Unknown</option>
+          <option value="Yes">Yes</option>
+          <option value="No">No</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Good with Cats</label>
+        <select id="editCats">
+          <option value="Unknown">Unknown</option>
+          <option value="Yes">Yes</option>
+          <option value="No">No</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Special Needs</label>
+        <select id="editSpecialNeeds">
+          <option value="">No</option>
+          <option value="Yes">Yes</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Notes</label>
+        <input type="text" id="editNotes" placeholder="Your notes...">
+      </div>
+      <div class="modal-buttons">
+        <button class="btn-cancel" onclick="closeEdit()">Cancel</button>
+        <button class="btn-save" onclick="saveEdit()">Save Changes</button>
+      </div>
     </div>
   </div>
   
+  <div class="toast" id="toast"></div>
+  
   <script>
-    // Dog data embedded in page
-    let dogsData = [{"dog_id": "doo_drizzle", "dog_name": "Drizzle", "rescue_name": "Doodle Rock Rescue", "breed": "Poodle Mix", "weight": 65, "age_range": "3 years", "age_category": "Adult", "sex": "Male", "shedding": "Low", "energy_level": "Low", "good_with_kids": "Yes", "good_with_dogs": "Yes", "good_with_cats": "Yes", "training_level": "", "training_notes": "", "special_needs": "Yes", "health_notes": "", "adoption_req": "", "adoption_fee": "", "platform": "doodlerockrescue.org", "location": "Dallas, TX", "status": "Available", "notes": "", "source_url": "https://doodlerockrescue.org/rescue-dog/drizzle/", "fit_score": 9, "watch_list": "Yes", "date_first_seen": "2025-11-28T03:41:53.520182", "date_last_updated": "2025-11-28T15:07:56.464908", "date_status_changed": "2025-11-28T03:41:53.520182", "date_went_pending": null, "date_went_available": null, "date_went_unavailable": null, "is_active": 1}, {"dog_id": "doo_gusty", "dog_name": "Gusty", "rescue_name": "Doodle Rock Rescue", "breed": "Poodle Mix", "weight": 70, "age_range": "3 years", "age_category": "Adult", "sex": "Male", "shedding": "Low", "energy_level": "Low", "good_with_kids": "Yes", "good_with_dogs": "Yes", "good_with_cats": "Yes", "training_level": "", "training_notes": "", "special_needs": "Yes", "health_notes": "", "adoption_req": "", "adoption_fee": "", "platform": "doodlerockrescue.org", "location": "Dallas, TX", "status": "Available", "notes": "", "source_url": "https://doodlerockrescue.org/rescue-dog/gusty-2/", "fit_score": 9, "watch_list": "", "date_first_seen": "2025-11-28T03:41:53.527670", "date_last_updated": "2025-11-28T15:07:56.470618", "date_status_changed": "2025-11-28T03:41:53.527670", "date_went_pending": null, "date_went_available": null, "date_went_unavailable": null, "is_active": 1}, {"dog_id": "doo_kru", "dog_name": "Kru", "rescue_name": "Doodle Rock Rescue", "breed": "Poodle Mix", "weight": 60, "age_range": "3 years", "age_category": "Adult", "sex": "Male", "shedding": "Low", "energy_level": "Low", "good_with_kids": "Yes", "good_with_dogs": "Yes", "good_with_cats": "Yes", "training_level": "", "training_notes": "", "special_needs": "Yes", "health_notes": "", "adoption_req": "", "adoption_fee": "", "platform": "doodlerockrescue.org", "location": "Dallas, TX", "status": "Available", "notes": "", "source_url": "https://doodlerockrescue.org/rescue-dog/kru/", "fit_score": 9, "watch_list": "Yes", "date_first_seen": "2025-11-28T03:41:53.522723", "date_last_updated": "2025-11-28T15:07:56.467224", "date_status_changed": "2025-11-28T03:41:53.522723", "date_went_pending": null, "date_went_available": null, "date_went_unavailable": null, "is_active": 1}, {"dog_id": "poo_jojo_\u2013_poodle_patch_rescue_inc_501_(c)_3_non_profit_texarkana,_tx", "dog_name": "Jojo \u2013 Poodle Patch Rescue Inc 501 (c) 3 non profit Texarkana, TX", "rescue_name": "Poodle Patch Rescue", "breed": "Poodle", "weight": 53, "age_range": "2 years", "age_category": "Adult", "sex": "Male", "shedding": "Low", "energy_level": "Low", "good_with_kids": "Unknown", "good_with_dogs": "Yes", "good_with_cats": "Unknown", "training_level": "", "training_notes": "", "special_needs": "No", "health_notes": "Now fully vetted", "adoption_req": "Within 350 miles", "adoption_fee": "$300", "platform": "poodlepatchrescue.com", "location": "Texarkana, TX", "status": "Available", "notes": "Jojo Posted on November 4, 2025 November 4, 2025 by Amanda Rescued from an over capacity kill shelter. His family left him there with hair loss and very thin.\u00a0 He is 2 years old and currently being evaluated. More info and pics to follow. Currently located in Texarkana TX He weighs 53 lbs and probably needs to weigh closer to 70 lbs. Now fully vetted. Very calm personality. Gets along with all size dogs. Sits patiently for treats. Very deserving of a better life than what he has had to this poin", "source_url": "https://poodlepatchrescue.com/jojo/", "fit_score": 8, "watch_list": "", "date_first_seen": "2025-11-28T03:41:57.693624", "date_last_updated": "2025-11-28T15:08:00.383477", "date_status_changed": "2025-11-28T03:41:57.693624", "date_went_pending": null, "date_went_available": null, "date_went_unavailable": null, "is_active": 1}, {"dog_id": "doo_amanda", "dog_name": "Amanda", "rescue_name": "Doodle Rock Rescue", "breed": "Poodle Mix", "weight": 5, "age_range": "", "age_category": "", "sex": "Female", "shedding": "Low", "energy_level": "Low", "good_with_kids": "Yes", "good_with_dogs": "Yes", "good_with_cats": "Yes", "training_level": "", "training_notes": "", "special_needs": "Yes", "health_notes": "", "adoption_req": "", "adoption_fee": "", "platform": "doodlerockrescue.org", "location": "Dallas, TX", "status": "Available", "notes": "", "source_url": "https://doodlerockrescue.org/rescue-dog/amanda/", "fit_score": 7, "watch_list": "", "date_first_seen": "2025-11-28T03:41:53.539298", "date_last_updated": "2025-11-28T15:07:56.479410", "date_status_changed": "2025-11-28T03:41:53.539298", "date_went_pending": null, "date_went_available": null, "date_went_unavailable": null, "is_active": 1}, {"dog_id": "doo_dixie", "dog_name": "Dixie", "rescue_name": "Doodle Rock Rescue", "breed": "Doodle", "weight": 25, "age_range": "3 years", "age_category": "Adult", "sex": "Female", "shedding": "Low", "energy_level": "Medium", "good_with_kids": "Yes", "good_with_dogs": "Yes", "good_with_cats": "Yes", "training_level": "", "training_notes": "", "special_needs": "Yes", "health_notes": "", "adoption_req": "", "adoption_fee": "", "platform": "doodlerockrescue.org", "location": "Dallas, TX", "status": "Available", "notes": "", "source_url": "https://doodlerockrescue.org/rescue-dog/dixie-5/", "fit_score": 7, "watch_list": "", "date_first_seen": "2025-11-28T03:41:53.536889", "date_last_updated": "2025-11-28T15:07:56.478052", "date_status_changed": "2025-11-28T03:41:53.536889", "date_went_pending": null, "date_went_available": null, "date_went_unavailable": null, "is_active": 1}, {"dog_id": "doo_ellie", "dog_name": "Ellie", "rescue_name": "Doodle Rock Rescue", "breed": "Poodle Mix", "weight": 25, "age_range": "3 years", "age_category": "Adult", "sex": "Female", "shedding": "Low", "energy_level": "Low", "good_with_kids": "Yes", "good_with_dogs": "Yes", "good_with_cats": "Yes", "training_level": "", "training_notes": "", "special_needs": "Yes", "health_notes": "", "adoption_req": "", "adoption_fee": "", "platform": "doodlerockrescue.org", "location": "Dallas, TX", "status": "Available", "notes": "", "source_url": "https://doodlerockrescue.org/rescue-dog/ellie/", "fit_score": 7, "watch_list": "", "date_first_seen": "2025-11-28T03:41:53.535371", "date_last_updated": "2025-11-28T15:07:56.476559", "date_status_changed": "2025-11-28T03:41:53.535371", "date_went_pending": null, "date_went_available": null, "date_went_unavailable": null, "is_active": 1}, {"dog_id": "doo_merritt", "dog_name": "Merritt", "rescue_name": "Doodle Rock Rescue", "breed": "Poodle Mix", "weight": 17, "age_range": "3 years", "age_category": "Adult", "sex": "Female", "shedding": "Low", "energy_level": "Low", "good_with_kids": "Yes", "good_with_dogs": "Yes", "good_with_cats": "Yes", "training_level": "", "training_notes": "", "special_needs": "Yes", "health_notes": "", "adoption_req": "", "adoption_fee": "", "platform": "doodlerockrescue.org", "location": "Dallas, TX", "status": "Available", "notes": "", "source_url": "https://doodlerockrescue.org/rescue-dog/merritt/", "fit_score": 7, "watch_list": "", "date_first_seen": "2025-11-28T03:41:53.533849", "date_last_updated": "2025-11-28T15:07:56.475210", "date_status_changed": "2025-11-28T03:41:53.533849", "date_went_pending": null, "date_went_available": null, "date_went_unavailable": null, "is_active": 1}, {"dog_id": "doo_myra", "dog_name": "Myra", "rescue_name": "Doodle Rock Rescue", "breed": "Poodle Mix", "weight": 6, "age_range": "8 years", "age_category": "Senior", "sex": "Female", "shedding": "Low", "energy_level": "Low", "good_with_kids": "Yes", "good_with_dogs": "Yes", "good_with_cats": "Yes", "training_level": "", "training_notes": "", "special_needs": "Yes", "health_notes": "", "adoption_req": "", "adoption_fee": "", "platform": "doodlerockrescue.org", "location": "Dallas, TX", "status": "Available", "notes": "", "source_url": "https://doodlerockrescue.org/rescue-dog/myra/", "fit_score": 7, "watch_list": "", "date_first_seen": "2025-11-28T03:41:53.541035", "date_last_updated": "2025-11-28T15:07:56.480667", "date_status_changed": "2025-11-28T03:41:53.541035", "date_went_pending": null, "date_went_available": null, "date_went_unavailable": null, "is_active": 1}, {"dog_id": "doo_nimbi", "dog_name": "Nimbi", "rescue_name": "Doodle Rock Rescue", "breed": "Poodle Mix", "weight": 55, "age_range": "3 years", "age_category": "Adult", "sex": "Female", "shedding": "Low", "energy_level": "High", "good_with_kids": "Yes", "good_with_dogs": "Yes", "good_with_cats": "Yes", "training_level": "", "training_notes": "", "special_needs": "Yes", "health_notes": "", "adoption_req": "", "adoption_fee": "", "platform": "doodlerockrescue.org", "location": "Dallas, TX", "status": "Available", "notes": "", "source_url": "https://doodlerockrescue.org/rescue-dog/nimbi/", "fit_score": 7, "watch_list": "Yes", "date_first_seen": "2025-11-28T03:41:53.529534", "date_last_updated": "2025-11-28T15:07:56.472255", "date_status_changed": "2025-11-28T03:41:53.529534", "date_went_pending": null, "date_went_available": null, "date_went_unavailable": null, "is_active": 1}, {"dog_id": "doo_thumper", "dog_name": "Thumper", "rescue_name": "Doodle Rock Rescue", "breed": "Doodle", "weight": 10, "age_range": "3 years", "age_category": "Adult", "sex": "Male", "shedding": "Low", "energy_level": "Low", "good_with_kids": "Yes", "good_with_dogs": "Yes", "good_with_cats": "Yes", "training_level": "", "training_notes": "", "special_needs": "Yes", "health_notes": "", "adoption_req": "", "adoption_fee": "", "platform": "doodlerockrescue.org", "location": "Dallas, TX", "status": "Available", "notes": "", "source_url": "https://doodlerockrescue.org/rescue-dog/thumper/", "fit_score": 7, "watch_list": "", "date_first_seen": "2025-11-28T03:41:53.531466", "date_last_updated": "2025-11-28T15:07:56.473847", "date_status_changed": "2025-11-28T03:41:53.531466", "date_went_pending": null, "date_went_available": null, "date_went_unavailable": null, "is_active": 1}, {"dog_id": "doo_chandler", "dog_name": "Chandler", "rescue_name": "Doodle Dandy Rescue", "breed": "Goldendoodle", "weight": 73, "age_range": "6.5 yrs", "age_category": "Adult", "sex": "Male", "shedding": "Low", "energy_level": "Medium", "good_with_kids": "Unknown", "good_with_dogs": "Unknown", "good_with_cats": "Unknown", "training_level": "", "training_notes": "", "special_needs": "", "health_notes": "", "adoption_req": "", "adoption_fee": "", "platform": "doodledandyrescue.org", "location": "HOU", "status": "Upcoming", "notes": "", "source_url": "https://www.doodledandyrescue.org/doodles-coming-soon", "fit_score": 6, "watch_list": "", "date_first_seen": "2025-11-28T03:41:54.147569", "date_last_updated": "2025-11-28T15:07:56.981990", "date_status_changed": "2025-11-28T03:41:54.147569", "date_went_pending": null, "date_went_available": null, "date_went_unavailable": null, "is_active": 1}, {"dog_id": "doo_dolce", "dog_name": "Dolce", "rescue_name": "Doodle Dandy Rescue", "breed": "Bernedoodle", "weight": 65, "age_range": "6 yrs", "age_category": "Adult", "sex": "Female", "shedding": "Low", "energy_level": "Medium", "good_with_kids": "Unknown", "good_with_dogs": "Unknown", "good_with_cats": "Unknown", "training_level": "", "training_notes": "", "special_needs": "", "health_notes": "", "adoption_req": "", "adoption_fee": "", "platform": "doodledandyrescue.org", "location": "DFW", "status": "Upcoming", "notes": "", "source_url": "https://www.doodledandyrescue.org/doodles-coming-soon", "fit_score": 6, "watch_list": "", "date_first_seen": "2025-11-28T03:41:54.149188", "date_last_updated": "2025-11-28T15:07:56.983050", "date_status_changed": "2025-11-28T03:41:54.149188", "date_went_pending": null, "date_went_available": null, "date_went_unavailable": null, "is_active": 1}, {"dog_id": "doo_macduff", "dog_name": "MacDuff", "rescue_name": "Doodle Dandy Rescue", "breed": "Australian Mountain Doodle", "weight": 90, "age_range": "3 yrs", "age_category": "Adult", "sex": "Male", "shedding": "Low", "energy_level": "Medium", "good_with_kids": "Unknown", "good_with_dogs": "Unknown", "good_with_cats": "Unknown", "training_level": "", "training_notes": "", "special_needs": "", "health_notes": "", "adoption_req": "", "adoption_fee": "", "platform": "doodledandyrescue.org", "location": "DFW", "status": "Upcoming", "notes": "", "source_url": "https://www.doodledandyrescue.org/doodles-coming-soon", "fit_score": 6, "watch_list": "", "date_first_seen": "2025-11-28T03:41:54.140919", "date_last_updated": "2025-11-28T15:07:56.977634", "date_status_changed": "2025-11-28T03:41:54.140919", "date_went_pending": null, "date_went_available": null, "date_went_unavailable": null, "is_active": 1}, {"dog_id": "doo_matcha", "dog_name": "Matcha", "rescue_name": "Doodle Dandy Rescue", "breed": "Doodle", "weight": 65, "age_range": "3 yrs", "age_category": "Adult", "sex": "Male", "shedding": "Low", "energy_level": "Medium", "good_with_kids": "Unknown", "good_with_dogs": "Unknown", "good_with_cats": "Unknown", "training_level": "", "training_notes": "", "special_needs": "", "health_notes": "", "adoption_req": "", "adoption_fee": "", "platform": "doodledandyrescue.org", "location": "DFW", "status": "Upcoming", "notes": "", "source_url": "https://www.doodledandyrescue.org/doodles-coming-soon", "fit_score": 6, "watch_list": "", "date_first_seen": "2025-11-28T03:41:54.160653", "date_last_updated": "2025-11-28T15:07:56.990660", "date_status_changed": "2025-11-28T03:41:54.160653", "date_went_pending": null, "date_went_available": null, "date_went_unavailable": null, "is_active": 1}, {"dog_id": "doo_pacey", "dog_name": "Pacey", "rescue_name": "Doodle Dandy Rescue", "breed": "Goldendoodle", "weight": 83, "age_range": "3.5 yrs", "age_category": "Adult", "sex": "Male", "shedding": "Low", "energy_level": "Medium", "good_with_kids": "Unknown", "good_with_dogs": "Unknown", "good_with_cats": "Unknown", "training_level": "", "training_notes": "", "special_needs": "", "health_notes": "", "adoption_req": "", "adoption_fee": "", "platform": "doodledandyrescue.org", "location": "HOU", "status": "Upcoming", "notes": "", "source_url": "https://www.doodledandyrescue.org/doodles-coming-soon", "fit_score": 6, "watch_list": "", "date_first_seen": "2025-11-28T03:41:54.135482", "date_last_updated": "2025-11-28T15:07:56.974383", "date_status_changed": "2025-11-28T03:41:54.135482", "date_went_pending": null, "date_went_available": null, "date_went_unavailable": null, "is_active": 1}, {"dog_id": "doo_strider", "dog_name": "Strider", "rescue_name": "Doodle Dandy Rescue", "breed": "Doodle", "weight": 60, "age_range": "2 yrs", "age_category": "Adult", "sex": "Male", "shedding": "Low", "energy_level": "Medium", "good_with_kids": "Unknown", "good_with_dogs": "Unknown", "good_with_cats": "Unknown", "training_level": "", "training_notes": "", "special_needs": "", "health_notes": "", "adoption_req": "", "adoption_fee": "", "platform": "doodledandyrescue.org", "location": "DFW", "status": "Upcoming", "notes": "", "source_url": "https://www.doodledandyrescue.org/doodles-coming-soon", "fit_score": 6, "watch_list": "", "date_first_seen": "2025-11-28T03:41:54.144591", "date_last_updated": "2025-11-28T15:07:56.979844", "date_status_changed": "2025-11-28T03:41:54.144591", "date_went_pending": null, "date_went_available": null, "date_went_unavailable": null, "is_active": 1}, {"dog_id": "doo_wilson", "dog_name": "Wilson", "rescue_name": "Doodle Dandy Rescue", "breed": "Doodle", "weight": 54, "age_range": "2 yrs", "age_category": "Adult", "sex": "Male", "shedding": "Low", "energy_level": "Medium", "good_with_kids": "Unknown", "good_with_dogs": "Unknown", "good_with_cats": "Unknown", "training_level": "", "training_notes": "", "special_needs": "", "health_notes": "", "adoption_req": "", "adoption_fee": "", "platform": "doodledandyrescue.org", "location": "HOU", "status": "Upcoming", "notes": "", "source_url": "https://www.doodledandyrescue.org/doodles-coming-soon", "fit_score": 6, "watch_list": "", "date_first_seen": "2025-11-28T03:41:54.132380", "date_last_updated": "2025-11-28T15:07:56.972242", "date_status_changed": "2025-11-28T03:41:54.132380", "date_went_pending": null, "date_went_available": null, "date_went_unavailable": null, "is_active": 1}, {"dog_id": "poo_charlie_\u2013_poodle_patch_rescue_inc_501_(c)_3_non_profit_texarkana,_tx", "dog_name": "Charlie \u2013 Poodle Patch Rescue Inc 501 (c) 3 non profit Texarkana, TX", "rescue_name": "Poodle Patch Rescue", "breed": "Poodle", "weight": 83, "age_range": "", "age_category": "", "sex": "Male", "shedding": "Low", "energy_level": "Unknown", "good_with_kids": "Unknown", "good_with_dogs": "Unknown", "good_with_cats": "Unknown", "training_level": "", "training_notes": "", "special_needs": "No", "health_notes": "He is house trained, heartworm negative, vaccinated, chipped, neutered. He is house trained, heartworm negative, vaccinated, chipped, neutered. He is house trained, heartworm negative, vaccinated, chipped, neutered", "adoption_req": "Within 350 miles", "adoption_fee": "$300", "platform": "poodlepatchrescue.com", "location": "Texarkana, TX", "status": "Available", "notes": "Charlie Posted on March 10, 2024 March 29, 2025 by Amanda 83 lbs now, he was 74 when we got him. Standard Poodle or Poodle lab mix we believe. Breeder asked us to take several. All were treated for hook and whip worms. Fostered \u00a0in Texarkana, TX \u00a0He is doing fabulous in his foster home. He loves lounging on the couch and running around in the yard with the other poodles. He\u2019s also an excellent car rider. Like any new rescue dog he will take a little bit of time to acclimate so someone with patie", "source_url": "https://poodlepatchrescue.com/charlie/", "fit_score": 5, "watch_list": "", "date_first_seen": "2025-11-28T03:41:57.699503", "date_last_updated": "2025-11-28T15:08:00.381144", "date_status_changed": "2025-11-28T03:41:57.699503", "date_went_pending": null, "date_went_available": null, "date_went_unavailable": null, "is_active": 1}, {"dog_id": "doo_clancy", "dog_name": "Clancy", "rescue_name": "Doodle Rock Rescue", "breed": "Poodle Mix", "weight": 10, "age_range": "6 months", "age_category": "Puppy", "sex": "Female", "shedding": "Low", "energy_level": "High", "good_with_kids": "Yes", "good_with_dogs": "Yes", "good_with_cats": "Yes", "training_level": "", "training_notes": "", "special_needs": "Yes", "health_notes": "", "adoption_req": "", "adoption_fee": "", "platform": "doodlerockrescue.org", "location": "Dallas, TX", "status": "Available", "notes": "", "source_url": "https://doodlerockrescue.org/rescue-dog/clancy/", "fit_score": 5, "watch_list": "", "date_first_seen": "2025-11-28T03:41:53.524987", "date_last_updated": "2025-11-28T15:07:56.468910", "date_status_changed": "2025-11-28T03:41:53.524987", "date_went_pending": null, "date_went_available": null, "date_went_unavailable": null, "is_active": 1}, {"dog_id": "poo_dancer", "dog_name": "Dancer", "rescue_name": "Poodle Patch Rescue", "breed": "Poodle", "weight": 42, "age_range": "7 years", "age_category": "Adult", "sex": "Female", "shedding": "Low", "energy_level": "Unknown", "good_with_kids": "Unknown", "good_with_dogs": "Unknown", "good_with_cats": "Unknown", "training_level": "", "training_notes": "", "special_needs": "No", "health_notes": "", "adoption_req": "Within 350 miles", "adoption_fee": "$300", "platform": "poodlepatchrescue.com", "location": "Texarkana, TX", "status": "Available", "notes": "Dancer-pending Posted on October 4, 2025 October 20, 2025 by Amanda Fostered \u00a0in Waco, Texas she is scheduled for spay, vaccinations. She weighs 42lb and is 7 years old. She gets along great with other dogs. She is House trained and knows a doggie door. She will be coming closer to Texarkana when we secure transport. and we will be providing more information soon We adopt within 350 miles of Texarkana TX or Hot Springs AR (exceptions are made for excellent applicants -we do not ship). Adoption f", "source_url": "https://poodlepatchrescue.com/dancer/", "fit_score": 5, "watch_list": "", "date_first_seen": "2025-11-28T03:41:57.706563", "date_last_updated": "2025-11-28T15:08:00.378773", "date_status_changed": "2025-11-28T03:41:57.706563", "date_went_pending": null, "date_went_available": null, "date_went_unavailable": null, "is_active": 1}, {"dog_id": "poo_zira_\u2013_poodle_patch_rescue_inc_501_(c)_3_non_profit_texarkana,_tx", "dog_name": "Zira \u2013 Poodle Patch Rescue Inc 501 (c) 3 non profit Texarkana, TX", "rescue_name": "Poodle Patch Rescue", "breed": "Poodle", "weight": 64, "age_range": "4 years", "age_category": "Adult", "sex": "Female", "shedding": "Low", "energy_level": "Unknown", "good_with_kids": "Unknown", "good_with_dogs": "Unknown", "good_with_cats": "Unknown", "training_level": "", "training_notes": "", "special_needs": "No", "health_notes": "Zira Posted on October 15, 2025 November 12, 2025 by Amanda 4 year old female, 64 lbs, spayed, vaccinated, heartworm neg with a pro heart injection good thru 4/26/2025, housetrained, good with other dogs, cats, and kids. Zira Posted on October 15, 2025 November 12, 2025 by Amanda 4 year old female, 64 lbs, spayed, vaccinated, heartworm neg with a pro heart injection good thru 4/26/2025, housetrained, good with other dogs, cats, and kids. Zira Posted on October 15, 2025 November 12, 2025 by Amanda 4 year old female, 64 lbs, spayed, vaccinated, heartworm neg with a pro heart injection good thru 4/26/2025, housetrained, good with other dogs, cats, and kids", "adoption_req": "Within 350 miles, Fenced yard", "adoption_fee": "$300", "platform": "poodlepatchrescue.com", "location": "Texarkana, TX", "status": "Available", "notes": "Zira Posted on October 15, 2025 November 12, 2025 by Amanda 4 year old female, 64 lbs, spayed, vaccinated, heartworm neg with a pro heart injection good thru 4/26/2025, housetrained, good with other dogs, cats, and kids. Fostered in Cabot AR Zira is one smart cookie. She can open totes and latches. She loves her jolly ball. She can climb chain link and needs a secure fence. She\u2019s a sweet lover girl who likes to give kisses and smell your ears\ud83d\ude02. We believe she may do well with scent training. She", "source_url": "https://poodlepatchrescue.com/zira/", "fit_score": 5, "watch_list": "", "date_first_seen": "2025-11-28T03:41:57.702945", "date_last_updated": "2025-11-28T15:08:00.379939", "date_status_changed": "2025-11-28T03:41:57.702945", "date_went_pending": null, "date_went_available": null, "date_went_unavailable": null, "is_active": 1}, {"dog_id": "doo_adoption_pending", "dog_name": "Adoption Pending", "rescue_name": "Doodle Dandy Rescue", "breed": "Goldendoodle", "weight": 88, "age_range": "4.5 yrs", "age_category": "Adult", "sex": "Male", "shedding": "Low", "energy_level": "Medium", "good_with_kids": "Unknown", "good_with_dogs": "Unknown", "good_with_cats": "Unknown", "training_level": "", "training_notes": "", "special_needs": "", "health_notes": "", "adoption_req": "", "adoption_fee": "", "platform": "doodledandyrescue.org", "location": "", "status": "Pending", "notes": "", "source_url": "https://www.doodledandyrescue.org/adoption-pending-doodles", "fit_score": 4, "watch_list": "", "date_first_seen": "2025-11-28T03:41:54.125224", "date_last_updated": "2025-11-28T15:07:56.967518", "date_status_changed": "2025-11-28T03:41:54.125224", "date_went_pending": null, "date_went_available": null, "date_went_unavailable": null, "is_active": 1}, {"dog_id": "doo_austin", "dog_name": "Austin", "rescue_name": "Doodle Dandy Rescue", "breed": "Doodle", "weight": null, "age_range": "", "age_category": "", "sex": "", "shedding": "Low", "energy_level": "Medium", "good_with_kids": "Unknown", "good_with_dogs": "Unknown", "good_with_cats": "Unknown", "training_level": "", "training_notes": "", "special_needs": "", "health_notes": "", "adoption_req": "", "adoption_fee": "", "platform": "doodledandyrescue.org", "location": "", "status": "Available", "notes": "", "source_url": "https://www.doodledandyrescue.org/all-adoptable-doodles", "fit_score": 4, "watch_list": "", "date_first_seen": "2025-11-28T03:41:54.119825", "date_last_updated": "2025-11-28T15:07:56.963737", "date_status_changed": "2025-11-28T03:41:54.119825", "date_went_pending": null, "date_went_available": null, "date_went_unavailable": null, "is_active": 1}, {"dog_id": "doo_charliemagne", "dog_name": "Charliemagne", "rescue_name": "Doodle Dandy Rescue", "breed": "Mini Goldendoodle", "weight": 23, "age_range": "3 yrs", "age_category": "Adult", "sex": "Male", "shedding": "Low", "energy_level": "Medium", "good_with_kids": "Unknown", "good_with_dogs": "Unknown", "good_with_cats": "Unknown", "training_level": "", "training_notes": "", "special_needs": "", "health_notes": "", "adoption_req": "", "adoption_fee": "", "platform": "doodledandyrescue.org", "location": "HOU", "status": "Upcoming", "notes": "", "source_url": "https://www.doodledandyrescue.org/doodles-coming-soon", "fit_score": 4, "watch_list": "", "date_first_seen": "2025-11-28T03:41:54.142539", "date_last_updated": "2025-11-28T15:07:56.978694", "date_status_changed": "2025-11-28T03:41:54.142539", "date_went_pending": null, "date_went_available": null, "date_went_unavailable": null, "is_active": 1}, {"dog_id": "doo_chili", "dog_name": "Chili", "rescue_name": "Doodle Dandy Rescue", "breed": "Goldendoodle", "weight": 38, "age_range": "2.5 yrs", "age_category": "Adult", "sex": "Male", "shedding": "Low", "energy_level": "Medium", "good_with_kids": "Unknown", "good_with_dogs": "Unknown", "good_with_cats": "Unknown", "training_level": "", "training_notes": "", "special_needs": "", "health_notes": "", "adoption_req": "", "adoption_fee": "", "platform": "doodledandyrescue.org", "location": "HOU", "status": "Upcoming", "notes": "", "source_url": "https://www.doodledandyrescue.org/doodles-coming-soon", "fit_score": 4, "watch_list": "", "date_first_seen": "2025-11-28T03:41:54.130527", "date_last_updated": "2025-11-28T15:07:56.971061", "date_status_changed": "2025-11-28T03:41:54.130527", "date_went_pending": null, "date_went_available": null, "date_went_unavailable": null, "is_active": 1}, {"dog_id": "doo_freddy_faz", "dog_name": "Freddy Faz", "rescue_name": "Doodle Dandy Rescue", "breed": "Goldendoodle", "weight": 46, "age_range": "7 mos", "age_category": "Puppy", "sex": "Male", "shedding": "Low", "energy_level": "High", "good_with_kids": "Unknown", "good_with_dogs": "Unknown", "good_with_cats": "Unknown", "training_level": "", "training_notes": "", "special_needs": "", "health_notes": "", "adoption_req": "", "adoption_fee": "", "platform": "doodledandyrescue.org", "location": "HOU", "status": "Upcoming", "notes": "", "source_url": "https://www.doodledandyrescue.org/doodles-coming-soon", "fit_score": 4, "watch_list": "Yes", "date_first_seen": "2025-11-28T03:41:54.137514", "date_last_updated": "2025-11-28T15:07:56.975466", "date_status_changed": "2025-11-28T03:41:54.137514", "date_went_pending": null, "date_went_available": null, "date_went_unavailable": null, "is_active": 1}, {"dog_id": "doo_happy_tails", "dog_name": "Happy Tails", "rescue_name": "Doodle Dandy Rescue", "breed": "Copyright Doodle Dandy Rescue 2020", "weight": null, "age_range": "", "age_category": "", "sex": "", "shedding": "Low", "energy_level": "Medium", "good_with_kids": "Unknown", "good_with_dogs": "Unknown", "good_with_cats": "Unknown", "training_level": "", "training_notes": "", "special_needs": "", "health_notes": "", "adoption_req": "", "adoption_fee": "", "platform": "doodledandyrescue.org", "location": "", "status": "Available", "notes": "", "source_url": "https://www.doodledandyrescue.org/all-adoptable-doodles", "fit_score": 4, "watch_list": "", "date_first_seen": "2025-11-28T03:41:54.123330", "date_last_updated": "2025-11-28T15:07:56.966215", "date_status_changed": "2025-11-28T03:41:54.123330", "date_went_pending": null, "date_went_available": null, "date_went_unavailable": null, "is_active": 1}, {"dog_id": "doo_hazelnut", "dog_name": "Hazelnut", "rescue_name": "Doodle Dandy Rescue", "breed": "Mini Aussiedoodle", "weight": 25, "age_range": "5 yrs", "age_category": "Adult", "sex": "Female", "shedding": "Low", "energy_level": "Medium", "good_with_kids": "Unknown", "good_with_dogs": "Unknown", "good_with_cats": "Unknown", "training_level": "", "training_notes": "", "special_needs": "", "health_notes": "", "adoption_req": "", "adoption_fee": "", "platform": "doodledandyrescue.org", "location": "DFW", "status": "Upcoming", "notes": "", "source_url": "https://www.doodledandyrescue.org/doodles-coming-soon", "fit_score": 4, "watch_list": "", "date_first_seen": "2025-11-28T03:41:54.162202", "date_last_updated": "2025-11-28T15:07:56.991705", "date_status_changed": "2025-11-28T03:41:54.162202", "date_went_pending": null, "date_went_available": null, "date_went_unavailable": null, "is_active": 1}, {"dog_id": "doo_plomo", "dog_name": "Plomo", "rescue_name": "Doodle Dandy Rescue", "breed": "Goldendoodle", "weight": 39, "age_range": "3 yrs", "age_category": "Adult", "sex": "Male", "shedding": "Low", "energy_level": "Medium", "good_with_kids": "Unknown", "good_with_dogs": "Unknown", "good_with_cats": "Unknown", "training_level": "", "training_notes": "", "special_needs": "", "health_notes": "", "adoption_req": "", "adoption_fee": "", "platform": "doodledandyrescue.org", "location": "HOU", "status": "Upcoming", "notes": "", "source_url": "https://www.doodledandyrescue.org/doodles-coming-soon", "fit_score": 4, "watch_list": "", "date_first_seen": "2025-11-28T03:41:54.146087", "date_last_updated": "2025-11-28T15:07:56.980927", "date_status_changed": "2025-11-28T03:41:54.146087", "date_went_pending": null, "date_went_available": null, "date_went_unavailable": null, "is_active": 1}, {"dog_id": "doo_rehome", "dog_name": "Rehome", "rescue_name": "Doodle Dandy Rescue", "breed": "Doodles Ready for Adoption", "weight": null, "age_range": "", "age_category": "", "sex": "", "shedding": "Low", "energy_level": "Medium", "good_with_kids": "Unknown", "good_with_dogs": "Unknown", "good_with_cats": "Unknown", "training_level": "", "training_notes": "", "special_needs": "", "health_notes": "", "adoption_req": "", "adoption_fee": "", "platform": "doodledandyrescue.org", "location": "", "status": "Available", "notes": "", "source_url": "https://www.doodledandyrescue.org/all-adoptable-doodles", "fit_score": 4, "watch_list": "", "date_first_seen": "2025-11-28T03:41:54.116421", "date_last_updated": "2025-11-28T15:07:56.960796", "date_status_changed": "2025-11-28T03:41:54.116421", "date_went_pending": null, "date_went_available": null, "date_went_unavailable": null, "is_active": 1}, {"dog_id": "doo_sheds:", "dog_name": "Sheds:", "rescue_name": "Doodle Dandy Rescue", "breed": "Maltipoo", "weight": null, "age_range": "14 mos", "age_category": "Adult", "sex": "", "shedding": "Low", "energy_level": "Medium", "good_with_kids": "Unknown", "good_with_dogs": "Unknown", "good_with_cats": "Unknown", "training_level": "", "training_notes": "", "special_needs": "", "health_notes": "", "adoption_req": "", "adoption_fee": "", "platform": "doodledandyrescue.org", "location": "", "status": "Available", "notes": "", "source_url": "https://www.doodledandyrescue.org/all-adoptable-doodles", "fit_score": 4, "watch_list": "", "date_first_seen": "2025-11-28T03:41:54.121298", "date_last_updated": "2025-11-28T15:07:56.965003", "date_status_changed": "2025-11-28T03:41:54.121298", "date_went_pending": null, "date_went_available": null, "date_went_unavailable": null, "is_active": 1}, {"dog_id": "doo_skipper", "dog_name": "Skipper", "rescue_name": "Doodle Dandy Rescue", "breed": "Goldendoodle", "weight": 60, "age_range": "8 mos", "age_category": "Puppy", "sex": "Male", "shedding": "Low", "energy_level": "High", "good_with_kids": "Unknown", "good_with_dogs": "Unknown", "good_with_cats": "Unknown", "training_level": "", "training_notes": "", "special_needs": "", "health_notes": "", "adoption_req": "", "adoption_fee": "", "platform": "doodledandyrescue.org", "location": "HOU", "status": "Upcoming", "notes": "", "source_url": "https://www.doodledandyrescue.org/doodles-coming-soon", "fit_score": 4, "watch_list": "Yes", "date_first_seen": "2025-11-28T03:41:54.134020", "date_last_updated": "2025-11-28T15:07:56.973320", "date_status_changed": "2025-11-28T03:41:54.134020", "date_went_pending": null, "date_went_available": null, "date_went_unavailable": null, "is_active": 1}, {"dog_id": "doo_adoption.", "dog_name": "adoption.", "rescue_name": "Doodle Dandy Rescue", "breed": "Our policy at Doodle Dandy Rescue is to allow our foster volunteers the time to understand their foster dood's needs and personalities. This helps everyone identify what type of \"fur-ever\" home will be a great fit for each of them. Follow their progress on", "weight": null, "age_range": "", "age_category": "", "sex": "", "shedding": "Low", "energy_level": "Medium", "good_with_kids": "Unknown", "good_with_dogs": "Unknown", "good_with_cats": "Unknown", "training_level": "", "training_notes": "", "special_needs": "", "health_notes": "", "adoption_req": "", "adoption_fee": "", "platform": "doodledandyrescue.org", "location": "", "status": "Upcoming", "notes": "", "source_url": "https://www.doodledandyrescue.org/doodles-coming-soon", "fit_score": 4, "watch_list": "", "date_first_seen": "2025-11-28T03:41:54.128845", "date_last_updated": "2025-11-28T15:07:56.969932", "date_status_changed": "2025-11-28T03:41:54.128845", "date_went_pending": null, "date_went_available": null, "date_went_unavailable": null, "is_active": 1}, {"dog_id": "doo_in_preparation_for_adoption.*", "dog_name": "in preparation for adoption.*", "rescue_name": "Doodle Dandy Rescue", "breed": "Goldendoodle", "weight": null, "age_range": "4 yrs", "age_category": "Adult", "sex": "", "shedding": "Low", "energy_level": "Medium", "good_with_kids": "Unknown", "good_with_dogs": "Unknown", "good_with_cats": "Unknown", "training_level": "", "training_notes": "", "special_needs": "", "health_notes": "", "adoption_req": "", "adoption_fee": "", "platform": "doodledandyrescue.org", "location": "", "status": "Available", "notes": "", "source_url": "https://www.doodledandyrescue.org/all-adoptable-doodles", "fit_score": 4, "watch_list": "", "date_first_seen": "2025-11-28T03:41:54.118399", "date_last_updated": "2025-11-28T15:07:56.962563", "date_status_changed": "2025-11-28T03:41:54.118399", "date_went_pending": null, "date_went_available": null, "date_went_unavailable": null, "is_active": 1}, {"dog_id": "poo_charlie_2_pending_\u2013_poodle_patch_rescue_inc_501_(c)_3_non_profit_texarkana,_tx", "dog_name": "Charlie 2 pending \u2013 Poodle Patch Rescue Inc 501 (c) 3 non profit Texarkana, TX", "rescue_name": "Poodle Patch Rescue", "breed": "Poodle", "weight": null, "age_range": "5 years", "age_category": "Adult", "sex": "Female", "shedding": "Low", "energy_level": "Unknown", "good_with_kids": "Unknown", "good_with_dogs": "Unknown", "good_with_cats": "Unknown", "training_level": "", "training_notes": "", "special_needs": "No", "health_notes": "He is 5 years old, scheduled for neuter, \u00a0vaccines, chip, heartworm test and any other vet needs", "adoption_req": "Within 350 miles", "adoption_fee": "$300", "platform": "poodlepatchrescue.com", "location": "Texarkana, TX", "status": "Available", "notes": "Charlie 2 pending Posted on October 30, 2025 November 18, 2025 by Amanda Charlie\u2019s person passed away and he stayed by her side. He was \u00a0her service dog to the very end. \u00a0 He is now in foster care in Texarkana. \u00a0He is 5 years old, scheduled for neuter, \u00a0vaccines, chip, heartworm test and any other vet needs. He has attached himself to foster mom and would do great with a woman who wants a loyal loving companion. He will do best without small dogs or cats as he is very curious and may chase. We a", "source_url": "https://poodlepatchrescue.com/charlie-2/", "fit_score": 3, "watch_list": "", "date_first_seen": "2025-11-28T03:41:57.704970", "date_last_updated": "2025-11-28T15:08:00.386052", "date_status_changed": "2025-11-28T03:41:57.704970", "date_went_pending": null, "date_went_available": null, "date_went_unavailable": null, "is_active": 1}, {"dog_id": "poo_happy_tails_\u2013_poodle_patch_rescue_inc_501_(c)_3_non_profit_texarkana,_tx", "dog_name": "Happy Tails \u2013 Poodle Patch Rescue Inc 501 (c) 3 non profit Texarkana, TX", "rescue_name": "Poodle Patch Rescue", "breed": "Poodle/Mix", "weight": null, "age_range": "", "age_category": "", "sex": "", "shedding": "Unknown", "energy_level": "Unknown", "good_with_kids": "Unknown", "good_with_dogs": "Unknown", "good_with_cats": "Unknown", "training_level": "", "training_notes": "", "special_needs": "No", "health_notes": "", "adoption_req": "", "adoption_fee": "", "platform": "poodlepatchrescue.com", "location": "Texarkana, TX", "status": "Available", "notes": "March 18, 2015 Amanda Happy Tails Search Search for: Donate Donate via Paypal Tax deductible", "source_url": "https://poodlepatchrescue.com/adopted-animals/", "fit_score": 3, "watch_list": "", "date_first_seen": "2025-11-28T03:41:57.710618", "date_last_updated": "2025-11-28T15:08:00.382266", "date_status_changed": "2025-11-28T03:41:57.710618", "date_went_pending": null, "date_went_available": null, "date_went_unavailable": null, "is_active": 1}, {"dog_id": "poo_koda_\u2013_poodle_patch_rescue_inc_501_(c)_3_non_profit_texarkana,_tx", "dog_name": "Koda \u2013 Poodle Patch Rescue Inc 501 (c) 3 non profit Texarkana, TX", "rescue_name": "Poodle Patch Rescue", "breed": "Poodle/Mix", "weight": null, "age_range": "", "age_category": "", "sex": "Male", "shedding": "Unknown", "energy_level": "Unknown", "good_with_kids": "Unknown", "good_with_dogs": "Unknown", "good_with_cats": "Unknown", "training_level": "", "training_notes": "", "special_needs": "No", "health_notes": "He is neutered, current on vaccinations and on heartworm prevention. He is neutered, current on vaccinations and on heartworm prevention", "adoption_req": "", "adoption_fee": "$350", "platform": "poodlepatchrescue.com", "location": "Texarkana, TX", "status": "Available", "notes": "Koda Posted on April 30, 2025 July 16, 2025 by Amanda Koda\u2019s DOB is 6/28/24.\u00a0\u00a0 He is neutered, current on vaccinations and on heartworm prevention.\u00a0\u00a0 He is a big, lovable goofball.\u00a0\u00a0 He loves to play fetch.\u00a0\u00a0\u00a0 He would do well in a home with another dog around his age, size and energy level.\u00a0\u00a0\u00a0 He loves to play, but because he is still a puppy \u2013 tends to aggravate older dogs once they are through playing and Koda isn\u2019t! \u00a0 \u00a0He would also do well as an only dog if he wasn\u2019t left alone for a normal", "source_url": "https://poodlepatchrescue.com/koda/", "fit_score": 3, "watch_list": "", "date_first_seen": "2025-11-28T03:41:57.701201", "date_last_updated": "2025-11-28T15:08:00.377519", "date_status_changed": "2025-11-28T03:41:57.701201", "date_went_pending": null, "date_went_available": null, "date_went_unavailable": null, "is_active": 1}, {"dog_id": "poo_lacey", "dog_name": "Lacey", "rescue_name": "Poodle Patch Rescue", "breed": "Poodle", "weight": null, "age_range": "", "age_category": "", "sex": "Female", "shedding": "Low", "energy_level": "Unknown", "good_with_kids": "Unknown", "good_with_dogs": "Unknown", "good_with_cats": "Unknown", "training_level": "", "training_notes": "", "special_needs": "No", "health_notes": "She will be vetted and available for adoption", "adoption_req": "Within 350 miles", "adoption_fee": "$300", "platform": "poodlepatchrescue.com", "location": "Texarkana, TX", "status": "Available", "notes": "Lacey-pending Posted on October 27, 2025 November 6, 2025 by Amanda Part of a cruelty confiscation case. She is located in Texarkana TX now. She will be vetted and available for adoption. We also need foster homes. Will post more info as we learn. We \u00a0adopt within 350 miles of Texarkana TX or Hot Springs AR (exceptions are made for excellent applicants -we do not ship). Adoption fee $300. We do not process incomplete apps. A volunteer will contact you within \u00a07-10 days after you submit the app. ", "source_url": "https://poodlepatchrescue.com/lacey/", "fit_score": 3, "watch_list": "", "date_first_seen": "2025-11-28T03:41:57.708447", "date_last_updated": "2025-11-28T15:08:00.387296", "date_status_changed": "2025-11-28T03:41:57.708447", "date_went_pending": null, "date_went_available": null, "date_went_unavailable": null, "is_active": 1}, {"dog_id": "poo_memphis_\u2013_poodle_patch_rescue_inc_501_(c)_3_non_profit_texarkana,_tx", "dog_name": "Memphis \u2013 Poodle Patch Rescue Inc 501 (c) 3 non profit Texarkana, TX", "rescue_name": "Poodle Patch Rescue", "breed": "Poodle", "weight": null, "age_range": "", "age_category": "", "sex": "Male", "shedding": "Low", "energy_level": "Unknown", "good_with_kids": "Unknown", "good_with_dogs": "Unknown", "good_with_cats": "Unknown", "training_level": "", "training_notes": "", "special_needs": "No", "health_notes": "Memphis Posted on October 20, 2025 October 30, 2025 by Amanda standard male undergoing heartworm treatment in Hot Springs-in need of a foster or adoptive home ASAP We adopt within 350 miles of Texarkana TX or Hot Springs AR (exceptions are made for excellent applicants -we do not ship)", "adoption_req": "Within 350 miles", "adoption_fee": "$300", "platform": "poodlepatchrescue.com", "location": "Texarkana, TX", "status": "Available", "notes": "Memphis Posted on October 20, 2025 October 30, 2025 by Amanda standard male undergoing heartworm treatment in Hot Springs-in need of a foster or adoptive home ASAP We adopt within 350 miles of Texarkana TX or Hot Springs AR (exceptions are made for excellent applicants -we do not ship). Adoption fee $300. We do not process incomplete apps. A volunteer will contact you within \u00a07-10 days after you submit the app. You will get an automatic unmonitored email from the site stating we have your applic", "source_url": "https://poodlepatchrescue.com/memphis/", "fit_score": 3, "watch_list": "", "date_first_seen": "2025-11-28T03:41:57.697657", "date_last_updated": "2025-11-28T15:08:00.374365", "date_status_changed": "2025-11-28T03:41:57.697657", "date_went_pending": null, "date_went_available": null, "date_went_unavailable": null, "is_active": 1}, {"dog_id": "poo_oliver_\u2013_poodle_patch_rescue_inc_501_(c)_3_non_profit_texarkana,_tx", "dog_name": "Oliver \u2013 Poodle Patch Rescue Inc 501 (c) 3 non profit Texarkana, TX", "rescue_name": "Poodle Patch Rescue", "breed": "Poodle", "weight": null, "age_range": "", "age_category": "", "sex": "Male", "shedding": "Low", "energy_level": "Unknown", "good_with_kids": "Unknown", "good_with_dogs": "Unknown", "good_with_cats": "Unknown", "training_level": "", "training_notes": "", "special_needs": "No", "health_notes": "He will be vetted and available for adoption", "adoption_req": "Within 350 miles", "adoption_fee": "$300", "platform": "poodlepatchrescue.com", "location": "Texarkana, TX", "status": "Available", "notes": "Oliver Posted on October 27, 2025 by Amanda Part of a cruelty confiscation case. He \u00a0is located in Texarkana TX now. He will be vetted and available for adoption. We also need foster homes. Will post more info as we learn. We \u00a0adopt within 350 miles of Texarkana TX or Hot Springs AR (exceptions are made for excellent applicants -we do not ship). Adoption fee $300. We do not process incomplete apps. A volunteer will contact you within \u00a07-10 days after you submit the app. You will get an automatic", "source_url": "https://poodlepatchrescue.com/oliver/", "fit_score": 3, "watch_list": "", "date_first_seen": "2025-11-28T03:41:57.690958", "date_last_updated": "2025-11-28T15:08:00.384731", "date_status_changed": "2025-11-28T03:41:57.690958", "date_went_pending": null, "date_went_available": null, "date_went_unavailable": null, "is_active": 1}, {"dog_id": "poo_whiskey", "dog_name": "Whiskey", "rescue_name": "Poodle Patch Rescue", "breed": "Poodle/Mix", "weight": null, "age_range": "", "age_category": "", "sex": "Female", "shedding": "Unknown", "energy_level": "Unknown", "good_with_kids": "Unknown", "good_with_dogs": "Unknown", "good_with_cats": "Unknown", "training_level": "", "training_notes": "", "special_needs": "No", "health_notes": "Whiskey-pending Posted on October 20, 2025 November 18, 2025 by Amanda standard female undergoing heartworm treatment in Hot Springs-in need of a foster or adoptive home ASAP We adopt within 350 miles of Texarkana TX or Hot Springs AR (exceptions are made for excellent applicants -we do not ship)", "adoption_req": "Within 350 miles", "adoption_fee": "$300", "platform": "poodlepatchrescue.com", "location": "Texarkana, TX", "status": "Available", "notes": "Whiskey-pending Posted on October 20, 2025 November 18, 2025 by Amanda standard female undergoing heartworm treatment in Hot Springs-in need of a foster or adoptive home ASAP We adopt within 350 miles of Texarkana TX or Hot Springs AR (exceptions are made for excellent applicants -we do not ship). Adoption fee $300. We do not process incomplete apps. A volunteer will contact you within \u00a07-10 days after you submit the app. You will get an automatic unmonitored email from the site stating we have ", "source_url": "https://poodlepatchrescue.com/whiskey/", "fit_score": 3, "watch_list": "", "date_first_seen": "2025-11-28T03:41:57.695754", "date_last_updated": "2025-11-28T15:08:00.376062", "date_status_changed": "2025-11-28T03:41:57.695754", "date_went_pending": null, "date_went_available": null, "date_went_unavailable": null, "is_active": 1}, {"dog_id": "doo_blitz", "dog_name": "Blitz", "rescue_name": "Doodle Dandy Rescue", "breed": "Doodle", "weight": 37, "age_range": "6 mos", "age_category": "Puppy", "sex": "Male", "shedding": "Low", "energy_level": "High", "good_with_kids": "Unknown", "good_with_dogs": "Unknown", "good_with_cats": "Unknown", "training_level": "", "training_notes": "", "special_needs": "", "health_notes": "", "adoption_req": "", "adoption_fee": "", "platform": "doodledandyrescue.org", "location": "DFW", "status": "Upcoming", "notes": "", "source_url": "https://www.doodledandyrescue.org/doodles-coming-soon", "fit_score": 2, "watch_list": "", "date_first_seen": "2025-11-28T03:41:54.158621", "date_last_updated": "2025-11-28T15:07:56.989577", "date_status_changed": "2025-11-28T03:41:54.158621", "date_went_pending": null, "date_went_available": null, "date_went_unavailable": null, "is_active": 1}, {"dog_id": "doo_eleanorb", "dog_name": "EleanorB", "rescue_name": "Doodle Dandy Rescue", "breed": "Bernadoodle Lab", "weight": 11, "age_range": "9 wks", "age_category": "Puppy", "sex": "Female", "shedding": "Low", "energy_level": "High", "good_with_kids": "Unknown", "good_with_dogs": "Unknown", "good_with_cats": "Unknown", "training_level": "", "training_notes": "", "special_needs": "", "health_notes": "", "adoption_req": "", "adoption_fee": "", "platform": "doodledandyrescue.org", "location": "DFW", "status": "Upcoming", "notes": "", "source_url": "https://www.doodledandyrescue.org/doodles-coming-soon", "fit_score": 2, "watch_list": "", "date_first_seen": "2025-11-28T03:41:54.156914", "date_last_updated": "2025-11-28T15:07:56.988535", "date_status_changed": "2025-11-28T03:41:54.156914", "date_went_pending": null, "date_went_available": null, "date_went_unavailable": null, "is_active": 1}, {"dog_id": "doo_fozzie", "dog_name": "Fozzie", "rescue_name": "Doodle Dandy Rescue", "breed": "Shih-poo", "weight": 14, "age_range": "1 yr", "age_category": "Puppy", "sex": "Male", "shedding": "Low", "energy_level": "High", "good_with_kids": "Unknown", "good_with_dogs": "Unknown", "good_with_cats": "Unknown", "training_level": "", "training_notes": "", "special_needs": "", "health_notes": "", "adoption_req": "", "adoption_fee": "", "platform": "doodledandyrescue.org", "location": "HOU", "status": "Upcoming", "notes": "", "source_url": "https://www.doodledandyrescue.org/doodles-coming-soon", "fit_score": 2, "watch_list": "", "date_first_seen": "2025-11-28T03:41:54.139015", "date_last_updated": "2025-11-28T15:07:56.976539", "date_status_changed": "2025-11-28T03:41:54.139015", "date_went_pending": null, "date_went_available": null, "date_went_unavailable": null, "is_active": 1}, {"dog_id": "doo_lizabeth", "dog_name": "Lizabeth", "rescue_name": "Doodle Dandy Rescue", "breed": "Bernadoodle Lab", "weight": 11, "age_range": "9 wks", "age_category": "Puppy", "sex": "Female", "shedding": "Low", "energy_level": "High", "good_with_kids": "Unknown", "good_with_dogs": "Unknown", "good_with_cats": "Unknown", "training_level": "", "training_notes": "", "special_needs": "", "health_notes": "", "adoption_req": "", "adoption_fee": "", "platform": "doodledandyrescue.org", "location": "DFW", "status": "Upcoming", "notes": "", "source_url": "https://www.doodledandyrescue.org/doodles-coming-soon", "fit_score": 2, "watch_list": "", "date_first_seen": "2025-11-28T03:41:54.152367", "date_last_updated": "2025-11-28T15:07:56.985281", "date_status_changed": "2025-11-28T03:41:54.152367", "date_went_pending": null, "date_went_available": null, "date_went_unavailable": null, "is_active": 1}, {"dog_id": "doo_lucabrasi", "dog_name": "Lucabrasi", "rescue_name": "Doodle Dandy Rescue", "breed": "Maltipoo", "weight": 14, "age_range": "10 mos", "age_category": "Puppy", "sex": "Male", "shedding": "Low", "energy_level": "High", "good_with_kids": "Unknown", "good_with_dogs": "Unknown", "good_with_cats": "Unknown", "training_level": "", "training_notes": "", "special_needs": "", "health_notes": "", "adoption_req": "", "adoption_fee": "", "platform": "doodledandyrescue.org", "location": "DFW", "status": "Upcoming", "notes": "", "source_url": "https://www.doodledandyrescue.org/doodles-coming-soon", "fit_score": 2, "watch_list": "", "date_first_seen": "2025-11-28T03:41:54.150782", "date_last_updated": "2025-11-28T15:07:56.984228", "date_status_changed": "2025-11-28T03:41:54.150782", "date_went_pending": null, "date_went_available": null, "date_went_unavailable": null, "is_active": 1}, {"dog_id": "doo_maryb", "dog_name": "MaryB", "rescue_name": "Doodle Dandy Rescue", "breed": "Bernadoodle Lab", "weight": 11, "age_range": "9 wks", "age_category": "Puppy", "sex": "Female", "shedding": "Low", "energy_level": "High", "good_with_kids": "Unknown", "good_with_dogs": "Unknown", "good_with_cats": "Unknown", "training_level": "", "training_notes": "", "special_needs": "", "health_notes": "", "adoption_req": "", "adoption_fee": "", "platform": "doodledandyrescue.org", "location": "DFW", "status": "Upcoming", "notes": "", "source_url": "https://www.doodledandyrescue.org/doodles-coming-soon", "fit_score": 2, "watch_list": "", "date_first_seen": "2025-11-28T03:41:54.153904", "date_last_updated": "2025-11-28T15:07:56.986346", "date_status_changed": "2025-11-28T03:41:54.153904", "date_went_pending": null, "date_went_available": null, "date_went_unavailable": null, "is_active": 1}, {"dog_id": "doo_susanna", "dog_name": "Susanna", "rescue_name": "Doodle Dandy Rescue", "breed": "Bernadoodle Lab", "weight": 11, "age_range": "9 wks", "age_category": "Puppy", "sex": "Female", "shedding": "Low", "energy_level": "High", "good_with_kids": "Unknown", "good_with_dogs": "Unknown", "good_with_cats": "Unknown", "training_level": "", "training_notes": "", "special_needs": "", "health_notes": "", "adoption_req": "", "adoption_fee": "", "platform": "doodledandyrescue.org", "location": "DFW", "status": "Upcoming", "notes": "", "source_url": "https://www.doodledandyrescue.org/doodles-coming-soon", "fit_score": 2, "watch_list": "", "date_first_seen": "2025-11-28T03:41:54.155364", "date_last_updated": "2025-11-28T15:07:56.987404", "date_status_changed": "2025-11-28T03:41:54.155364", "date_went_pending": null, "date_went_available": null, "date_went_unavailable": null, "is_active": 1}, {"dog_id": "doo_san", "dog_name": "SAN", "rescue_name": "Doodle Dandy Rescue", "breed": "Goldendoodle", "weight": null, "age_range": "7 mos", "age_category": "Puppy", "sex": "Male", "shedding": "Low", "energy_level": "High", "good_with_kids": "Unknown", "good_with_dogs": "Unknown", "good_with_cats": "Unknown", "training_level": "", "training_notes": "", "special_needs": "", "health_notes": "", "adoption_req": "", "adoption_fee": "", "platform": "doodledandyrescue.org", "location": "", "status": "Pending", "notes": "", "source_url": "https://www.doodledandyrescue.org/adoption-pending-doodles", "fit_score": 0, "watch_list": "", "date_first_seen": "2025-11-28T03:41:54.127190", "date_last_updated": "2025-11-28T15:07:56.968750", "date_status_changed": "2025-11-28T03:41:54.127190", "date_went_pending": null, "date_went_available": null, "date_went_unavailable": null, "is_active": 1}];
+    // Data from database
+    const dogsData = [{"dog_id": "poo_jojo_\u2013_poodle_patch_rescue_inc_501_(c)_3_non_profit_texarkana,_tx", "dog_name": "Jojo \u2013 Poodle Patch Rescue Inc 501 (c) 3 non profit Texarkana, TX", "rescue_name": "Poodle Patch Rescue", "breed": "Poodle", "weight": 53, "age_range": "2 years", "age_category": "Adult", "sex": "Male", "shedding": "Low", "energy_level": "Low", "good_with_kids": "Unknown", "good_with_dogs": "Yes", "good_with_cats": "Unknown", "training_level": "", "training_notes": "", "special_needs": "No", "health_notes": "Now fully vetted", "adoption_req": "Within 350 miles", "adoption_fee": "$300", "platform": "poodlepatchrescue.com", "location": "Texarkana, TX", "status": "Available", "notes": "Jojo Posted on November 4, 2025 November 4, 2025 by Amanda Rescued from an over capacity kill shelter. His family left him there with hair loss and very thin.\u00a0 He is 2 years old and currently being evaluated. More info and pics to follow. Currently located in Texarkana TX He weighs 53 lbs and probably needs to weigh closer to 70 lbs. Now fully vetted. Very calm personality. Gets along with all size dogs. Sits patiently for treats. Very deserving of a better life than what he has had to this poin", "source_url": "https://poodlepatchrescue.com/jojo/", "fit_score": 8, "watch_list": "", "date_first_seen": "2025-11-28T03:41:57.693624", "date_last_updated": "2025-11-28T15:38:01.800708", "date_status_changed": "2025-11-28T03:41:57.693624", "date_went_pending": null, "date_went_available": null, "date_went_unavailable": null, "is_active": 1, "image_url": "https://widgets.guidestar.org/gximage2?o=9201369&l=v4"}, {"dog_id": "doo_chandler", "dog_name": "Chandler", "rescue_name": "Doodle Dandy Rescue", "breed": "Goldendoodle", "weight": 73, "age_range": "6.5 yrs", "age_category": "Adult", "sex": "Male", "shedding": "Low", "energy_level": "Medium", "good_with_kids": "Unknown", "good_with_dogs": "Unknown", "good_with_cats": "Unknown", "training_level": "", "training_notes": "", "special_needs": "", "health_notes": "", "adoption_req": "", "adoption_fee": "", "platform": "doodledandyrescue.org", "location": "HOU", "status": "Upcoming", "notes": "", "source_url": "", "fit_score": 6, "watch_list": "", "date_first_seen": "2025-11-28T03:41:54.147569", "date_last_updated": "2025-11-28T15:37:59.263202", "date_status_changed": "2025-11-28T03:41:54.147569", "date_went_pending": null, "date_went_available": null, "date_went_unavailable": null, "is_active": 1, "image_url": ""}, {"dog_id": "doo_dolce", "dog_name": "Dolce", "rescue_name": "Doodle Dandy Rescue", "breed": "Bernedoodle", "weight": 65, "age_range": "6 yrs", "age_category": "Adult", "sex": "Female", "shedding": "Low", "energy_level": "Medium", "good_with_kids": "Unknown", "good_with_dogs": "Unknown", "good_with_cats": "Unknown", "training_level": "", "training_notes": "", "special_needs": "", "health_notes": "", "adoption_req": "", "adoption_fee": "", "platform": "doodledandyrescue.org", "location": "DFW", "status": "Upcoming", "notes": "", "source_url": "", "fit_score": 6, "watch_list": "", "date_first_seen": "2025-11-28T03:41:54.149188", "date_last_updated": "2025-11-28T15:37:59.264542", "date_status_changed": "2025-11-28T03:41:54.149188", "date_went_pending": null, "date_went_available": null, "date_went_unavailable": null, "is_active": 1, "image_url": ""}, {"dog_id": "doo_macduff", "dog_name": "MacDuff", "rescue_name": "Doodle Dandy Rescue", "breed": "Australian Mountain Doodle", "weight": 90, "age_range": "3 yrs", "age_category": "Adult", "sex": "Male", "shedding": "Low", "energy_level": "Medium", "good_with_kids": "Unknown", "good_with_dogs": "Unknown", "good_with_cats": "Unknown", "training_level": "", "training_notes": "", "special_needs": "", "health_notes": "", "adoption_req": "", "adoption_fee": "", "platform": "doodledandyrescue.org", "location": "DFW", "status": "Upcoming", "notes": "", "source_url": "", "fit_score": 6, "watch_list": "", "date_first_seen": "2025-11-28T03:41:54.140919", "date_last_updated": "2025-11-28T15:37:59.257985", "date_status_changed": "2025-11-28T03:41:54.140919", "date_went_pending": null, "date_went_available": null, "date_went_unavailable": null, "is_active": 1, "image_url": ""}, {"dog_id": "doo_matcha", "dog_name": "Matcha", "rescue_name": "Doodle Dandy Rescue", "breed": "Doodle", "weight": 65, "age_range": "3 yrs", "age_category": "Adult", "sex": "Male", "shedding": "Low", "energy_level": "Medium", "good_with_kids": "Unknown", "good_with_dogs": "Unknown", "good_with_cats": "Unknown", "training_level": "", "training_notes": "", "special_needs": "", "health_notes": "", "adoption_req": "", "adoption_fee": "", "platform": "doodledandyrescue.org", "location": "DFW", "status": "Upcoming", "notes": "", "source_url": "", "fit_score": 6, "watch_list": "", "date_first_seen": "2025-11-28T03:41:54.160653", "date_last_updated": "2025-11-28T15:37:59.273737", "date_status_changed": "2025-11-28T03:41:54.160653", "date_went_pending": null, "date_went_available": null, "date_went_unavailable": null, "is_active": 1, "image_url": ""}, {"dog_id": "doo_pacey", "dog_name": "Pacey", "rescue_name": "Doodle Dandy Rescue", "breed": "Goldendoodle", "weight": 83, "age_range": "3.5 yrs", "age_category": "Adult", "sex": "Male", "shedding": "Low", "energy_level": "Medium", "good_with_kids": "Unknown", "good_with_dogs": "Unknown", "good_with_cats": "Unknown", "training_level": "", "training_notes": "", "special_needs": "", "health_notes": "", "adoption_req": "", "adoption_fee": "", "platform": "doodledandyrescue.org", "location": "HOU", "status": "Upcoming", "notes": "", "source_url": "", "fit_score": 6, "watch_list": "", "date_first_seen": "2025-11-28T03:41:54.135482", "date_last_updated": "2025-11-28T15:37:59.254043", "date_status_changed": "2025-11-28T03:41:54.135482", "date_went_pending": null, "date_went_available": null, "date_went_unavailable": null, "is_active": 1, "image_url": ""}, {"dog_id": "doo_strider", "dog_name": "Strider", "rescue_name": "Doodle Dandy Rescue", "breed": "Doodle", "weight": 60, "age_range": "2 yrs", "age_category": "Adult", "sex": "Male", "shedding": "Low", "energy_level": "Medium", "good_with_kids": "Unknown", "good_with_dogs": "Unknown", "good_with_cats": "Unknown", "training_level": "", "training_notes": "", "special_needs": "", "health_notes": "", "adoption_req": "", "adoption_fee": "", "platform": "doodledandyrescue.org", "location": "DFW", "status": "Upcoming", "notes": "", "source_url": "", "fit_score": 6, "watch_list": "", "date_first_seen": "2025-11-28T03:41:54.144591", "date_last_updated": "2025-11-28T15:37:59.260474", "date_status_changed": "2025-11-28T03:41:54.144591", "date_went_pending": null, "date_went_available": null, "date_went_unavailable": null, "is_active": 1, "image_url": ""}, {"dog_id": "doo_wilson", "dog_name": "Wilson", "rescue_name": "Doodle Dandy Rescue", "breed": "Doodle", "weight": 54, "age_range": "2 yrs", "age_category": "Adult", "sex": "Male", "shedding": "Low", "energy_level": "Medium", "good_with_kids": "Unknown", "good_with_dogs": "Unknown", "good_with_cats": "Unknown", "training_level": "", "training_notes": "", "special_needs": "", "health_notes": "", "adoption_req": "", "adoption_fee": "", "platform": "doodledandyrescue.org", "location": "HOU", "status": "Upcoming", "notes": "", "source_url": "", "fit_score": 6, "watch_list": "", "date_first_seen": "2025-11-28T03:41:54.132380", "date_last_updated": "2025-11-28T15:37:59.251343", "date_status_changed": "2025-11-28T03:41:54.132380", "date_went_pending": null, "date_went_available": null, "date_went_unavailable": null, "is_active": 1, "image_url": ""}, {"dog_id": "poo_charlie_\u2013_poodle_patch_rescue_inc_501_(c)_3_non_profit_texarkana,_tx", "dog_name": "Charlie \u2013 Poodle Patch Rescue Inc 501 (c) 3 non profit Texarkana, TX", "rescue_name": "Poodle Patch Rescue", "breed": "Poodle", "weight": 83, "age_range": "", "age_category": "", "sex": "Male", "shedding": "Low", "energy_level": "Unknown", "good_with_kids": "Unknown", "good_with_dogs": "Unknown", "good_with_cats": "Unknown", "training_level": "", "training_notes": "", "special_needs": "No", "health_notes": "He is house trained, heartworm negative, vaccinated, chipped, neutered. He is house trained, heartworm negative, vaccinated, chipped, neutered. He is house trained, heartworm negative, vaccinated, chipped, neutered", "adoption_req": "Within 350 miles", "adoption_fee": "$300", "platform": "poodlepatchrescue.com", "location": "Texarkana, TX", "status": "Available", "notes": "Charlie Posted on March 10, 2024 March 29, 2025 by Amanda 83 lbs now, he was 74 when we got him. Standard Poodle or Poodle lab mix we believe. Breeder asked us to take several. All were treated for hook and whip worms. Fostered \u00a0in Texarkana, TX \u00a0He is doing fabulous in his foster home. He loves lounging on the couch and running around in the yard with the other poodles. He\u2019s also an excellent car rider. Like any new rescue dog he will take a little bit of time to acclimate so someone with patie", "source_url": "https://poodlepatchrescue.com/charlie/", "fit_score": 5, "watch_list": "", "date_first_seen": "2025-11-28T03:41:57.699503", "date_last_updated": "2025-11-28T15:38:01.807492", "date_status_changed": "2025-11-28T03:41:57.699503", "date_went_pending": null, "date_went_available": null, "date_went_unavailable": null, "is_active": 1, "image_url": "https://poodlepatchrescue.com/wp-content/uploads/2024/03/imagejpeg_0-214x300.jpeg"}, {"dog_id": "poo_dancer", "dog_name": "Dancer", "rescue_name": "Poodle Patch Rescue", "breed": "Poodle", "weight": 42, "age_range": "7 years", "age_category": "Adult", "sex": "Female", "shedding": "Low", "energy_level": "Unknown", "good_with_kids": "Unknown", "good_with_dogs": "Unknown", "good_with_cats": "Unknown", "training_level": "", "training_notes": "", "special_needs": "No", "health_notes": "", "adoption_req": "Within 350 miles", "adoption_fee": "$300", "platform": "poodlepatchrescue.com", "location": "Texarkana, TX", "status": "Available", "notes": "Dancer-pending Posted on October 4, 2025 October 20, 2025 by Amanda Fostered \u00a0in Waco, Texas she is scheduled for spay, vaccinations. She weighs 42lb and is 7 years old. She gets along great with other dogs. She is House trained and knows a doggie door. She will be coming closer to Texarkana when we secure transport. and we will be providing more information soon We adopt within 350 miles of Texarkana TX or Hot Springs AR (exceptions are made for excellent applicants -we do not ship). Adoption f", "source_url": "https://poodlepatchrescue.com/dancer/", "fit_score": 5, "watch_list": "", "date_first_seen": "2025-11-28T03:41:57.706563", "date_last_updated": "2025-11-28T15:38:01.802406", "date_status_changed": "2025-11-28T03:41:57.706563", "date_went_pending": null, "date_went_available": null, "date_went_unavailable": null, "is_active": 1, "image_url": "https://widgets.guidestar.org/gximage2?o=9201369&l=v4"}, {"dog_id": "poo_zira_\u2013_poodle_patch_rescue_inc_501_(c)_3_non_profit_texarkana,_tx", "dog_name": "Zira \u2013 Poodle Patch Rescue Inc 501 (c) 3 non profit Texarkana, TX", "rescue_name": "Poodle Patch Rescue", "breed": "Poodle", "weight": 64, "age_range": "4 years", "age_category": "Adult", "sex": "Female", "shedding": "Low", "energy_level": "Unknown", "good_with_kids": "Unknown", "good_with_dogs": "Unknown", "good_with_cats": "Unknown", "training_level": "", "training_notes": "", "special_needs": "No", "health_notes": "Zira Posted on October 15, 2025 November 12, 2025 by Amanda 4 year old female, 64 lbs, spayed, vaccinated, heartworm neg with a pro heart injection good thru 4/26/2025, housetrained, good with other dogs, cats, and kids. Zira Posted on October 15, 2025 November 12, 2025 by Amanda 4 year old female, 64 lbs, spayed, vaccinated, heartworm neg with a pro heart injection good thru 4/26/2025, housetrained, good with other dogs, cats, and kids. Zira Posted on October 15, 2025 November 12, 2025 by Amanda 4 year old female, 64 lbs, spayed, vaccinated, heartworm neg with a pro heart injection good thru 4/26/2025, housetrained, good with other dogs, cats, and kids", "adoption_req": "Within 350 miles, Fenced yard", "adoption_fee": "$300", "platform": "poodlepatchrescue.com", "location": "Texarkana, TX", "status": "Available", "notes": "Zira Posted on October 15, 2025 November 12, 2025 by Amanda 4 year old female, 64 lbs, spayed, vaccinated, heartworm neg with a pro heart injection good thru 4/26/2025, housetrained, good with other dogs, cats, and kids. Fostered in Cabot AR Zira is one smart cookie. She can open totes and latches. She loves her jolly ball. She can climb chain link and needs a secure fence. She\u2019s a sweet lover girl who likes to give kisses and smell your ears\ud83d\ude02. We believe she may do well with scent training. She", "source_url": "https://poodlepatchrescue.com/zira/", "fit_score": 5, "watch_list": "", "date_first_seen": "2025-11-28T03:41:57.702945", "date_last_updated": "2025-11-28T15:38:01.805021", "date_status_changed": "2025-11-28T03:41:57.702945", "date_went_pending": null, "date_went_available": null, "date_went_unavailable": null, "is_active": 1, "image_url": "https://widgets.guidestar.org/gximage2?o=9201369&l=v4"}, {"dog_id": "doo_alces", "dog_name": "Alces", "rescue_name": "Doodle Dandy Rescue", "breed": "Doberdoodle", "weight": 76, "age_range": "3 yrs", "age_category": "Adult", "sex": "Male", "shedding": "Low", "energy_level": "Medium", "good_with_kids": "Unknown", "good_with_dogs": "Unknown", "good_with_cats": "Unknown", "training_level": "", "training_notes": "", "special_needs": "", "health_notes": "", "adoption_req": "", "adoption_fee": "", "platform": "doodledandyrescue.org", "location": "DFW", "status": "Pending", "notes": "", "source_url": "", "fit_score": 4, "watch_list": "", "date_first_seen": "2025-11-28T15:37:59.236113", "date_last_updated": "2025-11-28T15:37:59.236113", "date_status_changed": "2025-11-28T15:37:59.236113", "date_went_pending": null, "date_went_available": null, "date_went_unavailable": null, "is_active": 1, "image_url": ""}, {"dog_id": "doo_amanda", "dog_name": "Amanda", "rescue_name": "Doodle Rock Rescue", "breed": "Poodle Mix", "weight": null, "age_range": "", "age_category": "", "sex": "", "shedding": "Low", "energy_level": "Medium", "good_with_kids": "", "good_with_dogs": "", "good_with_cats": "", "training_level": "", "training_notes": "", "special_needs": "", "health_notes": "", "adoption_req": "", "adoption_fee": "", "platform": "doodlerockrescue.org", "location": "Dallas, TX", "status": "Available", "notes": "", "source_url": "", "fit_score": 4, "watch_list": "", "date_first_seen": "2025-11-28T03:41:53.539298", "date_last_updated": "2025-11-28T15:37:58.657994", "date_status_changed": "2025-11-28T03:41:53.539298", "date_went_pending": null, "date_went_available": null, "date_went_unavailable": null, "is_active": 1, "image_url": ""}, {"dog_id": "doo_armadillo", "dog_name": "Armadillo", "rescue_name": "Doodle Dandy Rescue", "breed": "Goldendoodle", "weight": 66, "age_range": "2 yrs", "age_category": "Adult", "sex": "Male", "shedding": "Low", "energy_level": "Medium", "good_with_kids": "Unknown", "good_with_dogs": "Unknown", "good_with_cats": "Unknown", "training_level": "", "training_notes": "", "special_needs": "", "health_notes": "", "adoption_req": "", "adoption_fee": "", "platform": "doodledandyrescue.org", "location": "", "status": "Pending", "notes": "", "source_url": "", "fit_score": 4, "watch_list": "", "date_first_seen": "2025-11-28T15:37:59.241800", "date_last_updated": "2025-11-28T15:37:59.241800", "date_status_changed": "2025-11-28T15:37:59.241800", "date_went_pending": null, "date_went_available": null, "date_went_unavailable": null, "is_active": 1, "image_url": ""}, {"dog_id": "doo_austin", "dog_name": "Austin", "rescue_name": "Doodle Dandy Rescue", "breed": "Doodle", "weight": null, "age_range": "", "age_category": "", "sex": "", "shedding": "Low", "energy_level": "Medium", "good_with_kids": "Unknown", "good_with_dogs": "Unknown", "good_with_cats": "Unknown", "training_level": "", "training_notes": "", "special_needs": "", "health_notes": "", "adoption_req": "", "adoption_fee": "", "platform": "doodledandyrescue.org", "location": "", "status": "Available", "notes": "", "source_url": "", "fit_score": 4, "watch_list": "", "date_first_seen": "2025-11-28T03:41:54.119825", "date_last_updated": "2025-11-28T15:37:59.226417", "date_status_changed": "2025-11-28T03:41:54.119825", "date_went_pending": null, "date_went_available": null, "date_went_unavailable": null, "is_active": 1, "image_url": ""}, {"dog_id": "doo_blog", "dog_name": "Blog", "rescue_name": "Doodle Dandy Rescue", "breed": "Doodles Ready for Adoption", "weight": null, "age_range": "", "age_category": "", "sex": "", "shedding": "Low", "energy_level": "Medium", "good_with_kids": "Unknown", "good_with_dogs": "Unknown", "good_with_cats": "Unknown", "training_level": "", "training_notes": "", "special_needs": "", "health_notes": "", "adoption_req": "", "adoption_fee": "", "platform": "doodledandyrescue.org", "location": "", "status": "Available", "notes": "", "source_url": "", "fit_score": 4, "watch_list": "", "date_first_seen": "2025-11-28T15:37:59.221780", "date_last_updated": "2025-11-28T15:37:59.221780", "date_status_changed": "2025-11-28T15:37:59.221780", "date_went_pending": null, "date_went_available": null, "date_went_unavailable": null, "is_active": 1, "image_url": ""}, {"dog_id": "doo_buck_wild", "dog_name": "Buck Wild", "rescue_name": "Doodle Dandy Rescue", "breed": "Aussiedoodle", "weight": 50, "age_range": "2 yrs", "age_category": "Adult", "sex": "Male", "shedding": "Low", "energy_level": "Medium", "good_with_kids": "Unknown", "good_with_dogs": "Unknown", "good_with_cats": "Unknown", "training_level": "", "training_notes": "", "special_needs": "", "health_notes": "", "adoption_req": "", "adoption_fee": "", "platform": "doodledandyrescue.org", "location": "", "status": "Pending", "notes": "", "source_url": "", "fit_score": 4, "watch_list": "", "date_first_seen": "2025-11-28T15:37:59.237507", "date_last_updated": "2025-11-28T15:37:59.237507", "date_status_changed": "2025-11-28T15:37:59.237507", "date_went_pending": null, "date_went_available": null, "date_went_unavailable": null, "is_active": 1, "image_url": ""}, {"dog_id": "doo_byntlee", "dog_name": "Byntlee", "rescue_name": "Doodle Dandy Rescue", "breed": "Poodle", "weight": 44, "age_range": "2.5 yrs", "age_category": "Adult", "sex": "Male", "shedding": "Low", "energy_level": "Medium", "good_with_kids": "Unknown", "good_with_dogs": "Unknown", "good_with_cats": "Unknown", "training_level": "", "training_notes": "", "special_needs": "", "health_notes": "", "adoption_req": "", "adoption_fee": "", "platform": "doodledandyrescue.org", "location": "DFW", "status": "Pending", "notes": "", "source_url": "", "fit_score": 4, "watch_list": "", "date_first_seen": "2025-11-28T15:37:59.240343", "date_last_updated": "2025-11-28T15:37:59.240343", "date_status_changed": "2025-11-28T15:37:59.240343", "date_went_pending": null, "date_went_available": null, "date_went_unavailable": null, "is_active": 1, "image_url": ""}, {"dog_id": "doo_charliemagne", "dog_name": "Charliemagne", "rescue_name": "Doodle Dandy Rescue", "breed": "Mini Goldendoodle", "weight": 23, "age_range": "3 yrs", "age_category": "Adult", "sex": "Male", "shedding": "Low", "energy_level": "Medium", "good_with_kids": "Unknown", "good_with_dogs": "Unknown", "good_with_cats": "Unknown", "training_level": "", "training_notes": "", "special_needs": "", "health_notes": "", "adoption_req": "", "adoption_fee": "", "platform": "doodledandyrescue.org", "location": "HOU", "status": "Upcoming", "notes": "", "source_url": "", "fit_score": 4, "watch_list": "", "date_first_seen": "2025-11-28T03:41:54.142539", "date_last_updated": "2025-11-28T15:37:59.259234", "date_status_changed": "2025-11-28T03:41:54.142539", "date_went_pending": null, "date_went_available": null, "date_went_unavailable": null, "is_active": 1, "image_url": ""}, {"dog_id": "doo_chili", "dog_name": "Chili", "rescue_name": "Doodle Dandy Rescue", "breed": "Goldendoodle", "weight": 38, "age_range": "2.5 yrs", "age_category": "Adult", "sex": "Male", "shedding": "Low", "energy_level": "Medium", "good_with_kids": "Unknown", "good_with_dogs": "Unknown", "good_with_cats": "Unknown", "training_level": "", "training_notes": "", "special_needs": "", "health_notes": "", "adoption_req": "", "adoption_fee": "", "platform": "doodledandyrescue.org", "location": "HOU", "status": "Upcoming", "notes": "", "source_url": "", "fit_score": 4, "watch_list": "", "date_first_seen": "2025-11-28T03:41:54.130527", "date_last_updated": "2025-11-28T15:37:59.249947", "date_status_changed": "2025-11-28T03:41:54.130527", "date_went_pending": null, "date_went_available": null, "date_went_unavailable": null, "is_active": 1, "image_url": ""}, {"dog_id": "doo_chloe_simone", "dog_name": "Chloe Simone", "rescue_name": "Doodle Dandy Rescue", "breed": "Poodle", "weight": 45, "age_range": "2.5 yrs", "age_category": "Adult", "sex": "Female", "shedding": "Low", "energy_level": "Medium", "good_with_kids": "Unknown", "good_with_dogs": "Unknown", "good_with_cats": "Unknown", "training_level": "", "training_notes": "", "special_needs": "", "health_notes": "", "adoption_req": "", "adoption_fee": "", "platform": "doodledandyrescue.org", "location": "DFW", "status": "Pending", "notes": "", "source_url": "", "fit_score": 4, "watch_list": "", "date_first_seen": "2025-11-28T15:37:59.239077", "date_last_updated": "2025-11-28T15:37:59.239077", "date_status_changed": "2025-11-28T15:37:59.239077", "date_went_pending": null, "date_went_available": null, "date_went_unavailable": null, "is_active": 1, "image_url": ""}, {"dog_id": "doo_clancy", "dog_name": "Clancy", "rescue_name": "Doodle Rock Rescue", "breed": "Poodle Mix", "weight": null, "age_range": "", "age_category": "", "sex": "", "shedding": "Low", "energy_level": "Medium", "good_with_kids": "", "good_with_dogs": "", "good_with_cats": "", "training_level": "", "training_notes": "", "special_needs": "", "health_notes": "", "adoption_req": "", "adoption_fee": "", "platform": "doodlerockrescue.org", "location": "Dallas, TX", "status": "Available", "notes": "", "source_url": "", "fit_score": 4, "watch_list": "", "date_first_seen": "2025-11-28T03:41:53.524987", "date_last_updated": "2025-11-28T15:37:58.650768", "date_status_changed": "2025-11-28T03:41:53.524987", "date_went_pending": null, "date_went_available": null, "date_went_unavailable": null, "is_active": 1, "image_url": ""}, {"dog_id": "doo_deke", "dog_name": "Deke", "rescue_name": "Doodle Dandy Rescue", "breed": "Goldendoodle", "weight": 88, "age_range": "4.5 yrs", "age_category": "Adult", "sex": "Male", "shedding": "Low", "energy_level": "Medium", "good_with_kids": "Unknown", "good_with_dogs": "Unknown", "good_with_cats": "Unknown", "training_level": "", "training_notes": "", "special_needs": "", "health_notes": "", "adoption_req": "", "adoption_fee": "", "platform": "doodledandyrescue.org", "location": "DFW", "status": "Pending", "notes": "", "source_url": "", "fit_score": 4, "watch_list": "", "date_first_seen": "2025-11-28T15:37:59.234732", "date_last_updated": "2025-11-28T15:37:59.234732", "date_status_changed": "2025-11-28T15:37:59.234732", "date_went_pending": null, "date_went_available": null, "date_went_unavailable": null, "is_active": 1, "image_url": ""}, {"dog_id": "doo_drizzle", "dog_name": "Drizzle", "rescue_name": "Doodle Rock Rescue", "breed": "Poodle Mix", "weight": null, "age_range": "", "age_category": "", "sex": "", "shedding": "Low", "energy_level": "Medium", "good_with_kids": "", "good_with_dogs": "", "good_with_cats": "", "training_level": "", "training_notes": "", "special_needs": "", "health_notes": "", "adoption_req": "", "adoption_fee": "", "platform": "doodlerockrescue.org", "location": "Dallas, TX", "status": "Available", "notes": "", "source_url": "", "fit_score": 4, "watch_list": "Yes", "date_first_seen": "2025-11-28T03:41:53.520182", "date_last_updated": "2025-11-28T15:37:58.646781", "date_status_changed": "2025-11-28T03:41:53.520182", "date_went_pending": null, "date_went_available": null, "date_went_unavailable": null, "is_active": 1, "image_url": ""}, {"dog_id": "doo_ellie", "dog_name": "Ellie", "rescue_name": "Doodle Rock Rescue", "breed": "Poodle Mix", "weight": null, "age_range": "", "age_category": "", "sex": "", "shedding": "Low", "energy_level": "Medium", "good_with_kids": "", "good_with_dogs": "", "good_with_cats": "", "training_level": "", "training_notes": "", "special_needs": "", "health_notes": "", "adoption_req": "", "adoption_fee": "", "platform": "doodlerockrescue.org", "location": "Dallas, TX", "status": "Available", "notes": "", "source_url": "", "fit_score": 4, "watch_list": "", "date_first_seen": "2025-11-28T03:41:53.535371", "date_last_updated": "2025-11-28T15:37:58.656486", "date_status_changed": "2025-11-28T03:41:53.535371", "date_went_pending": null, "date_went_available": null, "date_went_unavailable": null, "is_active": 1, "image_url": ""}, {"dog_id": "doo_freddy_faz", "dog_name": "Freddy Faz", "rescue_name": "Doodle Dandy Rescue", "breed": "Goldendoodle", "weight": 46, "age_range": "7 mos", "age_category": "Puppy", "sex": "Male", "shedding": "Low", "energy_level": "High", "good_with_kids": "Unknown", "good_with_dogs": "Unknown", "good_with_cats": "Unknown", "training_level": "", "training_notes": "", "special_needs": "", "health_notes": "", "adoption_req": "", "adoption_fee": "", "platform": "doodledandyrescue.org", "location": "HOU", "status": "Upcoming", "notes": "", "source_url": "", "fit_score": 4, "watch_list": "Yes", "date_first_seen": "2025-11-28T03:41:54.137514", "date_last_updated": "2025-11-28T15:37:59.255315", "date_status_changed": "2025-11-28T03:41:54.137514", "date_went_pending": null, "date_went_available": null, "date_went_unavailable": null, "is_active": 1, "image_url": ""}, {"dog_id": "doo_gusty", "dog_name": "Gusty", "rescue_name": "Doodle Rock Rescue", "breed": "Poodle Mix", "weight": null, "age_range": "", "age_category": "", "sex": "", "shedding": "Low", "energy_level": "Medium", "good_with_kids": "", "good_with_dogs": "", "good_with_cats": "", "training_level": "", "training_notes": "", "special_needs": "", "health_notes": "", "adoption_req": "", "adoption_fee": "", "platform": "doodlerockrescue.org", "location": "Dallas, TX", "status": "Available", "notes": "", "source_url": "", "fit_score": 4, "watch_list": "", "date_first_seen": "2025-11-28T03:41:53.527670", "date_last_updated": "2025-11-28T15:37:58.652258", "date_status_changed": "2025-11-28T03:41:53.527670", "date_went_pending": null, "date_went_available": null, "date_went_unavailable": null, "is_active": 1, "image_url": ""}, {"dog_id": "doo_happy_tails", "dog_name": "Happy Tails", "rescue_name": "Doodle Dandy Rescue", "breed": "Copyright Doodle Dandy Rescue 2020", "weight": null, "age_range": "", "age_category": "", "sex": "", "shedding": "Low", "energy_level": "Medium", "good_with_kids": "Unknown", "good_with_dogs": "Unknown", "good_with_cats": "Unknown", "training_level": "", "training_notes": "", "special_needs": "", "health_notes": "", "adoption_req": "", "adoption_fee": "", "platform": "doodledandyrescue.org", "location": "", "status": "Available", "notes": "", "source_url": "", "fit_score": 4, "watch_list": "", "date_first_seen": "2025-11-28T03:41:54.123330", "date_last_updated": "2025-11-28T15:37:59.231865", "date_status_changed": "2025-11-28T03:41:54.123330", "date_went_pending": null, "date_went_available": null, "date_went_unavailable": null, "is_active": 1, "image_url": ""}, {"dog_id": "doo_hazelnut", "dog_name": "Hazelnut", "rescue_name": "Doodle Dandy Rescue", "breed": "Mini Aussiedoodle", "weight": 25, "age_range": "5 yrs", "age_category": "Adult", "sex": "Female", "shedding": "Low", "energy_level": "Medium", "good_with_kids": "Unknown", "good_with_dogs": "Unknown", "good_with_cats": "Unknown", "training_level": "", "training_notes": "", "special_needs": "", "health_notes": "", "adoption_req": "", "adoption_fee": "", "platform": "doodledandyrescue.org", "location": "DFW", "status": "Upcoming", "notes": "", "source_url": "", "fit_score": 4, "watch_list": "", "date_first_seen": "2025-11-28T03:41:54.162202", "date_last_updated": "2025-11-28T15:37:59.275126", "date_status_changed": "2025-11-28T03:41:54.162202", "date_went_pending": null, "date_went_available": null, "date_went_unavailable": null, "is_active": 1, "image_url": ""}, {"dog_id": "doo_kru", "dog_name": "Kru", "rescue_name": "Doodle Rock Rescue", "breed": "Poodle Mix", "weight": null, "age_range": "", "age_category": "", "sex": "", "shedding": "Low", "energy_level": "Medium", "good_with_kids": "", "good_with_dogs": "", "good_with_cats": "", "training_level": "", "training_notes": "", "special_needs": "", "health_notes": "", "adoption_req": "", "adoption_fee": "", "platform": "doodlerockrescue.org", "location": "Dallas, TX", "status": "Available", "notes": "", "source_url": "", "fit_score": 4, "watch_list": "Yes", "date_first_seen": "2025-11-28T03:41:53.522723", "date_last_updated": "2025-11-28T15:37:58.649020", "date_status_changed": "2025-11-28T03:41:53.522723", "date_went_pending": null, "date_went_available": null, "date_went_unavailable": null, "is_active": 1, "image_url": ""}, {"dog_id": "doo_maverick", "dog_name": "Maverick", "rescue_name": "Doodle Dandy Rescue", "breed": "Goldendoodle", "weight": 68, "age_range": "2 yrs", "age_category": "Adult", "sex": "Male", "shedding": "Low", "energy_level": "Medium", "good_with_kids": "Unknown", "good_with_dogs": "Unknown", "good_with_cats": "Unknown", "training_level": "", "training_notes": "", "special_needs": "", "health_notes": "", "adoption_req": "", "adoption_fee": "", "platform": "doodledandyrescue.org", "location": "DFW", "status": "Pending", "notes": "", "source_url": "", "fit_score": 4, "watch_list": "", "date_first_seen": "2025-11-28T15:37:59.244581", "date_last_updated": "2025-11-28T15:37:59.244581", "date_status_changed": "2025-11-28T15:37:59.244581", "date_went_pending": null, "date_went_available": null, "date_went_unavailable": null, "is_active": 1, "image_url": ""}, {"dog_id": "doo_merritt", "dog_name": "Merritt", "rescue_name": "Doodle Rock Rescue", "breed": "Poodle Mix", "weight": null, "age_range": "", "age_category": "", "sex": "", "shedding": "Low", "energy_level": "Medium", "good_with_kids": "", "good_with_dogs": "", "good_with_cats": "", "training_level": "", "training_notes": "", "special_needs": "", "health_notes": "", "adoption_req": "", "adoption_fee": "", "platform": "doodlerockrescue.org", "location": "Dallas, TX", "status": "Available", "notes": "", "source_url": "", "fit_score": 4, "watch_list": "", "date_first_seen": "2025-11-28T03:41:53.533849", "date_last_updated": "2025-11-28T15:37:58.655132", "date_status_changed": "2025-11-28T03:41:53.533849", "date_went_pending": null, "date_went_available": null, "date_went_unavailable": null, "is_active": 1, "image_url": ""}, {"dog_id": "doo_more", "dog_name": "More", "rescue_name": "Doodle Dandy Rescue", "breed": "Welcome these new arrivals to Doodle Dandy!", "weight": null, "age_range": "", "age_category": "", "sex": "", "shedding": "Low", "energy_level": "Medium", "good_with_kids": "Unknown", "good_with_dogs": "Unknown", "good_with_cats": "Unknown", "training_level": "", "training_notes": "", "special_needs": "", "health_notes": "", "adoption_req": "", "adoption_fee": "", "platform": "doodledandyrescue.org", "location": "", "status": "Upcoming", "notes": "", "source_url": "", "fit_score": 4, "watch_list": "", "date_first_seen": "2025-11-28T15:37:59.248803", "date_last_updated": "2025-11-28T15:37:59.248803", "date_status_changed": "2025-11-28T15:37:59.248803", "date_went_pending": null, "date_went_available": null, "date_went_unavailable": null, "is_active": 1, "image_url": ""}, {"dog_id": "doo_myra", "dog_name": "Myra", "rescue_name": "Doodle Rock Rescue", "breed": "Poodle Mix", "weight": null, "age_range": "", "age_category": "", "sex": "", "shedding": "Low", "energy_level": "Medium", "good_with_kids": "", "good_with_dogs": "", "good_with_cats": "", "training_level": "", "training_notes": "", "special_needs": "", "health_notes": "", "adoption_req": "", "adoption_fee": "", "platform": "doodlerockrescue.org", "location": "Dallas, TX", "status": "Available", "notes": "", "source_url": "", "fit_score": 4, "watch_list": "", "date_first_seen": "2025-11-28T03:41:53.541035", "date_last_updated": "2025-11-28T15:37:58.659404", "date_status_changed": "2025-11-28T03:41:53.541035", "date_went_pending": null, "date_went_available": null, "date_went_unavailable": null, "is_active": 1, "image_url": ""}, {"dog_id": "doo_nimbi", "dog_name": "Nimbi", "rescue_name": "Doodle Rock Rescue", "breed": "Poodle Mix", "weight": null, "age_range": "", "age_category": "", "sex": "", "shedding": "Low", "energy_level": "Medium", "good_with_kids": "", "good_with_dogs": "", "good_with_cats": "", "training_level": "", "training_notes": "", "special_needs": "", "health_notes": "", "adoption_req": "", "adoption_fee": "", "platform": "doodlerockrescue.org", "location": "Dallas, TX", "status": "Available", "notes": "", "source_url": "", "fit_score": 4, "watch_list": "Yes", "date_first_seen": "2025-11-28T03:41:53.529534", "date_last_updated": "2025-11-28T15:37:58.653757", "date_status_changed": "2025-11-28T03:41:53.529534", "date_went_pending": null, "date_went_available": null, "date_went_unavailable": null, "is_active": 1, "image_url": ""}, {"dog_id": "doo_plomo", "dog_name": "Plomo", "rescue_name": "Doodle Dandy Rescue", "breed": "Goldendoodle", "weight": 39, "age_range": "3 yrs", "age_category": "Adult", "sex": "Male", "shedding": "Low", "energy_level": "Medium", "good_with_kids": "Unknown", "good_with_dogs": "Unknown", "good_with_cats": "Unknown", "training_level": "", "training_notes": "", "special_needs": "", "health_notes": "", "adoption_req": "", "adoption_fee": "", "platform": "doodledandyrescue.org", "location": "HOU", "status": "Upcoming", "notes": "", "source_url": "", "fit_score": 4, "watch_list": "", "date_first_seen": "2025-11-28T03:41:54.146087", "date_last_updated": "2025-11-28T15:37:59.261962", "date_status_changed": "2025-11-28T03:41:54.146087", "date_went_pending": null, "date_went_available": null, "date_went_unavailable": null, "is_active": 1, "image_url": ""}, {"dog_id": "doo_skipper", "dog_name": "Skipper", "rescue_name": "Doodle Dandy Rescue", "breed": "Goldendoodle", "weight": 60, "age_range": "8 mos", "age_category": "Puppy", "sex": "Male", "shedding": "Low", "energy_level": "High", "good_with_kids": "Unknown", "good_with_dogs": "Unknown", "good_with_cats": "Unknown", "training_level": "", "training_notes": "", "special_needs": "", "health_notes": "", "adoption_req": "", "adoption_fee": "", "platform": "doodledandyrescue.org", "location": "HOU", "status": "Upcoming", "notes": "", "source_url": "", "fit_score": 4, "watch_list": "Yes", "date_first_seen": "2025-11-28T03:41:54.134020", "date_last_updated": "2025-11-28T15:37:59.252651", "date_status_changed": "2025-11-28T03:41:54.134020", "date_went_pending": null, "date_went_available": null, "date_went_unavailable": null, "is_active": 1, "image_url": ""}, {"dog_id": "doo_some", "dog_name": "Some", "rescue_name": "Doodle Dandy Rescue", "breed": "Maltipoo", "weight": null, "age_range": "14 mos", "age_category": "Adult", "sex": "Female", "shedding": "Low", "energy_level": "Medium", "good_with_kids": "Unknown", "good_with_dogs": "Unknown", "good_with_cats": "Unknown", "training_level": "", "training_notes": "", "special_needs": "", "health_notes": "", "adoption_req": "", "adoption_fee": "", "platform": "doodledandyrescue.org", "location": "", "status": "Available", "notes": "", "source_url": "", "fit_score": 4, "watch_list": "", "date_first_seen": "2025-11-28T15:37:59.227822", "date_last_updated": "2025-11-28T15:37:59.227822", "date_status_changed": "2025-11-28T15:37:59.227822", "date_went_pending": null, "date_went_available": null, "date_went_unavailable": null, "is_active": 1, "image_url": ""}, {"dog_id": "doo_with", "dog_name": "With", "rescue_name": "Doodle Rock Rescue", "breed": "Poodle Mix", "weight": null, "age_range": "", "age_category": "", "sex": "", "shedding": "Low", "energy_level": "Medium", "good_with_kids": "", "good_with_dogs": "", "good_with_cats": "", "training_level": "", "training_notes": "", "special_needs": "", "health_notes": "", "adoption_req": "", "adoption_fee": "", "platform": "doodlerockrescue.org", "location": "Dallas, TX", "status": "Available", "notes": "", "source_url": "", "fit_score": 4, "watch_list": "", "date_first_seen": "2025-11-28T15:37:58.661055", "date_last_updated": "2025-11-28T15:37:58.661055", "date_status_changed": "2025-11-28T15:37:58.661055", "date_went_pending": null, "date_went_available": null, "date_went_unavailable": null, "is_active": 1, "image_url": ""}, {"dog_id": "doo_yes", "dog_name": "Yes", "rescue_name": "Doodle Dandy Rescue", "breed": "Labradoodle", "weight": null, "age_range": "3 yrs", "age_category": "Adult", "sex": "Male", "shedding": "Low", "energy_level": "Medium", "good_with_kids": "Unknown", "good_with_dogs": "Unknown", "good_with_cats": "Unknown", "training_level": "", "training_notes": "", "special_needs": "", "health_notes": "", "adoption_req": "", "adoption_fee": "", "platform": "doodledandyrescue.org", "location": "", "status": "Available", "notes": "", "source_url": "", "fit_score": 4, "watch_list": "", "date_first_seen": "2025-11-28T15:37:59.230667", "date_last_updated": "2025-11-28T15:37:59.230667", "date_status_changed": "2025-11-28T15:37:59.230667", "date_went_pending": null, "date_went_available": null, "date_went_unavailable": null, "is_active": 1, "image_url": ""}, {"dog_id": "doo_foster_family", "dog_name": "foster family", "rescue_name": "Doodle Dandy Rescue", "breed": "Be sure to read the full bio for each dog so the doodle you select is right for you and that you can provide a \"fur-ever\" home for your adopted doodle.", "weight": null, "age_range": "", "age_category": "", "sex": "", "shedding": "Low", "energy_level": "Medium", "good_with_kids": "Unknown", "good_with_dogs": "Unknown", "good_with_cats": "Unknown", "training_level": "", "training_notes": "", "special_needs": "", "health_notes": "", "adoption_req": "", "adoption_fee": "", "platform": "doodledandyrescue.org", "location": "", "status": "Available", "notes": "", "source_url": "", "fit_score": 4, "watch_list": "", "date_first_seen": "2025-11-28T15:37:59.223591", "date_last_updated": "2025-11-28T15:37:59.223591", "date_status_changed": "2025-11-28T15:37:59.223591", "date_went_pending": null, "date_went_available": null, "date_went_unavailable": null, "is_active": 1, "image_url": ""}, {"dog_id": "doo_our_policies_and_procedures", "dog_name": "our policies and procedures", "rescue_name": "Doodle Dandy Rescue", "breed": "Goldendoodle", "weight": null, "age_range": "", "age_category": "", "sex": "", "shedding": "Low", "energy_level": "Medium", "good_with_kids": "Unknown", "good_with_dogs": "Unknown", "good_with_cats": "Unknown", "training_level": "", "training_notes": "", "special_needs": "", "health_notes": "", "adoption_req": "", "adoption_fee": "", "platform": "doodledandyrescue.org", "location": "", "status": "Available", "notes": "", "source_url": "", "fit_score": 4, "watch_list": "", "date_first_seen": "2025-11-28T15:37:59.225167", "date_last_updated": "2025-11-28T15:37:59.225167", "date_status_changed": "2025-11-28T15:37:59.225167", "date_went_pending": null, "date_went_available": null, "date_went_unavailable": null, "is_active": 1, "image_url": ""}, {"dog_id": "poo_charlie_2_pending_\u2013_poodle_patch_rescue_inc_501_(c)_3_non_profit_texarkana,_tx", "dog_name": "Charlie 2 pending \u2013 Poodle Patch Rescue Inc 501 (c) 3 non profit Texarkana, TX", "rescue_name": "Poodle Patch Rescue", "breed": "Poodle", "weight": null, "age_range": "5 years", "age_category": "Adult", "sex": "Female", "shedding": "Low", "energy_level": "Unknown", "good_with_kids": "Unknown", "good_with_dogs": "Unknown", "good_with_cats": "Unknown", "training_level": "", "training_notes": "", "special_needs": "No", "health_notes": "He is 5 years old, scheduled for neuter, \u00a0vaccines, chip, heartworm test and any other vet needs", "adoption_req": "Within 350 miles", "adoption_fee": "$300", "platform": "poodlepatchrescue.com", "location": "Texarkana, TX", "status": "Available", "notes": "Charlie 2 pending Posted on October 30, 2025 November 18, 2025 by Amanda Charlie\u2019s person passed away and he stayed by her side. He was \u00a0her service dog to the very end. \u00a0 He is now in foster care in Texarkana. \u00a0He is 5 years old, scheduled for neuter, \u00a0vaccines, chip, heartworm test and any other vet needs. He has attached himself to foster mom and would do great with a woman who wants a loyal loving companion. He will do best without small dogs or cats as he is very curious and may chase. We a", "source_url": "https://poodlepatchrescue.com/charlie-2/", "fit_score": 3, "watch_list": "", "date_first_seen": "2025-11-28T03:41:57.704970", "date_last_updated": "2025-11-28T15:38:01.806182", "date_status_changed": "2025-11-28T03:41:57.704970", "date_went_pending": null, "date_went_available": null, "date_went_unavailable": null, "is_active": 1, "image_url": "https://poodlepatchrescue.com/wp-content/uploads/2025/10/38539-131x300.jpeg"}, {"dog_id": "poo_happy_tails_\u2013_poodle_patch_rescue_inc_501_(c)_3_non_profit_texarkana,_tx", "dog_name": "Happy Tails \u2013 Poodle Patch Rescue Inc 501 (c) 3 non profit Texarkana, TX", "rescue_name": "Poodle Patch Rescue", "breed": "Poodle/Mix", "weight": null, "age_range": "", "age_category": "", "sex": "", "shedding": "Unknown", "energy_level": "Unknown", "good_with_kids": "Unknown", "good_with_dogs": "Unknown", "good_with_cats": "Unknown", "training_level": "", "training_notes": "", "special_needs": "No", "health_notes": "", "adoption_req": "", "adoption_fee": "", "platform": "poodlepatchrescue.com", "location": "Texarkana, TX", "status": "Available", "notes": "March 18, 2015 Amanda Happy Tails Search Search for: Donate Donate via Paypal Tax deductible", "source_url": "https://poodlepatchrescue.com/adopted-animals/", "fit_score": 3, "watch_list": "", "date_first_seen": "2025-11-28T03:41:57.710618", "date_last_updated": "2025-11-28T15:38:01.812844", "date_status_changed": "2025-11-28T03:41:57.710618", "date_went_pending": null, "date_went_available": null, "date_went_unavailable": null, "is_active": 1, "image_url": "https://poodlepatchrescue.com/wp-content/uploads/2015/03/Mr_Blue_happy_800x531-150x150.jpg"}, {"dog_id": "poo_koda_\u2013_poodle_patch_rescue_inc_501_(c)_3_non_profit_texarkana,_tx", "dog_name": "Koda \u2013 Poodle Patch Rescue Inc 501 (c) 3 non profit Texarkana, TX", "rescue_name": "Poodle Patch Rescue", "breed": "Poodle/Mix", "weight": null, "age_range": "", "age_category": "", "sex": "Male", "shedding": "Unknown", "energy_level": "Unknown", "good_with_kids": "Unknown", "good_with_dogs": "Unknown", "good_with_cats": "Unknown", "training_level": "", "training_notes": "", "special_needs": "No", "health_notes": "He is neutered, current on vaccinations and on heartworm prevention. He is neutered, current on vaccinations and on heartworm prevention", "adoption_req": "", "adoption_fee": "$350", "platform": "poodlepatchrescue.com", "location": "Texarkana, TX", "status": "Available", "notes": "Koda Posted on April 30, 2025 July 16, 2025 by Amanda Koda\u2019s DOB is 6/28/24.\u00a0\u00a0 He is neutered, current on vaccinations and on heartworm prevention.\u00a0\u00a0 He is a big, lovable goofball.\u00a0\u00a0 He loves to play fetch.\u00a0\u00a0\u00a0 He would do well in a home with another dog around his age, size and energy level.\u00a0\u00a0\u00a0 He loves to play, but because he is still a puppy \u2013 tends to aggravate older dogs once they are through playing and Koda isn\u2019t! \u00a0 \u00a0He would also do well as an only dog if he wasn\u2019t left alone for a normal", "source_url": "https://poodlepatchrescue.com/koda/", "fit_score": 3, "watch_list": "", "date_first_seen": "2025-11-28T03:41:57.701201", "date_last_updated": "2025-11-28T15:38:01.808634", "date_status_changed": "2025-11-28T03:41:57.701201", "date_went_pending": null, "date_went_available": null, "date_went_unavailable": null, "is_active": 1, "image_url": "https://widgets.guidestar.org/gximage2?o=9201369&l=v4"}, {"dog_id": "poo_lacey", "dog_name": "Lacey", "rescue_name": "Poodle Patch Rescue", "breed": "Poodle", "weight": null, "age_range": "", "age_category": "", "sex": "Female", "shedding": "Low", "energy_level": "Unknown", "good_with_kids": "Unknown", "good_with_dogs": "Unknown", "good_with_cats": "Unknown", "training_level": "", "training_notes": "", "special_needs": "No", "health_notes": "She will be vetted and available for adoption", "adoption_req": "Within 350 miles", "adoption_fee": "$300", "platform": "poodlepatchrescue.com", "location": "Texarkana, TX", "status": "Available", "notes": "Lacey-pending Posted on October 27, 2025 November 6, 2025 by Amanda Part of a cruelty confiscation case. She is located in Texarkana TX now. She will be vetted and available for adoption. We also need foster homes. Will post more info as we learn. We \u00a0adopt within 350 miles of Texarkana TX or Hot Springs AR (exceptions are made for excellent applicants -we do not ship). Adoption fee $300. We do not process incomplete apps. A volunteer will contact you within \u00a07-10 days after you submit the app. ", "source_url": "https://poodlepatchrescue.com/lacey/", "fit_score": 3, "watch_list": "", "date_first_seen": "2025-11-28T03:41:57.708447", "date_last_updated": "2025-11-28T15:38:01.814223", "date_status_changed": "2025-11-28T03:41:57.708447", "date_went_pending": null, "date_went_available": null, "date_went_unavailable": null, "is_active": 1, "image_url": "https://widgets.guidestar.org/gximage2?o=9201369&l=v4"}, {"dog_id": "poo_memphis_\u2013_poodle_patch_rescue_inc_501_(c)_3_non_profit_texarkana,_tx", "dog_name": "Memphis \u2013 Poodle Patch Rescue Inc 501 (c) 3 non profit Texarkana, TX", "rescue_name": "Poodle Patch Rescue", "breed": "Poodle", "weight": null, "age_range": "", "age_category": "", "sex": "Male", "shedding": "Low", "energy_level": "Unknown", "good_with_kids": "Unknown", "good_with_dogs": "Unknown", "good_with_cats": "Unknown", "training_level": "", "training_notes": "", "special_needs": "No", "health_notes": "Memphis Posted on October 20, 2025 October 30, 2025 by Amanda standard male undergoing heartworm treatment in Hot Springs-in need of a foster or adoptive home ASAP We adopt within 350 miles of Texarkana TX or Hot Springs AR (exceptions are made for excellent applicants -we do not ship)", "adoption_req": "Within 350 miles", "adoption_fee": "$300", "platform": "poodlepatchrescue.com", "location": "Texarkana, TX", "status": "Available", "notes": "Memphis Posted on October 20, 2025 October 30, 2025 by Amanda standard male undergoing heartworm treatment in Hot Springs-in need of a foster or adoptive home ASAP We adopt within 350 miles of Texarkana TX or Hot Springs AR (exceptions are made for excellent applicants -we do not ship). Adoption fee $300. We do not process incomplete apps. A volunteer will contact you within \u00a07-10 days after you submit the app. You will get an automatic unmonitored email from the site stating we have your applic", "source_url": "https://poodlepatchrescue.com/memphis/", "fit_score": 3, "watch_list": "", "date_first_seen": "2025-11-28T03:41:57.697657", "date_last_updated": "2025-11-28T15:38:01.803785", "date_status_changed": "2025-11-28T03:41:57.697657", "date_went_pending": null, "date_went_available": null, "date_went_unavailable": null, "is_active": 1, "image_url": "https://widgets.guidestar.org/gximage2?o=9201369&l=v4"}, {"dog_id": "poo_oliver_\u2013_poodle_patch_rescue_inc_501_(c)_3_non_profit_texarkana,_tx", "dog_name": "Oliver \u2013 Poodle Patch Rescue Inc 501 (c) 3 non profit Texarkana, TX", "rescue_name": "Poodle Patch Rescue", "breed": "Poodle", "weight": null, "age_range": "", "age_category": "", "sex": "Male", "shedding": "Low", "energy_level": "Unknown", "good_with_kids": "Unknown", "good_with_dogs": "Unknown", "good_with_cats": "Unknown", "training_level": "", "training_notes": "", "special_needs": "No", "health_notes": "He will be vetted and available for adoption", "adoption_req": "Within 350 miles", "adoption_fee": "$300", "platform": "poodlepatchrescue.com", "location": "Texarkana, TX", "status": "Available", "notes": "Oliver Posted on October 27, 2025 by Amanda Part of a cruelty confiscation case. He \u00a0is located in Texarkana TX now. He will be vetted and available for adoption. We also need foster homes. Will post more info as we learn. We \u00a0adopt within 350 miles of Texarkana TX or Hot Springs AR (exceptions are made for excellent applicants -we do not ship). Adoption fee $300. We do not process incomplete apps. A volunteer will contact you within \u00a07-10 days after you submit the app. You will get an automatic", "source_url": "https://poodlepatchrescue.com/oliver/", "fit_score": 3, "watch_list": "", "date_first_seen": "2025-11-28T03:41:57.690958", "date_last_updated": "2025-11-28T15:38:01.811538", "date_status_changed": "2025-11-28T03:41:57.690958", "date_went_pending": null, "date_went_available": null, "date_went_unavailable": null, "is_active": 1, "image_url": "https://poodlepatchrescue.com/wp-content/uploads/2025/10/38700-300x214.jpeg"}, {"dog_id": "poo_whiskey", "dog_name": "Whiskey", "rescue_name": "Poodle Patch Rescue", "breed": "Poodle/Mix", "weight": null, "age_range": "", "age_category": "", "sex": "Female", "shedding": "Unknown", "energy_level": "Unknown", "good_with_kids": "Unknown", "good_with_dogs": "Unknown", "good_with_cats": "Unknown", "training_level": "", "training_notes": "", "special_needs": "No", "health_notes": "Whiskey-pending Posted on October 20, 2025 November 18, 2025 by Amanda standard female undergoing heartworm treatment in Hot Springs-in need of a foster or adoptive home ASAP We adopt within 350 miles of Texarkana TX or Hot Springs AR (exceptions are made for excellent applicants -we do not ship)", "adoption_req": "Within 350 miles", "adoption_fee": "$300", "platform": "poodlepatchrescue.com", "location": "Texarkana, TX", "status": "Available", "notes": "Whiskey-pending Posted on October 20, 2025 November 18, 2025 by Amanda standard female undergoing heartworm treatment in Hot Springs-in need of a foster or adoptive home ASAP We adopt within 350 miles of Texarkana TX or Hot Springs AR (exceptions are made for excellent applicants -we do not ship). Adoption fee $300. We do not process incomplete apps. A volunteer will contact you within \u00a07-10 days after you submit the app. You will get an automatic unmonitored email from the site stating we have ", "source_url": "https://poodlepatchrescue.com/whiskey/", "fit_score": 3, "watch_list": "", "date_first_seen": "2025-11-28T03:41:57.695754", "date_last_updated": "2025-11-28T15:38:01.810078", "date_status_changed": "2025-11-28T03:41:57.695754", "date_went_pending": null, "date_went_available": null, "date_went_unavailable": null, "is_active": 1, "image_url": "https://widgets.guidestar.org/gximage2?o=9201369&l=v4"}, {"dog_id": "doo_*please_make_sure_to_read", "dog_name": "*Please make sure to read", "rescue_name": "Doodle Dandy Rescue", "breed": "See Doodles Ready for Adoption", "weight": null, "age_range": "", "age_category": "", "sex": "", "shedding": "Low", "energy_level": "Medium", "good_with_kids": "Unknown", "good_with_dogs": "Unknown", "good_with_cats": "Unknown", "training_level": "", "training_notes": "", "special_needs": "", "health_notes": "", "adoption_req": "", "adoption_fee": "", "platform": "doodledandyrescue.org", "location": "", "status": "Pending", "notes": "", "source_url": "", "fit_score": 2, "watch_list": "", "date_first_seen": "2025-11-28T15:37:59.233355", "date_last_updated": "2025-11-28T15:37:59.233355", "date_status_changed": "2025-11-28T15:37:59.233355", "date_went_pending": null, "date_went_available": null, "date_went_unavailable": null, "is_active": 1, "image_url": ""}, {"dog_id": "doo_blitz", "dog_name": "Blitz", "rescue_name": "Doodle Dandy Rescue", "breed": "Doodle", "weight": 37, "age_range": "6 mos", "age_category": "Puppy", "sex": "Male", "shedding": "Low", "energy_level": "High", "good_with_kids": "Unknown", "good_with_dogs": "Unknown", "good_with_cats": "Unknown", "training_level": "", "training_notes": "", "special_needs": "", "health_notes": "", "adoption_req": "", "adoption_fee": "", "platform": "doodledandyrescue.org", "location": "DFW", "status": "Upcoming", "notes": "", "source_url": "", "fit_score": 2, "watch_list": "", "date_first_seen": "2025-11-28T03:41:54.158621", "date_last_updated": "2025-11-28T15:37:59.272515", "date_status_changed": "2025-11-28T03:41:54.158621", "date_went_pending": null, "date_went_available": null, "date_went_unavailable": null, "is_active": 1, "image_url": ""}, {"dog_id": "doo_eleanorb", "dog_name": "EleanorB", "rescue_name": "Doodle Dandy Rescue", "breed": "Bernadoodle Lab", "weight": 11, "age_range": "9 wks", "age_category": "Puppy", "sex": "Female", "shedding": "Low", "energy_level": "High", "good_with_kids": "Unknown", "good_with_dogs": "Unknown", "good_with_cats": "Unknown", "training_level": "", "training_notes": "", "special_needs": "", "health_notes": "", "adoption_req": "", "adoption_fee": "", "platform": "doodledandyrescue.org", "location": "DFW", "status": "Upcoming", "notes": "", "source_url": "", "fit_score": 2, "watch_list": "", "date_first_seen": "2025-11-28T03:41:54.156914", "date_last_updated": "2025-11-28T15:37:59.271147", "date_status_changed": "2025-11-28T03:41:54.156914", "date_went_pending": null, "date_went_available": null, "date_went_unavailable": null, "is_active": 1, "image_url": ""}, {"dog_id": "doo_fozzie", "dog_name": "Fozzie", "rescue_name": "Doodle Dandy Rescue", "breed": "Shih-poo", "weight": 14, "age_range": "1 yr", "age_category": "Puppy", "sex": "Male", "shedding": "Low", "energy_level": "High", "good_with_kids": "Unknown", "good_with_dogs": "Unknown", "good_with_cats": "Unknown", "training_level": "", "training_notes": "", "special_needs": "", "health_notes": "", "adoption_req": "", "adoption_fee": "", "platform": "doodledandyrescue.org", "location": "HOU", "status": "Upcoming", "notes": "", "source_url": "", "fit_score": 2, "watch_list": "", "date_first_seen": "2025-11-28T03:41:54.139015", "date_last_updated": "2025-11-28T15:37:59.256695", "date_status_changed": "2025-11-28T03:41:54.139015", "date_went_pending": null, "date_went_available": null, "date_went_unavailable": null, "is_active": 1, "image_url": ""}, {"dog_id": "doo_lizabeth", "dog_name": "Lizabeth", "rescue_name": "Doodle Dandy Rescue", "breed": "Bernadoodle Lab", "weight": 11, "age_range": "9 wks", "age_category": "Puppy", "sex": "Female", "shedding": "Low", "energy_level": "High", "good_with_kids": "Unknown", "good_with_dogs": "Unknown", "good_with_cats": "Unknown", "training_level": "", "training_notes": "", "special_needs": "", "health_notes": "", "adoption_req": "", "adoption_fee": "", "platform": "doodledandyrescue.org", "location": "DFW", "status": "Upcoming", "notes": "", "source_url": "", "fit_score": 2, "watch_list": "", "date_first_seen": "2025-11-28T03:41:54.152367", "date_last_updated": "2025-11-28T15:37:59.267173", "date_status_changed": "2025-11-28T03:41:54.152367", "date_went_pending": null, "date_went_available": null, "date_went_unavailable": null, "is_active": 1, "image_url": ""}, {"dog_id": "doo_load_more", "dog_name": "Load More", "rescue_name": "Doodle Dandy Rescue", "breed": "The mission of Doodle Dandy Rescue is to rescue, rehabilitate & rehome Doodle dogs in crisis so that they are adoptable into safe and loving homes in Texas.", "weight": null, "age_range": "", "age_category": "", "sex": "", "shedding": "Low", "energy_level": "Medium", "good_with_kids": "Unknown", "good_with_dogs": "Unknown", "good_with_cats": "Unknown", "training_level": "", "training_notes": "", "special_needs": "", "health_notes": "", "adoption_req": "", "adoption_fee": "", "platform": "doodledandyrescue.org", "location": "", "status": "Pending", "notes": "", "source_url": "", "fit_score": 2, "watch_list": "", "date_first_seen": "2025-11-28T15:37:59.247452", "date_last_updated": "2025-11-28T15:37:59.247452", "date_status_changed": "2025-11-28T15:37:59.247452", "date_went_pending": null, "date_went_available": null, "date_went_unavailable": null, "is_active": 1, "image_url": ""}, {"dog_id": "doo_lucabrasi", "dog_name": "Lucabrasi", "rescue_name": "Doodle Dandy Rescue", "breed": "Maltipoo", "weight": 14, "age_range": "10 mos", "age_category": "Puppy", "sex": "Male", "shedding": "Low", "energy_level": "High", "good_with_kids": "Unknown", "good_with_dogs": "Unknown", "good_with_cats": "Unknown", "training_level": "", "training_notes": "", "special_needs": "", "health_notes": "", "adoption_req": "", "adoption_fee": "", "platform": "doodledandyrescue.org", "location": "DFW", "status": "Upcoming", "notes": "", "source_url": "", "fit_score": 2, "watch_list": "", "date_first_seen": "2025-11-28T03:41:54.150782", "date_last_updated": "2025-11-28T15:37:59.265963", "date_status_changed": "2025-11-28T03:41:54.150782", "date_went_pending": null, "date_went_available": null, "date_went_unavailable": null, "is_active": 1, "image_url": ""}, {"dog_id": "doo_maryb", "dog_name": "MaryB", "rescue_name": "Doodle Dandy Rescue", "breed": "Bernadoodle Lab", "weight": 11, "age_range": "9 wks", "age_category": "Puppy", "sex": "Female", "shedding": "Low", "energy_level": "High", "good_with_kids": "Unknown", "good_with_dogs": "Unknown", "good_with_cats": "Unknown", "training_level": "", "training_notes": "", "special_needs": "", "health_notes": "", "adoption_req": "", "adoption_fee": "", "platform": "doodledandyrescue.org", "location": "DFW", "status": "Upcoming", "notes": "", "source_url": "", "fit_score": 2, "watch_list": "", "date_first_seen": "2025-11-28T03:41:54.153904", "date_last_updated": "2025-11-28T15:37:59.268570", "date_status_changed": "2025-11-28T03:41:54.153904", "date_went_pending": null, "date_went_available": null, "date_went_unavailable": null, "is_active": 1, "image_url": ""}, {"dog_id": "doo_no", "dog_name": "No", "rescue_name": "Doodle Dandy Rescue", "breed": "Goldendoodle", "weight": null, "age_range": "9 mos", "age_category": "Puppy", "sex": "Male", "shedding": "Low", "energy_level": "High", "good_with_kids": "Unknown", "good_with_dogs": "Unknown", "good_with_cats": "Unknown", "training_level": "", "training_notes": "", "special_needs": "", "health_notes": "", "adoption_req": "", "adoption_fee": "", "platform": "doodledandyrescue.org", "location": "", "status": "Available", "notes": "", "source_url": "", "fit_score": 2, "watch_list": "", "date_first_seen": "2025-11-28T15:37:59.229314", "date_last_updated": "2025-11-28T15:37:59.229314", "date_status_changed": "2025-11-28T15:37:59.229314", "date_went_pending": null, "date_went_available": null, "date_went_unavailable": null, "is_active": 1, "image_url": ""}, {"dog_id": "doo_susanna", "dog_name": "Susanna", "rescue_name": "Doodle Dandy Rescue", "breed": "Bernadoodle Lab", "weight": 11, "age_range": "9 wks", "age_category": "Puppy", "sex": "Female", "shedding": "Low", "energy_level": "High", "good_with_kids": "Unknown", "good_with_dogs": "Unknown", "good_with_cats": "Unknown", "training_level": "", "training_notes": "", "special_needs": "", "health_notes": "", "adoption_req": "", "adoption_fee": "", "platform": "doodledandyrescue.org", "location": "DFW", "status": "Upcoming", "notes": "", "source_url": "", "fit_score": 2, "watch_list": "", "date_first_seen": "2025-11-28T03:41:54.155364", "date_last_updated": "2025-11-28T15:37:59.269811", "date_status_changed": "2025-11-28T03:41:54.155364", "date_went_pending": null, "date_went_available": null, "date_went_unavailable": null, "is_active": 1, "image_url": ""}, {"dog_id": "doo_amber", "dog_name": "Amber", "rescue_name": "Doodle Dandy Rescue", "breed": "Goldendoodle", "weight": 35, "age_range": "10 mos", "age_category": "Puppy", "sex": "Female", "shedding": "Low", "energy_level": "High", "good_with_kids": "Unknown", "good_with_dogs": "Unknown", "good_with_cats": "Unknown", "training_level": "", "training_notes": "", "special_needs": "", "health_notes": "", "adoption_req": "", "adoption_fee": "", "platform": "doodledandyrescue.org", "location": "HOU", "status": "Pending", "notes": "", "source_url": "", "fit_score": 0, "watch_list": "", "date_first_seen": "2025-11-28T15:37:59.246039", "date_last_updated": "2025-11-28T15:37:59.246039", "date_status_changed": "2025-11-28T15:37:59.246039", "date_went_pending": null, "date_went_available": null, "date_went_unavailable": null, "is_active": 1, "image_url": ""}, {"dog_id": "doo_san", "dog_name": "SAN", "rescue_name": "Doodle Dandy Rescue", "breed": "Goldendoodle", "weight": null, "age_range": "7 mos", "age_category": "Puppy", "sex": "Male", "shedding": "Low", "energy_level": "High", "good_with_kids": "Unknown", "good_with_dogs": "Unknown", "good_with_cats": "Unknown", "training_level": "", "training_notes": "", "special_needs": "", "health_notes": "", "adoption_req": "", "adoption_fee": "", "platform": "doodledandyrescue.org", "location": "", "status": "Pending", "notes": "", "source_url": "", "fit_score": 0, "watch_list": "", "date_first_seen": "2025-11-28T03:41:54.127190", "date_last_updated": "2025-11-28T15:37:59.243202", "date_status_changed": "2025-11-28T03:41:54.127190", "date_went_pending": null, "date_went_available": null, "date_went_unavailable": null, "is_active": 1, "image_url": ""}];
+    const changesData = [{"id": 93, "dog_id": "doo_adoption.", "dog_name": "adoption.", "field_changed": "status", "old_value": "Upcoming", "new_value": "Adopted/Removed", "change_type": "status_change", "timestamp": "2025-11-28T15:37:59.276329", "current_fit": 4, "image_url": null}, {"id": 92, "dog_id": "doo_adoption_pending", "dog_name": "Adoption Pending", "field_changed": "status", "old_value": "Pending", "new_value": "Adopted/Removed", "change_type": "status_change", "timestamp": "2025-11-28T15:37:59.276329", "current_fit": 4, "image_url": null}, {"id": 91, "dog_id": "doo_sheds:", "dog_name": "Sheds:", "field_changed": "status", "old_value": "Available", "new_value": "Adopted/Removed", "change_type": "status_change", "timestamp": "2025-11-28T15:37:59.276329", "current_fit": 4, "image_url": null}, {"id": 90, "dog_id": "doo_in_preparation_for_adoption.*", "dog_name": "in preparation for adoption.*", "field_changed": "status", "old_value": "Available", "new_value": "Adopted/Removed", "change_type": "status_change", "timestamp": "2025-11-28T15:37:59.276329", "current_fit": 4, "image_url": null}, {"id": 89, "dog_id": "doo_rehome", "dog_name": "Rehome", "field_changed": "status", "old_value": "Available", "new_value": "Adopted/Removed", "change_type": "status_change", "timestamp": "2025-11-28T15:37:59.276329", "current_fit": 4, "image_url": null}, {"id": 88, "dog_id": "doo_more", "dog_name": "More", "field_changed": "dog", "old_value": "", "new_value": "New: Upcoming | Fit: 4 | Welcome these new arrivals to Doodle Dandy!", "change_type": "new_dog", "timestamp": "2025-11-28T15:37:59.248803", "current_fit": 4, "image_url": ""}, {"id": 87, "dog_id": "doo_load_more", "dog_name": "Load More", "field_changed": "dog", "old_value": "", "new_value": "New: Pending | Fit: 2 | The mission of Doodle Dandy Rescue is to rescue, rehabilitate & rehome Doodle dogs in crisis so that they are adoptable into safe and loving homes in Texas.", "change_type": "new_dog", "timestamp": "2025-11-28T15:37:59.247452", "current_fit": 2, "image_url": ""}, {"id": 86, "dog_id": "doo_amber", "dog_name": "Amber", "field_changed": "dog", "old_value": "", "new_value": "New: Pending | Fit: 0 | Goldendoodle", "change_type": "new_dog", "timestamp": "2025-11-28T15:37:59.246039", "current_fit": 0, "image_url": ""}, {"id": 85, "dog_id": "doo_maverick", "dog_name": "Maverick", "field_changed": "dog", "old_value": "", "new_value": "New: Pending | Fit: 4 | Goldendoodle", "change_type": "new_dog", "timestamp": "2025-11-28T15:37:59.244581", "current_fit": 4, "image_url": ""}, {"id": 84, "dog_id": "doo_armadillo", "dog_name": "Armadillo", "field_changed": "dog", "old_value": "", "new_value": "New: Pending | Fit: 4 | Goldendoodle", "change_type": "new_dog", "timestamp": "2025-11-28T15:37:59.241800", "current_fit": 4, "image_url": ""}, {"id": 83, "dog_id": "doo_byntlee", "dog_name": "Byntlee", "field_changed": "dog", "old_value": "", "new_value": "New: Pending | Fit: 4 | Poodle", "change_type": "new_dog", "timestamp": "2025-11-28T15:37:59.240343", "current_fit": 4, "image_url": ""}, {"id": 82, "dog_id": "doo_chloe_simone", "dog_name": "Chloe Simone", "field_changed": "dog", "old_value": "", "new_value": "New: Pending | Fit: 4 | Poodle", "change_type": "new_dog", "timestamp": "2025-11-28T15:37:59.239077", "current_fit": 4, "image_url": ""}, {"id": 81, "dog_id": "doo_buck_wild", "dog_name": "Buck Wild", "field_changed": "dog", "old_value": "", "new_value": "New: Pending | Fit: 4 | Aussiedoodle", "change_type": "new_dog", "timestamp": "2025-11-28T15:37:59.237507", "current_fit": 4, "image_url": ""}, {"id": 80, "dog_id": "doo_alces", "dog_name": "Alces", "field_changed": "dog", "old_value": "", "new_value": "New: Pending | Fit: 4 | Doberdoodle", "change_type": "new_dog", "timestamp": "2025-11-28T15:37:59.236113", "current_fit": 4, "image_url": ""}, {"id": 79, "dog_id": "doo_deke", "dog_name": "Deke", "field_changed": "dog", "old_value": "", "new_value": "New: Pending | Fit: 4 | Goldendoodle", "change_type": "new_dog", "timestamp": "2025-11-28T15:37:59.234732", "current_fit": 4, "image_url": ""}, {"id": 78, "dog_id": "doo_*please_make_sure_to_read", "dog_name": "*Please make sure to read", "field_changed": "dog", "old_value": "", "new_value": "New: Pending | Fit: 2 | See Doodles Ready for Adoption", "change_type": "new_dog", "timestamp": "2025-11-28T15:37:59.233355", "current_fit": 2, "image_url": ""}, {"id": 77, "dog_id": "doo_yes", "dog_name": "Yes", "field_changed": "dog", "old_value": "", "new_value": "New: Available | Fit: 4 | Labradoodle", "change_type": "new_dog", "timestamp": "2025-11-28T15:37:59.230667", "current_fit": 4, "image_url": ""}, {"id": 76, "dog_id": "doo_no", "dog_name": "No", "field_changed": "dog", "old_value": "", "new_value": "New: Available | Fit: 2 | Goldendoodle", "change_type": "new_dog", "timestamp": "2025-11-28T15:37:59.229314", "current_fit": 2, "image_url": ""}, {"id": 75, "dog_id": "doo_some", "dog_name": "Some", "field_changed": "dog", "old_value": "", "new_value": "New: Available | Fit: 4 | Maltipoo", "change_type": "new_dog", "timestamp": "2025-11-28T15:37:59.227822", "current_fit": 4, "image_url": ""}, {"id": 74, "dog_id": "doo_our_policies_and_procedures", "dog_name": "our policies and procedures", "field_changed": "dog", "old_value": "", "new_value": "New: Available | Fit: 4 | Goldendoodle", "change_type": "new_dog", "timestamp": "2025-11-28T15:37:59.225167", "current_fit": 4, "image_url": ""}, {"id": 73, "dog_id": "doo_foster_family", "dog_name": "foster family", "field_changed": "dog", "old_value": "", "new_value": "New: Available | Fit: 4 | Be sure to read the full bio for each dog so the doodle you select is right for you and that you can provide a \"fur-ever\" home for your adopted doodle.", "change_type": "new_dog", "timestamp": "2025-11-28T15:37:59.223591", "current_fit": 4, "image_url": ""}, {"id": 72, "dog_id": "doo_blog", "dog_name": "Blog", "field_changed": "dog", "old_value": "", "new_value": "New: Available | Fit: 4 | Doodles Ready for Adoption", "change_type": "new_dog", "timestamp": "2025-11-28T15:37:59.221780", "current_fit": 4, "image_url": ""}, {"id": 71, "dog_id": "doo_dixie", "dog_name": "Dixie", "field_changed": "status", "old_value": "Available", "new_value": "Adopted/Removed", "change_type": "status_change", "timestamp": "2025-11-28T15:37:58.662342", "current_fit": 7, "image_url": null}, {"id": 70, "dog_id": "doo_thumper", "dog_name": "Thumper", "field_changed": "status", "old_value": "Available", "new_value": "Adopted/Removed", "change_type": "status_change", "timestamp": "2025-11-28T15:37:58.662342", "current_fit": 7, "image_url": null}, {"id": 69, "dog_id": "doo_with", "dog_name": "With", "field_changed": "dog", "old_value": "", "new_value": "New: Available | Fit: 4 | Poodle Mix", "change_type": "new_dog", "timestamp": "2025-11-28T15:37:58.661055", "current_fit": 4, "image_url": ""}, {"id": 68, "dog_id": "doo_myra", "dog_name": "Myra", "field_changed": "energy_level", "old_value": "Low", "new_value": "Medium", "change_type": "field_update", "timestamp": "2025-11-28T15:37:58.659404", "current_fit": 4, "image_url": ""}, {"id": 67, "dog_id": "doo_myra", "dog_name": "Myra", "field_changed": "fit_score", "old_value": "7", "new_value": "4", "change_type": "field_update", "timestamp": "2025-11-28T15:37:58.659404", "current_fit": 4, "image_url": ""}, {"id": 66, "dog_id": "doo_amanda", "dog_name": "Amanda", "field_changed": "energy_level", "old_value": "Low", "new_value": "Medium", "change_type": "field_update", "timestamp": "2025-11-28T15:37:58.657994", "current_fit": 4, "image_url": ""}, {"id": 65, "dog_id": "doo_amanda", "dog_name": "Amanda", "field_changed": "fit_score", "old_value": "7", "new_value": "4", "change_type": "field_update", "timestamp": "2025-11-28T15:37:58.657994", "current_fit": 4, "image_url": ""}, {"id": 64, "dog_id": "doo_ellie", "dog_name": "Ellie", "field_changed": "energy_level", "old_value": "Low", "new_value": "Medium", "change_type": "field_update", "timestamp": "2025-11-28T15:37:58.656486", "current_fit": 4, "image_url": ""}, {"id": 63, "dog_id": "doo_ellie", "dog_name": "Ellie", "field_changed": "fit_score", "old_value": "7", "new_value": "4", "change_type": "field_update", "timestamp": "2025-11-28T15:37:58.656486", "current_fit": 4, "image_url": ""}, {"id": 62, "dog_id": "doo_merritt", "dog_name": "Merritt", "field_changed": "energy_level", "old_value": "Low", "new_value": "Medium", "change_type": "field_update", "timestamp": "2025-11-28T15:37:58.655132", "current_fit": 4, "image_url": ""}, {"id": 61, "dog_id": "doo_merritt", "dog_name": "Merritt", "field_changed": "fit_score", "old_value": "7", "new_value": "4", "change_type": "field_update", "timestamp": "2025-11-28T15:37:58.655132", "current_fit": 4, "image_url": ""}, {"id": 60, "dog_id": "doo_nimbi", "dog_name": "Nimbi", "field_changed": "energy_level", "old_value": "High", "new_value": "Medium", "change_type": "field_update", "timestamp": "2025-11-28T15:37:58.653757", "current_fit": 4, "image_url": ""}, {"id": 59, "dog_id": "doo_nimbi", "dog_name": "Nimbi", "field_changed": "fit_score", "old_value": "7", "new_value": "4", "change_type": "field_update", "timestamp": "2025-11-28T15:37:58.653757", "current_fit": 4, "image_url": ""}, {"id": 58, "dog_id": "doo_gusty", "dog_name": "Gusty", "field_changed": "energy_level", "old_value": "Low", "new_value": "Medium", "change_type": "field_update", "timestamp": "2025-11-28T15:37:58.652258", "current_fit": 4, "image_url": ""}, {"id": 57, "dog_id": "doo_gusty", "dog_name": "Gusty", "field_changed": "fit_score", "old_value": "9", "new_value": "4", "change_type": "field_update", "timestamp": "2025-11-28T15:37:58.652258", "current_fit": 4, "image_url": ""}, {"id": 56, "dog_id": "doo_clancy", "dog_name": "Clancy", "field_changed": "energy_level", "old_value": "High", "new_value": "Medium", "change_type": "field_update", "timestamp": "2025-11-28T15:37:58.650768", "current_fit": 4, "image_url": ""}, {"id": 55, "dog_id": "doo_clancy", "dog_name": "Clancy", "field_changed": "fit_score", "old_value": "5", "new_value": "4", "change_type": "field_update", "timestamp": "2025-11-28T15:37:58.650768", "current_fit": 4, "image_url": ""}, {"id": 54, "dog_id": "doo_kru", "dog_name": "Kru", "field_changed": "energy_level", "old_value": "Low", "new_value": "Medium", "change_type": "field_update", "timestamp": "2025-11-28T15:37:58.649020", "current_fit": 4, "image_url": ""}, {"id": 53, "dog_id": "doo_kru", "dog_name": "Kru", "field_changed": "fit_score", "old_value": "9", "new_value": "4", "change_type": "field_update", "timestamp": "2025-11-28T15:37:58.649020", "current_fit": 4, "image_url": ""}, {"id": 52, "dog_id": "doo_drizzle", "dog_name": "Drizzle", "field_changed": "energy_level", "old_value": "Low", "new_value": "Medium", "change_type": "field_update", "timestamp": "2025-11-28T15:37:58.646781", "current_fit": 4, "image_url": ""}, {"id": 51, "dog_id": "doo_drizzle", "dog_name": "Drizzle", "field_changed": "fit_score", "old_value": "9", "new_value": "4", "change_type": "field_update", "timestamp": "2025-11-28T15:37:58.646781", "current_fit": 4, "image_url": ""}, {"id": 50, "dog_id": "poo_happy_tails_\u2013_poodle_patch_rescue_inc_501_(c)_3_non_profit_texarkana,_tx", "dog_name": "Happy Tails \u2013 Poodle Patch Rescue Inc 501 (c) 3 non profit Texarkana, TX", "field_changed": "dog", "old_value": "", "new_value": "New: Available | Fit: 3 | Poodle/Mix", "change_type": "new_dog", "timestamp": "2025-11-28T03:41:57.710618", "current_fit": 3, "image_url": "https://poodlepatchrescue.com/wp-content/uploads/2015/03/Mr_Blue_happy_800x531-150x150.jpg"}, {"id": 49, "dog_id": "poo_lacey", "dog_name": "Lacey", "field_changed": "dog", "old_value": "", "new_value": "New: Available | Fit: 3 | Poodle", "change_type": "new_dog", "timestamp": "2025-11-28T03:41:57.708447", "current_fit": 3, "image_url": "https://widgets.guidestar.org/gximage2?o=9201369&l=v4"}, {"id": 48, "dog_id": "poo_dancer", "dog_name": "Dancer", "field_changed": "dog", "old_value": "", "new_value": "New: Available | Fit: 5 | Poodle", "change_type": "new_dog", "timestamp": "2025-11-28T03:41:57.706563", "current_fit": 5, "image_url": "https://widgets.guidestar.org/gximage2?o=9201369&l=v4"}, {"id": 47, "dog_id": "poo_charlie_2_pending_\u2013_poodle_patch_rescue_inc_501_(c)_3_non_profit_texarkana,_tx", "dog_name": "Charlie 2 pending \u2013 Poodle Patch Rescue Inc 501 (c) 3 non profit Texarkana, TX", "field_changed": "dog", "old_value": "", "new_value": "New: Available | Fit: 3 | Poodle", "change_type": "new_dog", "timestamp": "2025-11-28T03:41:57.704970", "current_fit": 3, "image_url": "https://poodlepatchrescue.com/wp-content/uploads/2025/10/38539-131x300.jpeg"}, {"id": 46, "dog_id": "poo_zira_\u2013_poodle_patch_rescue_inc_501_(c)_3_non_profit_texarkana,_tx", "dog_name": "Zira \u2013 Poodle Patch Rescue Inc 501 (c) 3 non profit Texarkana, TX", "field_changed": "dog", "old_value": "", "new_value": "New: Available | Fit: 5 | Poodle", "change_type": "new_dog", "timestamp": "2025-11-28T03:41:57.702945", "current_fit": 5, "image_url": "https://widgets.guidestar.org/gximage2?o=9201369&l=v4"}, {"id": 45, "dog_id": "poo_koda_\u2013_poodle_patch_rescue_inc_501_(c)_3_non_profit_texarkana,_tx", "dog_name": "Koda \u2013 Poodle Patch Rescue Inc 501 (c) 3 non profit Texarkana, TX", "field_changed": "dog", "old_value": "", "new_value": "New: Available | Fit: 3 | Poodle/Mix", "change_type": "new_dog", "timestamp": "2025-11-28T03:41:57.701201", "current_fit": 3, "image_url": "https://widgets.guidestar.org/gximage2?o=9201369&l=v4"}, {"id": 44, "dog_id": "poo_charlie_\u2013_poodle_patch_rescue_inc_501_(c)_3_non_profit_texarkana,_tx", "dog_name": "Charlie \u2013 Poodle Patch Rescue Inc 501 (c) 3 non profit Texarkana, TX", "field_changed": "dog", "old_value": "", "new_value": "New: Available | Fit: 5 | Poodle", "change_type": "new_dog", "timestamp": "2025-11-28T03:41:57.699503", "current_fit": 5, "image_url": "https://poodlepatchrescue.com/wp-content/uploads/2024/03/imagejpeg_0-214x300.jpeg"}, {"id": 43, "dog_id": "poo_memphis_\u2013_poodle_patch_rescue_inc_501_(c)_3_non_profit_texarkana,_tx", "dog_name": "Memphis \u2013 Poodle Patch Rescue Inc 501 (c) 3 non profit Texarkana, TX", "field_changed": "dog", "old_value": "", "new_value": "New: Available | Fit: 3 | Poodle", "change_type": "new_dog", "timestamp": "2025-11-28T03:41:57.697657", "current_fit": 3, "image_url": "https://widgets.guidestar.org/gximage2?o=9201369&l=v4"}, {"id": 42, "dog_id": "poo_whiskey", "dog_name": "Whiskey", "field_changed": "dog", "old_value": "", "new_value": "New: Available | Fit: 3 | Poodle/Mix", "change_type": "new_dog", "timestamp": "2025-11-28T03:41:57.695754", "current_fit": 3, "image_url": "https://widgets.guidestar.org/gximage2?o=9201369&l=v4"}, {"id": 41, "dog_id": "poo_jojo_\u2013_poodle_patch_rescue_inc_501_(c)_3_non_profit_texarkana,_tx", "dog_name": "Jojo \u2013 Poodle Patch Rescue Inc 501 (c) 3 non profit Texarkana, TX", "field_changed": "dog", "old_value": "", "new_value": "New: Available | Fit: 8 | Poodle", "change_type": "new_dog", "timestamp": "2025-11-28T03:41:57.693624", "current_fit": 8, "image_url": "https://widgets.guidestar.org/gximage2?o=9201369&l=v4"}, {"id": 40, "dog_id": "poo_oliver_\u2013_poodle_patch_rescue_inc_501_(c)_3_non_profit_texarkana,_tx", "dog_name": "Oliver \u2013 Poodle Patch Rescue Inc 501 (c) 3 non profit Texarkana, TX", "field_changed": "dog", "old_value": "", "new_value": "New: Available | Fit: 3 | Poodle", "change_type": "new_dog", "timestamp": "2025-11-28T03:41:57.690958", "current_fit": 3, "image_url": "https://poodlepatchrescue.com/wp-content/uploads/2025/10/38700-300x214.jpeg"}, {"id": 39, "dog_id": "doo_hazelnut", "dog_name": "Hazelnut", "field_changed": "dog", "old_value": "", "new_value": "New: Upcoming | Fit: 4 | Mini Aussiedoodle", "change_type": "new_dog", "timestamp": "2025-11-28T03:41:54.162202", "current_fit": 4, "image_url": ""}, {"id": 38, "dog_id": "doo_matcha", "dog_name": "Matcha", "field_changed": "dog", "old_value": "", "new_value": "New: Upcoming | Fit: 6 | Doodle", "change_type": "new_dog", "timestamp": "2025-11-28T03:41:54.160653", "current_fit": 6, "image_url": ""}, {"id": 37, "dog_id": "doo_blitz", "dog_name": "Blitz", "field_changed": "dog", "old_value": "", "new_value": "New: Upcoming | Fit: 2 | Doodle", "change_type": "new_dog", "timestamp": "2025-11-28T03:41:54.158621", "current_fit": 2, "image_url": ""}, {"id": 36, "dog_id": "doo_eleanorb", "dog_name": "EleanorB", "field_changed": "dog", "old_value": "", "new_value": "New: Upcoming | Fit: 2 | Bernadoodle Lab", "change_type": "new_dog", "timestamp": "2025-11-28T03:41:54.156914", "current_fit": 2, "image_url": ""}, {"id": 35, "dog_id": "doo_susanna", "dog_name": "Susanna", "field_changed": "dog", "old_value": "", "new_value": "New: Upcoming | Fit: 2 | Bernadoodle Lab", "change_type": "new_dog", "timestamp": "2025-11-28T03:41:54.155364", "current_fit": 2, "image_url": ""}, {"id": 34, "dog_id": "doo_maryb", "dog_name": "MaryB", "field_changed": "dog", "old_value": "", "new_value": "New: Upcoming | Fit: 2 | Bernadoodle Lab", "change_type": "new_dog", "timestamp": "2025-11-28T03:41:54.153904", "current_fit": 2, "image_url": ""}, {"id": 33, "dog_id": "doo_lizabeth", "dog_name": "Lizabeth", "field_changed": "dog", "old_value": "", "new_value": "New: Upcoming | Fit: 2 | Bernadoodle Lab", "change_type": "new_dog", "timestamp": "2025-11-28T03:41:54.152367", "current_fit": 2, "image_url": ""}, {"id": 32, "dog_id": "doo_lucabrasi", "dog_name": "Lucabrasi", "field_changed": "dog", "old_value": "", "new_value": "New: Upcoming | Fit: 2 | Maltipoo", "change_type": "new_dog", "timestamp": "2025-11-28T03:41:54.150782", "current_fit": 2, "image_url": ""}, {"id": 31, "dog_id": "doo_dolce", "dog_name": "Dolce", "field_changed": "dog", "old_value": "", "new_value": "New: Upcoming | Fit: 6 | Bernedoodle", "change_type": "new_dog", "timestamp": "2025-11-28T03:41:54.149188", "current_fit": 6, "image_url": ""}, {"id": 30, "dog_id": "doo_chandler", "dog_name": "Chandler", "field_changed": "dog", "old_value": "", "new_value": "New: Upcoming | Fit: 6 | Goldendoodle", "change_type": "new_dog", "timestamp": "2025-11-28T03:41:54.147569", "current_fit": 6, "image_url": ""}, {"id": 29, "dog_id": "doo_plomo", "dog_name": "Plomo", "field_changed": "dog", "old_value": "", "new_value": "New: Upcoming | Fit: 4 | Goldendoodle", "change_type": "new_dog", "timestamp": "2025-11-28T03:41:54.146087", "current_fit": 4, "image_url": ""}, {"id": 28, "dog_id": "doo_strider", "dog_name": "Strider", "field_changed": "dog", "old_value": "", "new_value": "New: Upcoming | Fit: 6 | Doodle", "change_type": "new_dog", "timestamp": "2025-11-28T03:41:54.144591", "current_fit": 6, "image_url": ""}, {"id": 27, "dog_id": "doo_charliemagne", "dog_name": "Charliemagne", "field_changed": "dog", "old_value": "", "new_value": "New: Upcoming | Fit: 4 | Mini Goldendoodle", "change_type": "new_dog", "timestamp": "2025-11-28T03:41:54.142539", "current_fit": 4, "image_url": ""}, {"id": 26, "dog_id": "doo_macduff", "dog_name": "MacDuff", "field_changed": "dog", "old_value": "", "new_value": "New: Upcoming | Fit: 6 | Australian Mountain Doodle", "change_type": "new_dog", "timestamp": "2025-11-28T03:41:54.140919", "current_fit": 6, "image_url": ""}, {"id": 25, "dog_id": "doo_fozzie", "dog_name": "Fozzie", "field_changed": "dog", "old_value": "", "new_value": "New: Upcoming | Fit: 2 | Shih-poo", "change_type": "new_dog", "timestamp": "2025-11-28T03:41:54.139015", "current_fit": 2, "image_url": ""}, {"id": 24, "dog_id": "doo_freddy_faz", "dog_name": "Freddy Faz", "field_changed": "dog", "old_value": "", "new_value": "New: Upcoming | Fit: 4 | Goldendoodle", "change_type": "new_dog", "timestamp": "2025-11-28T03:41:54.137514", "current_fit": 4, "image_url": ""}, {"id": 23, "dog_id": "doo_pacey", "dog_name": "Pacey", "field_changed": "dog", "old_value": "", "new_value": "New: Upcoming | Fit: 6 | Goldendoodle", "change_type": "new_dog", "timestamp": "2025-11-28T03:41:54.135482", "current_fit": 6, "image_url": ""}, {"id": 22, "dog_id": "doo_skipper", "dog_name": "Skipper", "field_changed": "dog", "old_value": "", "new_value": "New: Upcoming | Fit: 4 | Goldendoodle", "change_type": "new_dog", "timestamp": "2025-11-28T03:41:54.134020", "current_fit": 4, "image_url": ""}, {"id": 21, "dog_id": "doo_wilson", "dog_name": "Wilson", "field_changed": "dog", "old_value": "", "new_value": "New: Upcoming | Fit: 6 | Doodle", "change_type": "new_dog", "timestamp": "2025-11-28T03:41:54.132380", "current_fit": 6, "image_url": ""}, {"id": 20, "dog_id": "doo_chili", "dog_name": "Chili", "field_changed": "dog", "old_value": "", "new_value": "New: Upcoming | Fit: 4 | Goldendoodle", "change_type": "new_dog", "timestamp": "2025-11-28T03:41:54.130527", "current_fit": 4, "image_url": ""}, {"id": 19, "dog_id": "doo_adoption.", "dog_name": "adoption.", "field_changed": "dog", "old_value": "", "new_value": "New: Upcoming | Fit: 4 | Our policy at Doodle Dandy Rescue is to allow our foster volunteers the time to understand their foster dood's needs and personalities. This helps everyone identify what type of \"fur-ever\" home will be a great fit for each of them. Follow their progress on", "change_type": "new_dog", "timestamp": "2025-11-28T03:41:54.128845", "current_fit": 4, "image_url": null}, {"id": 18, "dog_id": "doo_san", "dog_name": "SAN", "field_changed": "dog", "old_value": "", "new_value": "New: Pending | Fit: 0 | Goldendoodle", "change_type": "new_dog", "timestamp": "2025-11-28T03:41:54.127190", "current_fit": 0, "image_url": ""}, {"id": 17, "dog_id": "doo_adoption_pending", "dog_name": "Adoption Pending", "field_changed": "dog", "old_value": "", "new_value": "New: Pending | Fit: 4 | Goldendoodle", "change_type": "new_dog", "timestamp": "2025-11-28T03:41:54.125224", "current_fit": 4, "image_url": null}, {"id": 16, "dog_id": "doo_happy_tails", "dog_name": "Happy Tails", "field_changed": "dog", "old_value": "", "new_value": "New: Available | Fit: 4 | Copyright Doodle Dandy Rescue 2020", "change_type": "new_dog", "timestamp": "2025-11-28T03:41:54.123330", "current_fit": 4, "image_url": ""}, {"id": 15, "dog_id": "doo_sheds:", "dog_name": "Sheds:", "field_changed": "dog", "old_value": "", "new_value": "New: Available | Fit: 4 | Maltipoo", "change_type": "new_dog", "timestamp": "2025-11-28T03:41:54.121298", "current_fit": 4, "image_url": null}, {"id": 14, "dog_id": "doo_austin", "dog_name": "Austin", "field_changed": "dog", "old_value": "", "new_value": "New: Available | Fit: 4 | Doodle", "change_type": "new_dog", "timestamp": "2025-11-28T03:41:54.119825", "current_fit": 4, "image_url": ""}, {"id": 13, "dog_id": "doo_in_preparation_for_adoption.*", "dog_name": "in preparation for adoption.*", "field_changed": "dog", "old_value": "", "new_value": "New: Available | Fit: 4 | Goldendoodle", "change_type": "new_dog", "timestamp": "2025-11-28T03:41:54.118399", "current_fit": 4, "image_url": null}, {"id": 12, "dog_id": "doo_rehome", "dog_name": "Rehome", "field_changed": "dog", "old_value": "", "new_value": "New: Available | Fit: 4 | Doodles Ready for Adoption", "change_type": "new_dog", "timestamp": "2025-11-28T03:41:54.116421", "current_fit": 4, "image_url": null}, {"id": 11, "dog_id": "doo_myra", "dog_name": "Myra", "field_changed": "dog", "old_value": "", "new_value": "New: Available | Fit: 7 | Poodle Mix", "change_type": "new_dog", "timestamp": "2025-11-28T03:41:53.541035", "current_fit": 4, "image_url": ""}, {"id": 10, "dog_id": "doo_amanda", "dog_name": "Amanda", "field_changed": "dog", "old_value": "", "new_value": "New: Available | Fit: 7 | Poodle Mix", "change_type": "new_dog", "timestamp": "2025-11-28T03:41:53.539298", "current_fit": 4, "image_url": ""}, {"id": 9, "dog_id": "doo_dixie", "dog_name": "Dixie", "field_changed": "dog", "old_value": "", "new_value": "New: Available | Fit: 7 | Doodle", "change_type": "new_dog", "timestamp": "2025-11-28T03:41:53.536889", "current_fit": 7, "image_url": null}, {"id": 8, "dog_id": "doo_ellie", "dog_name": "Ellie", "field_changed": "dog", "old_value": "", "new_value": "New: Available | Fit: 7 | Poodle Mix", "change_type": "new_dog", "timestamp": "2025-11-28T03:41:53.535371", "current_fit": 4, "image_url": ""}, {"id": 7, "dog_id": "doo_merritt", "dog_name": "Merritt", "field_changed": "dog", "old_value": "", "new_value": "New: Available | Fit: 7 | Poodle Mix", "change_type": "new_dog", "timestamp": "2025-11-28T03:41:53.533849", "current_fit": 4, "image_url": ""}, {"id": 6, "dog_id": "doo_thumper", "dog_name": "Thumper", "field_changed": "dog", "old_value": "", "new_value": "New: Available | Fit: 7 | Doodle", "change_type": "new_dog", "timestamp": "2025-11-28T03:41:53.531466", "current_fit": 7, "image_url": null}, {"id": 5, "dog_id": "doo_nimbi", "dog_name": "Nimbi", "field_changed": "dog", "old_value": "", "new_value": "New: Available | Fit: 7 | Poodle Mix", "change_type": "new_dog", "timestamp": "2025-11-28T03:41:53.529534", "current_fit": 4, "image_url": ""}, {"id": 4, "dog_id": "doo_gusty", "dog_name": "Gusty", "field_changed": "dog", "old_value": "", "new_value": "New: Available | Fit: 9 | Poodle Mix", "change_type": "new_dog", "timestamp": "2025-11-28T03:41:53.527670", "current_fit": 4, "image_url": ""}, {"id": 3, "dog_id": "doo_clancy", "dog_name": "Clancy", "field_changed": "dog", "old_value": "", "new_value": "New: Available | Fit: 5 | Poodle Mix", "change_type": "new_dog", "timestamp": "2025-11-28T03:41:53.524987", "current_fit": 4, "image_url": ""}, {"id": 2, "dog_id": "doo_kru", "dog_name": "Kru", "field_changed": "dog", "old_value": "", "new_value": "New: Available | Fit: 9 | Poodle Mix", "change_type": "new_dog", "timestamp": "2025-11-28T03:41:53.522723", "current_fit": 4, "image_url": ""}, {"id": 1, "dog_id": "doo_drizzle", "dog_name": "Drizzle", "field_changed": "dog", "old_value": "", "new_value": "New: Available | Fit: 9 | Poodle Mix", "change_type": "new_dog", "timestamp": "2025-11-28T03:41:53.520182", "current_fit": 4, "image_url": ""}];
+    const generatedAt = "2025-11-28T15:38:02.138626";
     
-    // Local storage for modifications
+    // Local modifications stored in localStorage
+    // Structure: { dogId: { watch_list, score_modifier, weight, ... }, ... }
     let localMods = JSON.parse(localStorage.getItem('dogMods') || '{}');
     
+    // Acknowledged changes stored separately
+    // Structure: { changeId: true, ... }
+    let ackedChanges = JSON.parse(localStorage.getItem('ackedChanges') || '{}');
+    
+    // Apply local mods to dog data
     function applyLocalMods() {
       dogsData.forEach(dog => {
-        if (localMods[dog.dog_id]) {
-          Object.assign(dog, localMods[dog.dog_id]);
+        const mod = localMods[dog.dog_id];
+        if (mod) {
+          if (mod.watch_list !== undefined) dog.watch_list = mod.watch_list;
+          if (mod.score_modifier !== undefined) {
+            const baseScore = calculateFitScore(dog);
+            dog.fit_score = Math.max(0, baseScore + mod.score_modifier);
+          }
+          if (mod.weight !== undefined) dog.weight = mod.weight;
+          if (mod.age_range !== undefined) dog.age_range = mod.age_range;
+          if (mod.energy_level !== undefined) dog.energy_level = mod.energy_level;
+          if (mod.shedding !== undefined) dog.shedding = mod.shedding;
+          if (mod.good_with_dogs !== undefined) dog.good_with_dogs = mod.good_with_dogs;
+          if (mod.good_with_kids !== undefined) dog.good_with_kids = mod.good_with_kids;
+          if (mod.good_with_cats !== undefined) dog.good_with_cats = mod.good_with_cats;
+          if (mod.special_needs !== undefined) dog.special_needs = mod.special_needs;
+          if (mod.notes !== undefined) dog.notes = mod.notes;
         }
       });
     }
     
-    function saveMod(dogId, changes) {
+    function calculateFitScore(dog) {
+      let score = 0;
+      if ((dog.weight || 0) >= 40) score += 2;
+      const shed = (dog.shedding || '').toLowerCase();
+      if (shed === 'none') score += 2;
+      else if (shed === 'low') score += 1;
+      else if (shed === 'high') score -= 1;
+      else score += 1;
+      const energy = (dog.energy_level || '').toLowerCase();
+      if (energy === 'low' || energy === 'medium') score += 2;
+      else if (!energy || energy === 'unknown') score += 1;
+      if (dog.good_with_dogs === 'Yes') score += 2;
+      if (dog.good_with_kids === 'Yes') score += 1;
+      if (dog.good_with_cats === 'Yes') score += 1;
+      const breed = (dog.breed || '').toLowerCase();
+      if (breed.includes('doodle') || breed.includes('poodle')) score += 1;
+      if (dog.special_needs === 'Yes') score -= 1;
+      if ((dog.status || '').toLowerCase() === 'pending') score -= 2;
+      return Math.max(0, score);
+    }
+    
+    function saveMod(dogId, updates) {
       if (!localMods[dogId]) localMods[dogId] = {};
-      Object.assign(localMods[dogId], changes);
+      Object.assign(localMods[dogId], updates);
       localStorage.setItem('dogMods', JSON.stringify(localMods));
+      
       const dog = dogsData.find(d => d.dog_id === dogId);
-      if (dog) Object.assign(dog, changes);
+      if (dog) {
+        Object.assign(dog, updates);
+        if (updates.score_modifier !== undefined) {
+          const baseScore = calculateFitScore(dog);
+          dog.fit_score = Math.max(0, baseScore + updates.score_modifier);
+        }
+      }
     }
     
     function toggleWatch(dogId) {
       const dog = dogsData.find(d => d.dog_id === dogId);
       if (!dog) return;
-      const newValue = dog.watch_list === 'Yes' ? '' : 'Yes';
-      saveMod(dogId, { watch_list: newValue });
+      
+      const newVal = dog.watch_list === 'Yes' ? '' : 'Yes';
+      saveMod(dogId, { watch_list: newVal });
       renderDogs();
       updateStats();
-      showToast(newValue === 'Yes' ? '⭐ Added to watch list' : 'Removed from watch list');
+      showToast(newVal === 'Yes' ? '⭐ Added to watch list' : '☆ Removed from watch list');
     }
     
     function adjustScore(dogId, delta) {
-      const dog = dogsData.find(d => d.dog_id === dogId);
-      if (!dog) return;
-      const currentMod = localMods[dogId]?.score_modifier || 0;
-      const newMod = currentMod + delta;
-      const baseScore = (dog.base_fit_score !== undefined) ? dog.base_fit_score : (dog.fit_score || 0);
-      if (dog.base_fit_score === undefined) {
-        saveMod(dogId, { base_fit_score: dog.fit_score || 0 });
-      }
-      const newScore = Math.max(0, baseScore + newMod);
-      saveMod(dogId, { score_modifier: newMod, fit_score: newScore });
+      const mod = localMods[dogId]?.score_modifier || 0;
+      saveMod(dogId, { score_modifier: mod + delta });
       renderDogs();
       updateStats();
-      showToast('Score adjusted to ' + newScore);
     }
     
     function openEdit(dogId) {
       const dog = dogsData.find(d => d.dog_id === dogId);
       if (!dog) return;
+      
       document.getElementById('editDogId').value = dogId;
-      document.getElementById('editName').value = dog.dog_name || '';
       document.getElementById('editWeight').value = dog.weight || '';
       document.getElementById('editAge').value = dog.age_range || '';
-      document.getElementById('editEnergy').value = dog.energy_level || 'Unknown';
-      document.getElementById('editShedding').value = dog.shedding || 'Unknown';
-      document.getElementById('editGoodDogs').value = dog.good_with_dogs || 'Unknown';
-      document.getElementById('editGoodKids').value = dog.good_with_kids || 'Unknown';
-      document.getElementById('editGoodCats').value = dog.good_with_cats || 'Unknown';
-      document.getElementById('editSpecialNeeds').value = dog.special_needs || 'No';
+      document.getElementById('editEnergy').value = dog.energy_level || '';
+      document.getElementById('editShedding').value = dog.shedding || '';
+      document.getElementById('editDogs').value = dog.good_with_dogs || 'Unknown';
+      document.getElementById('editKids').value = dog.good_with_kids || 'Unknown';
+      document.getElementById('editCats').value = dog.good_with_cats || 'Unknown';
+      document.getElementById('editSpecialNeeds').value = dog.special_needs || '';
       document.getElementById('editNotes').value = dog.notes || '';
+      
       document.getElementById('editModal').classList.add('active');
     }
     
-    function closeModal() {
+    function closeEdit() {
       document.getElementById('editModal').classList.remove('active');
     }
     
-    document.getElementById('editForm').addEventListener('submit', function(e) {
-      e.preventDefault();
+    function saveEdit() {
       const dogId = document.getElementById('editDogId').value;
-      const changes = {
+      const updates = {
         weight: parseInt(document.getElementById('editWeight').value) || null,
         age_range: document.getElementById('editAge').value,
         energy_level: document.getElementById('editEnergy').value,
         shedding: document.getElementById('editShedding').value,
-        good_with_dogs: document.getElementById('editGoodDogs').value,
-        good_with_kids: document.getElementById('editGoodKids').value,
-        good_with_cats: document.getElementById('editGoodCats').value,
+        good_with_dogs: document.getElementById('editDogs').value,
+        good_with_kids: document.getElementById('editKids').value,
+        good_with_cats: document.getElementById('editCats').value,
         special_needs: document.getElementById('editSpecialNeeds').value,
         notes: document.getElementById('editNotes').value
       };
-      changes.fit_score = calculateFitScore(dogId, changes);
-      saveMod(dogId, changes);
-      closeModal();
+      
+      saveMod(dogId, updates);
+      
+      const dog = dogsData.find(d => d.dog_id === dogId);
+      if (dog) {
+        Object.assign(dog, updates);
+        const mod = localMods[dogId]?.score_modifier || 0;
+        dog.fit_score = Math.max(0, calculateFitScore(dog) + mod);
+      }
+      
+      closeEdit();
       renderDogs();
       updateStats();
-      showToast('✅ Changes saved!');
-    });
-    
-    function calculateFitScore(dogId, changes) {
-      const dog = dogsData.find(d => d.dog_id === dogId);
-      if (!dog) return 0;
-      let score = 0;
-      const data = { ...dog, ...changes };
-      if (data.weight && data.weight >= 40) score += 2;
-      if (data.shedding === 'None') score += 2;
-      else if (data.shedding === 'Low') score += 1;
-      else if (data.shedding === 'High') score -= 1;
-      else if (data.shedding === 'Unknown') score += 1;
-      if (data.energy_level === 'Low' || data.energy_level === 'Medium') score += 2;
-      else if (data.energy_level === 'Unknown') score += 1;
-      if (data.good_with_dogs === 'Yes') score += 2;
-      if (data.good_with_kids === 'Yes') score += 1;
-      if (data.good_with_cats === 'Yes') score += 1;
-      const breed = (data.breed || '').toLowerCase();
-      if (breed.includes('doodle') || breed.includes('poodle') || breed.includes('poo')) score += 1;
-      if (data.special_needs === 'Yes') score -= 1;
-      if (data.status === 'Pending') score -= 2;
-      const mod = localMods[dogId]?.score_modifier || 0;
-      return Math.max(0, score + mod);
+      showToast('✅ Changes saved');
     }
     
-    function showToast(message, isError = false) {
-      const toast = document.createElement('div');
-      toast.className = 'toast' + (isError ? ' error' : '');
-      toast.textContent = message;
-      document.body.appendChild(toast);
-      setTimeout(() => toast.remove(), 3000);
+    // Acknowledge a change
+    function ackChange(changeId) {
+      ackedChanges[changeId] = true;
+      localStorage.setItem('ackedChanges', JSON.stringify(ackedChanges));
+      renderChanges();
     }
+    
+    function renderChanges() {
+      const container = document.getElementById('changesContainer');
+      
+      // Filter out acknowledged changes
+      const visibleChanges = changesData.filter(c => !ackedChanges[c.id]);
+      
+      document.getElementById('changesCount').textContent = 
+        visibleChanges.length > 0 ? `${visibleChanges.length} unacknowledged` : 'All caught up!';
+      
+      if (changesData.length === 0) {
+        container.innerHTML = '<div class="change-item"><span class="change-msg">No recent changes</span></div>';
+        return;
+      }
+      
+      container.innerHTML = changesData.map(change => {
+        const isAcked = ackedChanges[change.id];
+        const changeType = change.change_type || '';
+        const dogName = change.dog_name || 'Unknown';
+        const oldVal = change.old_value || '';
+        const newVal = change.new_value || '';
+        const timestamp = change.timestamp || '';
+        const imageUrl = change.image_url || '';
+        
+        let timeStr = '?';
+        try {
+          const dt = new Date(timestamp);
+          timeStr = dt.toLocaleDateString('en-US', { month: 'numeric', day: 'numeric' }) + ' ' + 
+                   dt.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+        } catch(e) {}
+        
+        let icon = '📝';
+        let msg = 'Updated';
+        
+        if (changeType === 'new_dog') {
+          icon = '🆕';
+          msg = 'New dog listed';
+        } else if (changeType === 'status_change') {
+          if ((newVal || '').toLowerCase().includes('pending')) {
+            icon = '⏳';
+            msg = 'Now pending';
+          } else if ((newVal || '').toLowerCase().includes('available')) {
+            icon = '✅';
+            msg = 'Now available';
+          } else {
+            icon = '📢';
+            msg = `${oldVal} → ${newVal}`;
+          }
+        }
+        
+        const thumbHtml = imageUrl 
+          ? `<img src="${imageUrl}" class="change-thumb" onerror="this.style.display='none'">`
+          : '';
+        
+        return `
+          <div class="change-item ${isAcked ? 'acknowledged' : ''}">
+            ${thumbHtml}
+            <span class="change-icon">${icon}</span>
+            <div class="change-details">
+              <div class="change-dog">${dogName}</div>
+              <div class="change-msg">${msg}</div>
+            </div>
+            <span class="change-time">${timeStr}</span>
+            <button class="ack-btn ${isAcked ? 'acked' : ''}" onclick="ackChange(${change.id})">
+              ${isAcked ? '✓' : 'Ack'}
+            </button>
+          </div>
+        `;
+      }).join('');
+    }
+    
+    let currentFilter = 'all';
+    let searchTerm = '';
+    let sortBy = 'fit-desc';
     
     function renderDogs() {
       const grid = document.getElementById('dogGrid');
-      const searchTerm = document.getElementById('searchBox').value.toLowerCase();
-      const activeFilter = document.querySelector('.filter-btn.active').dataset.filter;
-      const sortBy = document.getElementById('sortSelect').value;
       
       let filtered = dogsData.filter(dog => {
-        const searchMatch = !searchTerm || 
-          (dog.dog_name || '').toLowerCase().includes(searchTerm) ||
-          (dog.breed || '').toLowerCase().includes(searchTerm) ||
-          (dog.rescue_name || '').toLowerCase().includes(searchTerm);
-        if (!searchMatch) return false;
-        switch (activeFilter) {
+        if (searchTerm) {
+          const search = searchTerm.toLowerCase();
+          const matches = (dog.dog_name || '').toLowerCase().includes(search) ||
+                         (dog.breed || '').toLowerCase().includes(search) ||
+                         (dog.rescue_name || '').toLowerCase().includes(search);
+          if (!matches) return false;
+        }
+        
+        switch(currentFilter) {
           case 'watched': return dog.watch_list === 'Yes';
           case 'high-fit': return (dog.fit_score || 0) >= 5;
-          case 'available': return dog.status === 'Available';
-          case 'upcoming': return dog.status === 'Upcoming';
+          case 'available': return (dog.status || '').toLowerCase() === 'available';
+          case 'upcoming': return (dog.status || '').toLowerCase() === 'upcoming';
           default: return true;
         }
       });
@@ -837,18 +768,26 @@
       const modDisplay = mod !== 0 ? '(' + (mod > 0 ? '+' : '') + mod + ')' : '';
       const valueClass = (val) => val === 'Yes' ? 'good' : val === 'No' ? 'bad' : 'unknown';
       const url = dog.source_url || '#';
+      const imageUrl = dog.image_url || '';
       const dogId = dog.dog_id;
       
       const card = document.createElement('div');
       card.className = 'dog-card' + (isWatched ? ' watched' : '') + (statusClass === 'pending' ? ' pending' : '');
       
+      const imageHtml = imageUrl 
+        ? `<img src="${imageUrl}" class="dog-image" onerror="this.outerHTML='<div class=\'dog-image-placeholder\'>🐕</div>'">`
+        : '<div class="dog-image-placeholder">🐕</div>';
+      
       card.innerHTML = `
         <div class="dog-header">
-          <div>
-            <div class="dog-name">${dog.dog_name || 'Unknown'}</div>
+          ${imageHtml}
+          <div class="dog-info">
+            <div class="dog-name-row">
+              <div class="dog-name">${dog.dog_name || 'Unknown'}</div>
+              <button class="star-btn ${isWatched ? 'starred' : ''}" data-action="watch" data-id="${dogId}">${isWatched ? '★' : '☆'}</button>
+            </div>
             <div class="dog-rescue">${dog.rescue_name || 'Unknown Rescue'}</div>
           </div>
-          <button class="star-btn ${isWatched ? 'starred' : ''}" data-action="watch" data-id="${dogId}">${isWatched ? '★' : '☆'}</button>
         </div>
         <div class="dog-score">
           <div class="score-display ${scoreClass}">${dog.fit_score || 0}</div>
@@ -869,7 +808,7 @@
           <div class="detail"><span class="detail-label">Cats</span><span class="detail-value ${valueClass(dog.good_with_cats)}">${dog.good_with_cats || '?'}</span></div>
           <div class="detail"><span class="detail-label">Shedding</span><span class="detail-value">${dog.shedding || '?'}</span></div>
         </div>
-        ${dog.notes ? '<div style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 10px;">📝 ' + dog.notes + '</div>' : ''}
+        ${dog.notes ? '<div style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 10px;">📝 ' + dog.notes.substring(0, 100) + (dog.notes.length > 100 ? '...' : '') + '</div>' : ''}
         <a href="${url}" target="_blank" class="dog-link">🔗 View on rescue site</a>
         <div class="dog-actions">
           <button class="action-btn" data-action="edit" data-id="${dogId}">✏️ Edit</button>
@@ -901,59 +840,86 @@
     }
     
     function exportMods() {
-      const data = JSON.stringify(localMods, null, 2);
+      const data = JSON.stringify({ mods: localMods, acked: ackedChanges }, null, 2);
       const blob = new Blob([data], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = 'dog-dashboard-changes.json';
+      a.download = 'dog-dashboard-data.json';
       a.click();
-      URL.revokeObjectURL(url);
-      showToast('✅ Changes exported!');
+      showToast('📤 Exported changes');
     }
     
     function importMods(event) {
       const file = event.target.files[0];
       if (!file) return;
+      
       const reader = new FileReader();
       reader.onload = function(e) {
         try {
-          const imported = JSON.parse(e.target.result);
-          Object.assign(localMods, imported);
-          localStorage.setItem('dogMods', JSON.stringify(localMods));
+          const data = JSON.parse(e.target.result);
+          if (data.mods) {
+            localMods = data.mods;
+            localStorage.setItem('dogMods', JSON.stringify(localMods));
+          }
+          if (data.acked) {
+            ackedChanges = data.acked;
+            localStorage.setItem('ackedChanges', JSON.stringify(ackedChanges));
+          }
           applyLocalMods();
           renderDogs();
+          renderChanges();
           updateStats();
-          showToast('✅ Changes imported!');
-        } catch (err) {
-          showToast('❌ Invalid file', true);
+          showToast('📥 Imported changes');
+        } catch(err) {
+          showToast('❌ Invalid file format');
         }
       };
       reader.readAsText(file);
     }
     
     function clearMods() {
-      if (confirm('Are you sure you want to clear all your changes? This cannot be undone.')) {
+      if (confirm('Clear all local changes? This cannot be undone.')) {
         localMods = {};
+        ackedChanges = {};
         localStorage.removeItem('dogMods');
+        localStorage.removeItem('ackedChanges');
         location.reload();
       }
     }
     
-    document.getElementById('searchBox').addEventListener('input', renderDogs);
-    document.getElementById('sortSelect').addEventListener('change', renderDogs);
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      toast.textContent = msg;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+    
+    // Filter buttons
     document.querySelectorAll('.filter-btn').forEach(btn => {
-      btn.addEventListener('click', function() {
+      btn.addEventListener('click', () => {
         document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-        this.classList.add('active');
+        btn.classList.add('active');
+        currentFilter = btn.dataset.filter;
         renderDogs();
       });
     });
-    document.getElementById('editModal').addEventListener('click', function(e) {
-      if (e.target === this) closeModal();
+    
+    // Search
+    document.getElementById('searchBox').addEventListener('input', (e) => {
+      searchTerm = e.target.value;
+      renderDogs();
     });
     
+    // Sort
+    document.getElementById('sortSelect').addEventListener('change', (e) => {
+      sortBy = e.target.value;
+      renderDogs();
+    });
+    
+    // Initialize
     applyLocalMods();
+    renderChanges();
     renderDogs();
     updateStats();
   </script>
