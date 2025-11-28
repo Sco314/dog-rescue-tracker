@@ -55,57 +55,9 @@ def get_dashboard_data():
 
 
 def generate_changes_html(changes):
-  """Generate HTML for recent changes"""
-  if not changes:
-    return '<div class="change-item"><span class="change-msg">No recent changes</span></div>'
-  
-  html_parts = []
-  for change in changes[:20]:
-    change_type = change.get('change_type', '')
-    dog_name = change.get('dog_name', 'Unknown')
-    old_val = change.get('old_value', '')
-    new_val = change.get('new_value', '')
-    timestamp = change.get('timestamp', '')
-    
-    try:
-      dt = datetime.fromisoformat(timestamp)
-      time_str = dt.strftime('%m/%d %H:%M')
-    except:
-      time_str = timestamp[:16] if timestamp else '?'
-    
-    if change_type == 'new_dog':
-      icon = '🆕'
-      msg = 'New dog listed'
-    elif change_type == 'status_change':
-      if 'pending' in (new_val or '').lower():
-        icon = '⏳'
-        msg = f'{old_val} → Pending'
-      elif 'available' in (new_val or '').lower():
-        icon = '✅'
-        msg = f'{old_val} → Available'
-      elif 'adopted' in (new_val or '').lower():
-        icon = '🏠'
-        msg = f'Adopted/Removed'
-      else:
-        icon = '🔄'
-        msg = f'{old_val} → {new_val}'
-    else:
-      icon = '📝'
-      field = change.get('field_changed', '')
-      msg = f'{field}: {old_val} → {new_val}'
-    
-    html_parts.append(f'''
-      <div class="change-item">
-        <span class="change-icon">{icon}</span>
-        <div class="change-details">
-          <div class="change-dog">{dog_name}</div>
-          <div class="change-msg">{msg}</div>
-        </div>
-        <span class="change-time">{time_str}</span>
-      </div>
-    ''')
-  
-  return ''.join(html_parts)
+  """Generate HTML for recent changes - now just a placeholder, JS will render"""
+  # We'll render changes dynamically in JS to support acknowledge feature
+  return '<!-- Changes rendered by JavaScript -->'
 
 
 def generate_html_dashboard(output_path="dashboard.html"):
@@ -236,8 +188,7 @@ def generate_html_dashboard(output_path="dashboard.html"):
     .dog-card.watched { border: 2px solid var(--star); }
     .dog-card.pending { opacity: 0.7; }
     .dog-image {
-      width: 100%;
-      height: 200px;
+      height: 180px;
       border-radius: 8px 8px 0 0;
       margin: -20px -20px 15px -20px;
       width: calc(100% + 40px);
@@ -251,10 +202,15 @@ def generate_html_dashboard(output_path="dashboard.html"):
       width: 100%;
       height: 100%;
       object-fit: cover;
+      object-position: center top;
     }
     .dog-image-placeholder {
-      font-size: 4rem;
+      font-size: 3rem;
       color: var(--text-secondary);
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
     .dog-header {
       display: flex;
@@ -471,19 +427,35 @@ def generate_html_dashboard(output_path="dashboard.html"):
       min-height: 20px;
       font-size: 0.875rem;
     }
-    .changes-list { max-height: 300px; overflow-y: auto; }
+    .changes-list { max-height: 120px; overflow-y: auto; }
     .change-item {
       display: flex;
       align-items: center;
-      gap: 10px;
-      padding: 10px;
+      gap: 8px;
+      padding: 6px 10px;
       border-bottom: 1px solid #374151;
+      font-size: 0.85rem;
     }
-    .change-icon { font-size: 1.25rem; }
-    .change-details { flex: 1; }
-    .change-dog { font-weight: 500; }
-    .change-msg { font-size: 0.875rem; color: var(--text-secondary); }
-    .change-time { font-size: 0.75rem; color: var(--text-secondary); }
+    .change-icon { font-size: 1rem; }
+    .change-details { flex: 1; min-width: 0; }
+    .change-dog { font-weight: 500; font-size: 0.85rem; }
+    .change-msg { font-size: 0.75rem; color: var(--text-secondary); }
+    .change-time { font-size: 0.7rem; color: var(--text-secondary); white-space: nowrap; }
+    .change-ack-btn {
+      background: none;
+      border: 1px solid #374151;
+      border-radius: 4px;
+      color: var(--text-secondary);
+      cursor: pointer;
+      padding: 2px 6px;
+      font-size: 0.7rem;
+      transition: all 0.2s;
+    }
+    .change-ack-btn:hover {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: white;
+    }
     .toast {
       position: fixed;
       bottom: 20px;
@@ -722,27 +694,111 @@ def generate_html_dashboard(output_path="dashboard.html"):
     </div>
   </div>
   
-  <!-- GitHub Token Config Modal -->
+  <!-- Settings Modal -->
   <div class="modal" id="configModal">
-    <div class="modal-content" style="max-width: 450px;">
+    <div class="modal-content" style="max-width: 550px; max-height: 85vh; overflow-y: auto;">
       <div class="modal-header">
-        <h3 class="modal-title">⚙️ Setup GitHub Sync</h3>
+        <h3 class="modal-title">⚙️ Settings</h3>
         <button class="modal-close" onclick="closeConfigModal()">&times;</button>
       </div>
-      <p style="color: var(--text-secondary); margin-bottom: 15px; font-size: 0.9rem;">
-        To save changes across devices, enter your GitHub Personal Access Token. 
-        This is stored in your browser only.
-      </p>
-      <div class="form-group">
-        <label class="form-label">GitHub Token</label>
-        <input type="password" class="form-input" id="githubTokenInput" placeholder="ghp_xxxxxxxxxxxx">
+      
+      <!-- GitHub Token Section -->
+      <div style="margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid #374151;">
+        <h4 style="margin-bottom: 10px; color: var(--accent);">🔗 GitHub Sync</h4>
+        <div class="form-group">
+          <label class="form-label">GitHub Token</label>
+          <input type="password" class="form-input" id="githubTokenInput" placeholder="ghp_xxxxxxxxxxxx">
+        </div>
+        <p style="color: var(--text-secondary); font-size: 0.7rem;">
+          Fine-grained token with Contents (Read/write) permission for Sco314/dog-rescue-tracker
+        </p>
       </div>
-      <p style="color: var(--text-secondary); font-size: 0.75rem; margin-bottom: 15px;">
-        Create a fine-grained token at GitHub → Settings → Developer settings → Personal access tokens.<br>
-        Repository access: Sco314/dog-rescue-tracker only<br>
-        Permissions: Contents (Read and write)
-      </p>
-      <button class="save-btn" onclick="saveGitHubToken()">💾 Save Token</button>
+      
+      <!-- Scoring Config Section -->
+      <div>
+        <h4 style="margin-bottom: 15px; color: var(--accent);">📊 Scoring Configuration</h4>
+        <p style="color: var(--text-secondary); font-size: 0.8rem; margin-bottom: 15px;">
+          Adjust point values for each attribute. Changes apply to all dogs.
+        </p>
+        
+        <div class="form-row" style="margin-bottom: 10px;">
+          <div class="form-group">
+            <label class="form-label">Weight ≥40 lbs</label>
+            <input type="number" class="form-input" id="cfgWeight40" value="2" style="width: 70px;">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Doodle/Poodle Breed</label>
+            <input type="number" class="form-input" id="cfgDoodle" value="1" style="width: 70px;">
+          </div>
+        </div>
+        
+        <div style="margin-bottom: 15px;">
+          <label class="form-label" style="margin-bottom: 8px; display: block;">Age Points</label>
+          <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+            <div style="text-align: center;">
+              <div style="font-size: 0.7rem; color: var(--text-secondary);">1-2 yrs</div>
+              <input type="number" class="form-input" id="cfgAgeSweet" value="2" style="width: 50px; text-align: center;">
+            </div>
+            <div style="text-align: center;">
+              <div style="font-size: 0.7rem; color: var(--text-secondary);">2-4 yrs</div>
+              <input type="number" class="form-input" id="cfgAgeGood" value="1" style="width: 50px; text-align: center;">
+            </div>
+            <div style="text-align: center;">
+              <div style="font-size: 0.7rem; color: var(--text-secondary);">6+ yrs</div>
+              <input type="number" class="form-input" id="cfgAgeSenior" value="-4" style="width: 50px; text-align: center;">
+            </div>
+          </div>
+        </div>
+        
+        <div style="margin-bottom: 15px;">
+          <label class="form-label" style="margin-bottom: 8px; display: block;">Shedding Points</label>
+          <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+            <div style="text-align: center;">
+              <div style="font-size: 0.7rem; color: var(--text-secondary);">None</div>
+              <input type="number" class="form-input" id="cfgSheddingNone" value="2" style="width: 50px; text-align: center;">
+            </div>
+            <div style="text-align: center;">
+              <div style="font-size: 0.7rem; color: var(--text-secondary);">Low</div>
+              <input type="number" class="form-input" id="cfgSheddingLow" value="1" style="width: 50px; text-align: center;">
+            </div>
+            <div style="text-align: center;">
+              <div style="font-size: 0.7rem; color: var(--text-secondary);">High</div>
+              <input type="number" class="form-input" id="cfgSheddingHigh" value="-1" style="width: 50px; text-align: center;">
+            </div>
+          </div>
+        </div>
+        
+        <div class="form-row" style="margin-bottom: 10px;">
+          <div class="form-group">
+            <label class="form-label">Low/Med Energy</label>
+            <input type="number" class="form-input" id="cfgEnergyLowMed" value="2" style="width: 70px;">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Special Needs</label>
+            <input type="number" class="form-input" id="cfgSpecialNeeds" value="-1" style="width: 70px;">
+          </div>
+        </div>
+        
+        <div style="margin-bottom: 15px;">
+          <label class="form-label" style="margin-bottom: 8px; display: block;">Good With...</label>
+          <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+            <div style="text-align: center;">
+              <div style="font-size: 0.7rem; color: var(--text-secondary);">Dogs</div>
+              <input type="number" class="form-input" id="cfgGoodDogs" value="2" style="width: 50px; text-align: center;">
+            </div>
+            <div style="text-align: center;">
+              <div style="font-size: 0.7rem; color: var(--text-secondary);">Kids</div>
+              <input type="number" class="form-input" id="cfgGoodKids" value="1" style="width: 50px; text-align: center;">
+            </div>
+            <div style="text-align: center;">
+              <div style="font-size: 0.7rem; color: var(--text-secondary);">Cats</div>
+              <input type="number" class="form-input" id="cfgGoodCats" value="1" style="width: 50px; text-align: center;">
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <button class="save-btn" onclick="saveConfig()">💾 Save All Settings</button>
     </div>
   </div>
   
@@ -761,9 +817,32 @@ def generate_html_dashboard(output_path="dashboard.html"):
     // DATA
     // ===========================================
     let dogsData = ''' + json.dumps(data['dogs'], default=str) + ''';
+    let changesData = ''' + json.dumps(data['changes'], default=str) + ''';
     
     // User overrides (loaded from GitHub)
-    let userOverrides = { dogs: {} };
+    let userOverrides = { 
+      dogs: {},
+      acknowledgedChanges: [],
+      scoringConfig: {
+        weight40Plus: 2,
+        ageSweet: 2,
+        ageGood: 1,
+        ageNeutral: 0,
+        ageOlder: -1,
+        ageSenior: -4,
+        sheddingNone: 2,
+        sheddingLow: 1,
+        sheddingHigh: -1,
+        sheddingUnknown: 1,
+        energyLowMed: 2,
+        energyUnknown: 1,
+        goodWithDogs: 2,
+        goodWithKids: 1,
+        goodWithCats: 1,
+        doodleBreed: 1,
+        specialNeeds: -1
+      }
+    };
     let overridesFileSha = null; // Needed for GitHub updates
     let isSaving = false;
     
@@ -778,7 +857,13 @@ def generate_html_dashboard(output_path="dashboard.html"):
         let response = await fetch(pagesUrl);
         
         if (response.ok) {
-          userOverrides = await response.json();
+          const loaded = await response.json();
+          // Merge with defaults
+          userOverrides.dogs = loaded.dogs || {};
+          userOverrides.acknowledgedChanges = loaded.acknowledgedChanges || [];
+          if (loaded.scoringConfig) {
+            Object.assign(userOverrides.scoringConfig, loaded.scoringConfig);
+          }
           console.log('✅ Loaded overrides from GitHub Pages');
         } else {
           // Fallback to API
@@ -786,12 +871,18 @@ def generate_html_dashboard(output_path="dashboard.html"):
           if (response.ok) {
             const data = await response.json();
             overridesFileSha = data.sha;
-            userOverrides = JSON.parse(atob(data.content));
+            const loaded = JSON.parse(atob(data.content));
+            userOverrides.dogs = loaded.dogs || {};
+            userOverrides.acknowledgedChanges = loaded.acknowledgedChanges || [];
+            if (loaded.scoringConfig) {
+              Object.assign(userOverrides.scoringConfig, loaded.scoringConfig);
+            }
             console.log('✅ Loaded overrides from GitHub API');
           }
         }
         
         applyOverrides();
+        renderChanges();
       } catch (err) {
         console.log('ℹ️ No overrides file found or error loading:', err.message);
       }
@@ -907,11 +998,114 @@ def generate_html_dashboard(output_path="dashboard.html"):
     }
     
     // ===========================================
+    // RECENT CHANGES WITH ACKNOWLEDGE
+    // ===========================================
+    
+    function renderChanges() {
+      const container = document.getElementById('changesList');
+      const acknowledged = userOverrides.acknowledgedChanges || [];
+      
+      // Filter out acknowledged changes
+      const visibleChanges = changesData.filter(c => {
+        const changeKey = c.id || (c.dog_id + '_' + c.timestamp);
+        return !acknowledged.includes(changeKey);
+      });
+      
+      // Update badge count
+      const badge = document.querySelector('#changesSection .badge');
+      if (badge) badge.textContent = visibleChanges.length;
+      
+      if (visibleChanges.length === 0) {
+        container.innerHTML = '<div class="change-item"><span class="change-msg">No new changes</span></div>';
+        return;
+      }
+      
+      container.innerHTML = visibleChanges.slice(0, 20).map(change => {
+        const changeKey = change.id || (change.dog_id + '_' + change.timestamp);
+        const changeType = change.change_type || '';
+        const dogName = change.dog_name || 'Unknown';
+        const oldVal = change.old_value || '';
+        const newVal = change.new_value || '';
+        const timestamp = change.timestamp || '';
+        
+        let timeStr = '?';
+        try {
+          const dt = new Date(timestamp);
+          timeStr = (dt.getMonth()+1) + '/' + dt.getDate() + ' ' + dt.getHours() + ':' + String(dt.getMinutes()).padStart(2,'0');
+        } catch(e) {}
+        
+        let icon = '📝';
+        let msg = '';
+        if (changeType === 'new_dog') {
+          icon = '🆕';
+          msg = 'New dog listed';
+        } else if (changeType === 'status_change') {
+          if ((newVal || '').toLowerCase().includes('pending')) {
+            icon = '⏳';
+            msg = oldVal + ' → Pending';
+          } else if ((newVal || '').toLowerCase().includes('available')) {
+            icon = '✅';
+            msg = oldVal + ' → Available';
+          } else if ((newVal || '').toLowerCase().includes('adopted')) {
+            icon = '🏠';
+            msg = 'Adopted/Removed';
+          } else {
+            icon = '🔄';
+            msg = oldVal + ' → ' + newVal;
+          }
+        } else {
+          const field = change.field_changed || '';
+          msg = field + ': ' + oldVal + ' → ' + newVal;
+        }
+        
+        return '<div class="change-item">' +
+          '<span class="change-icon">' + icon + '</span>' +
+          '<div class="change-details">' +
+            '<div class="change-dog">' + dogName + '</div>' +
+            '<div class="change-msg">' + msg + '</div>' +
+          '</div>' +
+          '<span class="change-time">' + timeStr + '</span>' +
+          '<button class="change-ack-btn" onclick="acknowledgeChange(\'' + changeKey + '\')">✓</button>' +
+        '</div>';
+      }).join('');
+    }
+    
+    async function acknowledgeChange(changeKey) {
+      if (!userOverrides.acknowledgedChanges) {
+        userOverrides.acknowledgedChanges = [];
+      }
+      userOverrides.acknowledgedChanges.push(changeKey);
+      renderChanges();
+      await saveOverridesToGitHub();
+    }
+    
+    async function clearAcknowledged() {
+      userOverrides.acknowledgedChanges = [];
+      renderChanges();
+      await saveOverridesToGitHub();
+    }
+    
+    // ===========================================
     // CONFIG MODAL
     // ===========================================
     
     function openConfigModal() {
       document.getElementById('githubTokenInput').value = githubToken;
+      // Populate scoring config
+      const sc = userOverrides.scoringConfig;
+      document.getElementById('cfgWeight40').value = sc.weight40Plus;
+      document.getElementById('cfgAgeSweet').value = sc.ageSweet;
+      document.getElementById('cfgAgeGood').value = sc.ageGood;
+      document.getElementById('cfgAgeSenior').value = sc.ageSenior;
+      document.getElementById('cfgSheddingNone').value = sc.sheddingNone;
+      document.getElementById('cfgSheddingLow').value = sc.sheddingLow;
+      document.getElementById('cfgSheddingHigh').value = sc.sheddingHigh;
+      document.getElementById('cfgEnergyLowMed').value = sc.energyLowMed;
+      document.getElementById('cfgGoodDogs').value = sc.goodWithDogs;
+      document.getElementById('cfgGoodKids').value = sc.goodWithKids;
+      document.getElementById('cfgGoodCats').value = sc.goodWithCats;
+      document.getElementById('cfgDoodle').value = sc.doodleBreed;
+      document.getElementById('cfgSpecialNeeds').value = sc.specialNeeds;
       document.getElementById('configModal').classList.add('active');
     }
     
@@ -919,11 +1113,41 @@ def generate_html_dashboard(output_path="dashboard.html"):
       document.getElementById('configModal').classList.remove('active');
     }
     
-    function saveGitHubToken() {
+    async function saveConfig() {
       githubToken = document.getElementById('githubTokenInput').value.trim();
       localStorage.setItem('githubToken', githubToken);
+      
+      // Save scoring config
+      userOverrides.scoringConfig = {
+        weight40Plus: parseInt(document.getElementById('cfgWeight40').value) || 0,
+        ageSweet: parseInt(document.getElementById('cfgAgeSweet').value) || 0,
+        ageGood: parseInt(document.getElementById('cfgAgeGood').value) || 0,
+        ageNeutral: 0,
+        ageOlder: -1,
+        ageSenior: parseInt(document.getElementById('cfgAgeSenior').value) || 0,
+        sheddingNone: parseInt(document.getElementById('cfgSheddingNone').value) || 0,
+        sheddingLow: parseInt(document.getElementById('cfgSheddingLow').value) || 0,
+        sheddingHigh: parseInt(document.getElementById('cfgSheddingHigh').value) || 0,
+        sheddingUnknown: 1,
+        energyLowMed: parseInt(document.getElementById('cfgEnergyLowMed').value) || 0,
+        energyUnknown: 1,
+        goodWithDogs: parseInt(document.getElementById('cfgGoodDogs').value) || 0,
+        goodWithKids: parseInt(document.getElementById('cfgGoodKids').value) || 0,
+        goodWithCats: parseInt(document.getElementById('cfgGoodCats').value) || 0,
+        doodleBreed: parseInt(document.getElementById('cfgDoodle').value) || 0,
+        specialNeeds: parseInt(document.getElementById('cfgSpecialNeeds').value) || 0
+      };
+      
+      // Recalculate all dog scores with new config
+      dogsData.forEach(dog => {
+        dog.fit_score = calculateFitScoreFromDog(dog);
+      });
+      
+      await saveOverridesToGitHub();
       closeConfigModal();
-      showToast('✅ Token saved!');
+      renderDogs();
+      updateStats();
+      showToast('✅ Settings saved!');
     }
     
     // ===========================================
@@ -968,41 +1192,80 @@ def generate_html_dashboard(output_path="dashboard.html"):
     }
     
     function calculateFitScoreFromDog(dog) {
+      const sc = userOverrides.scoringConfig;
       let score = 0;
       
-      // Weight (40+ = +2)
-      if (dog.weight && dog.weight >= 40) score += 2;
+      // Weight (40+ lbs)
+      if (dog.weight && dog.weight >= 40) score += sc.weight40Plus;
       
       // Age scoring
-      score += calculateAgeScore(dog.age_range || '');
+      score += calculateAgeScoreWithConfig(dog.age_range || '');
       
       // Shedding
       const shedding = dog.shedding || 'Unknown';
-      if (shedding === 'None') score += 2;
-      else if (shedding === 'Low') score += 1;
-      else if (shedding === 'High') score -= 1;
-      else if (shedding === 'Unknown') score += 1;
+      if (shedding === 'None') score += sc.sheddingNone;
+      else if (shedding === 'Low') score += sc.sheddingLow;
+      else if (shedding === 'High') score += sc.sheddingHigh;
+      else if (shedding === 'Unknown') score += sc.sheddingUnknown;
       
       // Energy
       const energy = dog.energy_level || 'Unknown';
-      if (energy === 'Low' || energy === 'Medium') score += 2;
-      else if (energy === 'Unknown') score += 1;
+      if (energy === 'Low' || energy === 'Medium') score += sc.energyLowMed;
+      else if (energy === 'Unknown') score += sc.energyUnknown;
       
       // Compatibility
-      if (dog.good_with_dogs === 'Yes') score += 2;
-      if (dog.good_with_kids === 'Yes') score += 1;
-      if (dog.good_with_cats === 'Yes') score += 1;
+      if (dog.good_with_dogs === 'Yes') score += sc.goodWithDogs;
+      if (dog.good_with_kids === 'Yes') score += sc.goodWithKids;
+      if (dog.good_with_cats === 'Yes') score += sc.goodWithCats;
       
       // Breed bonus
       const breed = (dog.breed || '').toLowerCase();
-      if (breed.includes('doodle') || breed.includes('poodle') || breed.includes('poo')) score += 1;
+      if (breed.includes('doodle') || breed.includes('poodle') || breed.includes('poo')) score += sc.doodleBreed;
       
       // Special needs
-      if (dog.special_needs === 'Yes') score -= 1;
+      if (dog.special_needs === 'Yes') score += sc.specialNeeds;
       
       // Manual modifier
       const mod = dog.score_modifier || 0;
       return Math.max(0, score + mod);
+    }
+    
+    function calculateAgeScoreWithConfig(ageStr) {
+      const sc = userOverrides.scoringConfig;
+      const years = parseAgeToYears(ageStr);
+      if (years === null) return 0;
+      
+      if (years < 0.75) return 0;
+      if (years < 2.0) return sc.ageSweet;
+      if (years < 4.0) return sc.ageGood;
+      if (years < 6.0) return sc.ageNeutral || 0;
+      return sc.ageSenior;
+    }
+    
+    function parseAgeToYears(ageStr) {
+      if (!ageStr) return null;
+      ageStr = ageStr.toLowerCase().replace(/[–—]/g, '-');
+      
+      // Range: "1-3 yrs" - take average
+      let match = ageStr.match(/(\\d+\\.?\\d*)\\s*-\\s*(\\d+\\.?\\d*)\\s*(yr|year|mo|month)/);
+      if (match) {
+        let min = parseFloat(match[1]);
+        let max = parseFloat(match[2]);
+        const unit = match[3];
+        if (unit.startsWith('mo')) { min /= 12; max /= 12; }
+        return (min + max) / 2;
+      }
+      
+      // Single: "2 yrs"
+      match = ageStr.match(/(\\d+\\.?\\d*)\\s*(yr|year|mo|month)/);
+      if (match) {
+        let age = parseFloat(match[1]);
+        const unit = match[2];
+        if (unit.startsWith('mo')) age /= 12;
+        return age;
+      }
+      
+      return null;
     }
     
     function openEdit(dogId) {
