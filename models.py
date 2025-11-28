@@ -13,8 +13,12 @@ class Dog:
   rescue_name: str
   breed: str = ""
   weight: Optional[int] = None  # in lbs
-  age_range: str = ""  # e.g., "2-3"
+  age_range: str = ""  # Raw age as scraped, e.g., "2-3 yrs", "8 mos"
   age_category: str = ""  # e.g., "Adult", "Puppy", "Senior"
+  age_years_min: Optional[float] = None  # Normalized age in years (lower bound)
+  age_years_max: Optional[float] = None  # Normalized age in years (upper bound)
+  age_is_range: bool = False  # True if age was given as a range
+  age_score: Optional[int] = None  # Calculated age score component
   sex: str = ""
   shedding: str = ""  # "None", "Low", "Moderate", "High"
   energy_level: str = ""  # "Low", "Medium", "High"
