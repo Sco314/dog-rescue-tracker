@@ -772,6 +772,7 @@ def generate_html_dashboard(output_path="dashboard.html"):
       const modDisplay = mod !== 0 ? '(' + (mod > 0 ? '+' : '') + mod + ')' : '';
       const valueClass = (val) => val === 'Yes' ? 'good' : val === 'No' ? 'bad' : 'unknown';
       const url = dog.source_url || '#';
+      const safeId = dog.dog_id.replace(/'/g, "\\'");
       
       return '<div class="dog-card ' + (isWatched ? 'watched' : '') + ' ' + (statusClass === 'pending' ? 'pending' : '') + '">' +
         '<div class="dog-header">' +
@@ -779,13 +780,13 @@ def generate_html_dashboard(output_path="dashboard.html"):
             '<div class="dog-name">' + (dog.dog_name || 'Unknown') + '</div>' +
             '<div class="dog-rescue">' + (dog.rescue_name || 'Unknown Rescue') + '</div>' +
           '</div>' +
-          '<button class="star-btn ' + (isWatched ? 'starred' : '') + '" onclick="toggleWatch(\'' + dog.dog_id + '\')">' + (isWatched ? '★' : '☆') + '</button>' +
+          '<button class="star-btn ' + (isWatched ? 'starred' : '') + '" onclick="toggleWatch(\x27' + safeId + '\x27)">' + (isWatched ? '★' : '☆') + '</button>' +
         '</div>' +
         '<div class="dog-score">' +
           '<div class="score-display ' + scoreClass + '">' + (dog.fit_score || 0) + '</div>' +
           '<div class="score-controls">' +
-            '<button class="score-btn" onclick="adjustScore(\'' + dog.dog_id + '\', 1)">+</button>' +
-            '<button class="score-btn" onclick="adjustScore(\'' + dog.dog_id + '\', -1)">−</button>' +
+            '<button class="score-btn" onclick="adjustScore(\x27' + safeId + '\x27, 1)">+</button>' +
+            '<button class="score-btn" onclick="adjustScore(\x27' + safeId + '\x27, -1)">−</button>' +
           '</div>' +
           '<div class="score-modifier">' + modDisplay + '</div>' +
           '<span class="dog-status status-' + statusClass + '">' + (dog.status || 'Unknown') + '</span>' +
@@ -803,7 +804,7 @@ def generate_html_dashboard(output_path="dashboard.html"):
         (dog.notes ? '<div style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 10px;">📝 ' + dog.notes + '</div>' : '') +
         '<a href="' + url + '" target="_blank" class="dog-link">🔗 View on rescue site</a>' +
         '<div class="dog-actions">' +
-          '<button class="action-btn" onclick="openEdit(\'' + dog.dog_id + '\')">✏️ Edit</button>' +
+          '<button class="action-btn" onclick="openEdit(\x27' + safeId + '\x27)">✏️ Edit</button>' +
         '</div>' +
       '</div>';
     }
