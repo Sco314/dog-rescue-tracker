@@ -1,6 +1,6 @@
 """
 SQLite database operations for dog rescue tracker
-v1.0.0 - Initial schema
+v2.0.0 - Enhanced date tracking
 """
 import sqlite3
 from typing import List, Optional, Dict, Any
@@ -56,6 +56,7 @@ def init_database():
       date_last_updated TEXT,
       date_status_changed TEXT,
       date_went_pending TEXT,
+      date_went_available TEXT,
       date_went_unavailable TEXT,
       is_active INTEGER DEFAULT 1
     )
@@ -110,6 +111,7 @@ def init_database():
   cursor.execute("CREATE INDEX IF NOT EXISTS idx_dogs_watch ON dogs(watch_list)")
   cursor.execute("CREATE INDEX IF NOT EXISTS idx_changes_dog ON changes(dog_id)")
   cursor.execute("CREATE INDEX IF NOT EXISTS idx_changes_type ON changes(change_type)")
+  cursor.execute("CREATE INDEX IF NOT EXISTS idx_changes_timestamp ON changes(timestamp)")
   
   conn.commit()
   conn.close()
@@ -237,6 +239,7 @@ def update_dog(dog: Dog) -> List[ChangeRecord]:
   ]
   
   status_changed = False
+  new_status = None
   
   for field, attr in tracked_fields:
     old_val = existing.get(field)
@@ -269,6 +272,7 @@ def update_dog(dog: Dog) -> List[ChangeRecord]:
       
       if field == "status":
         status_changed = True
+        new_status = new_str
         print(f"  📢 Status change: {dog.dog_name} | {old_str} → {new_str}")
         
         # Calculate days in previous status
@@ -323,9 +327,11 @@ def update_dog(dog: Dog) -> List[ChangeRecord]:
   
   if status_changed:
     update_fields["date_status_changed"] = now
-    if dog.status.lower() == "pending":
+    if new_status and new_status.lower() == "pending":
       update_fields["date_went_pending"] = now
-    elif dog.status.lower() in ["adopted", "unavailable"]:
+    elif new_status and new_status.lower() == "available":
+      update_fields["date_went_available"] = now
+    elif new_status and new_status.lower() in ["adopted", "unavailable", "adopted/removed"]:
       update_fields["date_went_unavailable"] = now
   
   set_clause = ", ".join([f"{k} = ?" for k in update_fields.keys()])
@@ -366,9 +372,9 @@ def mark_dogs_inactive(active_dog_ids: List[str], rescue_name: str) -> List[Chan
     # Mark as inactive/adopted
     cursor.execute("""
       UPDATE dogs SET is_active = 0, status = 'Adopted/Removed', 
-      date_went_unavailable = ?, date_last_updated = ?
+      date_went_unavailable = ?, date_last_updated = ?, date_status_changed = ?
       WHERE dog_id = ?
-    """, (now, now, row['dog_id']))
+    """, (now, now, now, row['dog_id']))
     
     change = ChangeRecord(
       dog_id=row['dog_id'],
@@ -386,6 +392,12 @@ def mark_dogs_inactive(active_dog_ids: List[str], rescue_name: str) -> List[Chan
       VALUES (?, ?, ?, ?, ?, ?, ?)
     """, (change.dog_id, change.dog_name, change.field_changed,
           change.old_value, change.new_value, change.change_type, change.timestamp))
+    
+    # Record in status history
+    cursor.execute("""
+      INSERT INTO status_history (dog_id, status, timestamp)
+      VALUES (?, ?, ?)
+    """, (row['dog_id'], "Adopted/Removed", now))
     
     print(f"  🏠 Likely adopted: {row['dog_name']}")
   
@@ -463,6 +475,70 @@ def mark_notified(change_ids: List[int]):
   conn.close()
 
 
+def get_recent_changes(hours: int = 48) -> List[Dict]:
+  """Get recent changes"""
+  conn = get_connection()
+  cursor = conn.cursor()
+  cursor.execute(f"""
+    SELECT c.*, d.fit_score, d.watch_list, d.breed, d.weight, d.rescue_name
+    FROM changes c
+    LEFT JOIN dogs d ON c.dog_id = d.dog_id
+    WHERE c.timestamp > datetime('now', '-{hours} hours')
+    ORDER BY c.timestamp DESC
+  """)
+  rows = cursor.fetchall()
+  conn.close()
+  return [dict(row) for row in rows]
+
+
 # Initialize on import
 if __name__ == "__main__":
   init_database()
+```
+
+---
+
+## Summary of what to update:
+
+| File | Action |
+|------|--------|
+| `scraper.py` | Replace entire file |
+| `database.py` | Replace entire file |
+
+---
+
+## What you'll see now:
+```
+============================================================
+🐕 DOG RESCUE TRACKER - Current Status
+   Report generated: 2025-11-27 18:30:00
+============================================================
+
+📢 RECENT CHANGES (last 48 hours)
+------------------------------------------------------------
+  🆕  Skipper (Fit: 5) [11/27 14:00]
+       NEW DOG LISTED
+  ⏳ ⭐ Drizzle (Fit: 6) [11/27 10:30]
+       Status: Available → PENDING
+  ✅  Wilson (Fit: 5) [11/26 22:15]
+       Status: Upcoming → AVAILABLE
+
+🔔 WATCH LIST (2 dogs)
+------------------------------------------------------------
+
+  🐕 Skipper
+     Rescue:      Doodle Dandy Rescue
+     Status:      Upcoming (since 2025-11-27)
+     Fit Score:   5
+     Breed:       Goldendoodle
+     Weight:      60 lbs
+     Age:         8 mos (Puppy)
+     Sex:         Male
+     Energy:      High
+     Shedding:    Low
+     Good w/Dogs: Unknown
+     Good w/Kids: Unknown
+     Good w/Cats: Unknown
+     Location:    HOU
+     First Seen:  2025-11-27
+     Last Update: 2025-11-27 14:00
