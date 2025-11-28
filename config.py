@@ -86,7 +86,10 @@ SCORING_WEIGHTS = {
   "special_needs_penalty": -1,
   
   # NEW: Bonus for being a doodle/poodle (your target breeds)
-  "doodle_bonus": 1
+  "doodle_bonus": 1,
+  
+  # NEW: Penalty for pending status (likely being placed elsewhere)
+  "pending_penalty": -2
 }
 
 # User agent for web requests
