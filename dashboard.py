@@ -235,6 +235,27 @@ def generate_html_dashboard(output_path="dashboard.html"):
     }
     .dog-card.watched { border: 2px solid var(--star); }
     .dog-card.pending { opacity: 0.7; }
+    .dog-image {
+      width: 100%;
+      height: 200px;
+      border-radius: 8px 8px 0 0;
+      margin: -20px -20px 15px -20px;
+      width: calc(100% + 40px);
+      overflow: hidden;
+      background: var(--bg-secondary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .dog-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .dog-image-placeholder {
+      font-size: 4rem;
+      color: var(--text-secondary);
+    }
     .dog-header {
       display: flex;
       justify-content: space-between;
@@ -1245,11 +1266,13 @@ def generate_html_dashboard(output_path="dashboard.html"):
       const valueClass = (val) => val === 'Yes' ? 'good' : val === 'No' ? 'bad' : 'unknown';
       const url = dog.source_url || '#';
       const dogId = dog.dog_id;
+      const imageUrl = dog.image_url || '';
       
       const card = document.createElement('div');
       card.className = 'dog-card' + (isWatched ? ' watched' : '') + (statusClass === 'pending' ? ' pending' : '');
       
       card.innerHTML = `
+        ${imageUrl ? '<div class="dog-image"><img src="' + imageUrl + '" alt="' + (dog.dog_name || 'Dog') + '" onerror="this.parentElement.innerHTML=\\'🐕\\'"></div>' : '<div class="dog-image dog-image-placeholder">🐕</div>'}
         <div class="dog-header">
           <div>
             <div class="dog-name">${dog.dog_name || 'Unknown'}</div>
