@@ -163,8 +163,8 @@
       "fit_score": 6
     },
     "doo_charliemagne": {
-      "score_modifier": -3,
-      "fit_score": 2
+      "score_modifier": -4,
+      "fit_score": 1
     },
     "doo_fozzie": {
       "score_modifier": -1,
@@ -196,7 +196,7 @@
     "specialNeeds": -1
   },
   "_meta": {
-    "last_updated": "2025-11-29T01:47:15.359Z",
+    "last_updated": "2025-11-29T01:47:18.392Z",
     "version": "1.0"
   }
 }
