@@ -49,6 +49,10 @@
     "doo_clancy": {
       "score_modifier": -2,
       "fit_score": 4
+    },
+    "doo_austin": {
+      "score_modifier": -1,
+      "fit_score": 3
     }
   },
   "acknowledgedChanges": [],
@@ -72,7 +76,7 @@
     "specialNeeds": -1
   },
   "_meta": {
-    "last_updated": "2025-11-29T00:58:46.215Z",
+    "last_updated": "2025-11-29T00:58:51.115Z",
     "version": "1.0"
   }
 }
