@@ -157,6 +157,10 @@
       "notes": "",
       "score_modifier": -5,
       "fit_score": 3
+    },
+    "doo_freddy_faz": {
+      "score_modifier": 1,
+      "fit_score": 5
     }
   },
   "acknowledgedChanges": [],
@@ -180,7 +184,7 @@
     "specialNeeds": -1
   },
   "_meta": {
-    "last_updated": "2025-11-29T01:02:57.624Z",
+    "last_updated": "2025-11-29T01:46:54.691Z",
     "version": "1.0"
   }
 }
