@@ -70,8 +70,8 @@
       "notes": ""
     },
     "doo_liliana": {
-      "score_modifier": -4,
-      "fit_score": 2
+      "score_modifier": -5,
+      "fit_score": 1
     },
     "doo_clancy": {
       "score_modifier": -2,
@@ -128,7 +128,7 @@
     "specialNeeds": -1
   },
   "_meta": {
-    "last_updated": "2025-11-29T01:00:51.963Z",
+    "last_updated": "2025-11-29T01:00:55.153Z",
     "version": "1.0"
   }
 }
