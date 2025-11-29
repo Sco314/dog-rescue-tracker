@@ -81,8 +81,8 @@
       "fit_score": 2
     },
     "doo_river_summit": {
-      "score_modifier": -1,
-      "fit_score": 6
+      "score_modifier": -2,
+      "fit_score": 5
     }
   },
   "acknowledgedChanges": [],
@@ -106,7 +106,7 @@
     "specialNeeds": -1
   },
   "_meta": {
-    "last_updated": "2025-11-29T00:59:58.490Z",
+    "last_updated": "2025-11-29T00:59:59.946Z",
     "version": "1.0"
   }
 }
