@@ -107,8 +107,8 @@
       "fit_score": 4
     },
     "poo_happy_tails": {
-      "score_modifier": -1,
-      "fit_score": 2
+      "score_modifier": -2,
+      "fit_score": 1
     }
   },
   "acknowledgedChanges": [],
@@ -132,7 +132,7 @@
     "specialNeeds": -1
   },
   "_meta": {
-    "last_updated": "2025-11-29T01:01:21.254Z",
+    "last_updated": "2025-11-29T01:01:25.176Z",
     "version": "1.0"
   }
 }
