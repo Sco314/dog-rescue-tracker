@@ -247,8 +247,8 @@
       "fit_score": 4
     },
     "doo_alces": {
-      "score_modifier": -2,
-      "fit_score": 5
+      "score_modifier": -3,
+      "fit_score": 4
     },
     "doo_armadillo": {
       "score_modifier": -3,
@@ -287,7 +287,7 @@
     "specialNeeds": -1
   },
   "_meta": {
-    "last_updated": "2025-11-29T02:02:17.328Z",
+    "last_updated": "2025-11-29T02:02:18.143Z",
     "version": "1.0"
   }
 }
