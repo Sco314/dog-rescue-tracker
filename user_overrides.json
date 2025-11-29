@@ -202,6 +202,9 @@
     "doo_lucabrasi": {
       "score_modifier": -2,
       "fit_score": 2
+    },
+    "doo_gusty": {
+      "watch_list": "Yes"
     }
   },
   "acknowledgedChanges": [
@@ -232,7 +235,7 @@
     "specialNeeds": -1
   },
   "_meta": {
-    "last_updated": "2025-11-29T01:50:42.454Z",
+    "last_updated": "2025-11-29T01:53:57.646Z",
     "version": "1.0"
   }
 }
