@@ -219,7 +219,7 @@
     "ageNeutral": 0,
     "ageOlder": -1,
     "ageSenior": -4,
-    "sheddingNone": 2,
+    "sheddingNone": 3,
     "sheddingLow": 1,
     "sheddingHigh": -1,
     "sheddingUnknown": 1,
@@ -232,7 +232,7 @@
     "specialNeeds": -1
   },
   "_meta": {
-    "last_updated": "2025-11-29T01:50:06.545Z",
+    "last_updated": "2025-11-29T01:50:42.454Z",
     "version": "1.0"
   }
 }
