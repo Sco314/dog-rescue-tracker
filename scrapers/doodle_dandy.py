@@ -1,6 +1,9 @@
 """
 Scraper for Doodle Dandy Rescue (DFW/Houston/Austin/SA)
-v2.0.0 - Rewritten to properly parse Wix text structure
+v3.0.0 - Uses Playwright to handle "Load More" button for full dog listings
+
+The site is Wix-based and uses a "Load More" button to paginate dogs.
+This scraper uses Playwright to click the button and load all dogs.
 
 The site outputs dog info in a structured text format:
   Name
@@ -30,23 +33,39 @@ class DoodleDandyScraper(BaseScraper):
     """Scrape all dogs from Doodle Dandy Rescue"""
     dogs = []
     
+    # Determine if Playwright is available
+    use_playwright = self._playwright_available()
+    if use_playwright:
+      print("  🎭 Using Playwright for JS rendering + Load More handling")
+    else:
+      print("  ⚠️ Playwright not available - using basic fetch (may miss dogs behind Load More)")
+    
     # Available dogs
     available_url = self.config.get("available_url")
     if available_url:
       print(f"\n🐩 Scraping Doodle Dandy - Available Dogs")
-      dogs.extend(self._scrape_page(available_url, "Available"))
+      if use_playwright:
+        dogs.extend(self._scrape_with_playwright(available_url, "Available"))
+      else:
+        dogs.extend(self._scrape_page(available_url, "Available"))
     
     # Pending dogs
     pending_url = self.config.get("pending_url")
     if pending_url:
       print(f"\n🐩 Scraping Doodle Dandy - Pending Dogs")
-      dogs.extend(self._scrape_page(pending_url, "Pending"))
+      if use_playwright:
+        dogs.extend(self._scrape_with_playwright(pending_url, "Pending"))
+      else:
+        dogs.extend(self._scrape_page(pending_url, "Pending"))
     
     # Upcoming/foster dogs
     upcoming_url = self.config.get("upcoming_url")
     if upcoming_url:
       print(f"\n🐩 Scraping Doodle Dandy - Coming Soon")
-      dogs.extend(self._scrape_page(upcoming_url, "Upcoming"))
+      if use_playwright:
+        dogs.extend(self._scrape_with_playwright(upcoming_url, "Upcoming"))
+      else:
+        dogs.extend(self._scrape_page(upcoming_url, "Upcoming"))
     
     # Deduplicate by dog_id
     seen = set()
@@ -59,8 +78,111 @@ class DoodleDandyScraper(BaseScraper):
     print(f"  ✅ Found {len(unique_dogs)} unique dogs from Doodle Dandy")
     return unique_dogs
   
+  def _playwright_available(self) -> bool:
+    """Check if Playwright is available"""
+    try:
+      from playwright.sync_api import sync_playwright
+      return True
+    except ImportError:
+      return False
+  
+  def _scrape_with_playwright(self, url: str, status: str) -> List[Dog]:
+    """
+    Scrape using Playwright for full JS rendering and Load More button handling.
+    Clicks the Load More button repeatedly until all dogs are loaded.
+    """
+    dogs = []
+    
+    try:
+      from playwright.sync_api import sync_playwright
+      
+      with sync_playwright() as p:
+        # Launch browser
+        browser = p.chromium.launch(headless=True)
+        page = browser.new_page()
+        
+        print(f"  🔍 Fetching: {url}")
+        page.goto(url, wait_until="networkidle", timeout=60000)
+        
+        # Wait for initial content to load
+        page.wait_for_timeout(3000)
+        
+        # Click "Load More" button repeatedly until all dogs are loaded
+        load_more_clicks = 0
+        max_clicks = 20  # Safety limit
+        
+        while load_more_clicks < max_clicks:
+          # Look for Load More button - Wix uses various patterns
+          load_more_selectors = [
+            'button:has-text("Load More")',
+            'button:has-text("load more")',
+            'button:has-text("Show More")',
+            'button:has-text("show more")',
+            '[data-testid="load-more"]',
+            '.load-more-button',
+            'button[aria-label*="Load"]',
+            'button[aria-label*="load"]',
+            'span:has-text("Load More")',
+            'span:has-text("load more")',
+          ]
+          
+          button_found = False
+          for selector in load_more_selectors:
+            try:
+              button = page.locator(selector).first
+              if button.is_visible(timeout=1000):
+                # Scroll button into view
+                button.scroll_into_view_if_needed()
+                page.wait_for_timeout(500)
+                
+                # Click the button
+                button.click()
+                load_more_clicks += 1
+                print(f"    ↳ Clicked Load More (#{load_more_clicks})")
+                
+                # Wait for new content to load
+                page.wait_for_timeout(2000)
+                button_found = True
+                break
+            except Exception:
+              continue
+          
+          if not button_found:
+            # No more Load More button - all dogs loaded
+            print(f"    ↳ No more Load More button found - all content loaded")
+            break
+        
+        if load_more_clicks > 0:
+          print(f"    ✅ Clicked Load More {load_more_clicks} time(s)")
+        
+        # Scroll to ensure all lazy-loaded images are triggered
+        page.evaluate("window.scrollTo(0, document.body.scrollHeight)")
+        page.wait_for_timeout(1500)
+        page.evaluate("window.scrollTo(0, 0)")
+        page.wait_for_timeout(500)
+        
+        # Get final page content
+        html = page.content()
+        browser.close()
+        
+        # Parse with BeautifulSoup
+        soup = BeautifulSoup(html, "html.parser")
+        
+        # Extract images and parse dogs
+        image_urls = self._extract_images(soup, url)
+        text = soup.get_text(separator="\n", strip=True)
+        dogs = self._parse_dog_cards(text, status, image_urls)
+        
+    except Exception as e:
+      print(f"  ❌ Playwright error: {e}")
+      # Fallback to basic fetch
+      print(f"  ⚠️ Falling back to basic fetch")
+      dogs = self._scrape_page(url, status)
+    
+    return dogs
+  
   def _scrape_page(self, url: str, status: str) -> List[Dog]:
-    """Scrape a listing page"""
+    """Scrape a listing page (basic fetch - may miss Load More content)"""
     dogs = []
     soup = self.fetch_page(url)
     
