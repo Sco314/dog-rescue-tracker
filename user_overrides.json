@@ -27,8 +27,8 @@
       "good_with_cats": "Yes",
       "special_needs": "No",
       "notes": "",
-      "score_modifier": -3,
-      "fit_score": 1
+      "score_modifier": -4,
+      "fit_score": 0
     },
     "doo_kru": {
       "score_modifier": 2,
@@ -102,7 +102,7 @@
     "specialNeeds": -1
   },
   "_meta": {
-    "last_updated": "2025-11-29T00:59:37.294Z",
+    "last_updated": "2025-11-29T00:59:42.290Z",
     "version": "1.0"
   }
 }
