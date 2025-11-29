@@ -1065,7 +1065,7 @@ def generate_html_dashboard(output_path="dashboard.html"):
             '<div class="change-msg">' + msg + '</div>' +
           '</div>' +
           '<span class="change-time">' + timeStr + '</span>' +
-          '<button class="change-ack-btn" onclick="acknowledgeChange(\'' + changeKey + '\')">✓</button>' +
+          '<button class="change-ack-btn" data-ack="' + changeKey + '">✓</button>' +
         '</div>';
       }).join('');
     }
@@ -1084,6 +1084,14 @@ def generate_html_dashboard(output_path="dashboard.html"):
       renderChanges();
       await saveOverridesToGitHub();
     }
+    
+    // Event delegation for acknowledge buttons
+    document.getElementById('changesList').addEventListener('click', function(e) {
+      const btn = e.target.closest('button[data-ack]');
+      if (btn) {
+        acknowledgeChange(btn.dataset.ack);
+      }
+    });
     
     // ===========================================
     // CONFIG MODAL
