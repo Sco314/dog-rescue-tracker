@@ -259,8 +259,8 @@
       "fit_score": 4
     },
     "doo_susanna": {
-      "score_modifier": -1,
-      "fit_score": 1
+      "score_modifier": -2,
+      "fit_score": 0
     }
   },
   "acknowledgedChanges": [
@@ -291,7 +291,7 @@
     "specialNeeds": -1
   },
   "_meta": {
-    "last_updated": "2025-11-29T14:37:34.639Z",
+    "last_updated": "2025-11-29T14:37:37.986Z",
     "version": "1.0"
   }
 }
