@@ -60,8 +60,17 @@
       "fit_score": 4
     },
     "doo_austin": {
-      "score_modifier": -1,
-      "fit_score": 3
+      "score_modifier": -5,
+      "fit_score": 0,
+      "weight": null,
+      "age_range": "",
+      "energy_level": "Medium",
+      "shedding": "Low",
+      "good_with_dogs": "Unknown",
+      "good_with_kids": "Unknown",
+      "good_with_cats": "Unknown",
+      "special_needs": "No",
+      "notes": ""
     }
   },
   "acknowledgedChanges": [],
@@ -85,7 +94,7 @@
     "specialNeeds": -1
   },
   "_meta": {
-    "last_updated": "2025-11-29T00:58:59.699Z",
+    "last_updated": "2025-11-29T00:59:06.811Z",
     "version": "1.0"
   }
 }
