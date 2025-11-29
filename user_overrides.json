@@ -118,6 +118,19 @@
     "poo_happy_tails": {
       "score_modifier": -3,
       "fit_score": 0
+    },
+    "doo_dixie": {
+      "weight": 25,
+      "age_range": "3 yrs",
+      "energy_level": "Medium",
+      "shedding": "Low",
+      "good_with_dogs": "Yes",
+      "good_with_kids": "Yes",
+      "good_with_cats": "Yes",
+      "special_needs": "No",
+      "notes": "",
+      "score_modifier": -5,
+      "fit_score": 4
     }
   },
   "acknowledgedChanges": [],
@@ -141,7 +154,7 @@
     "specialNeeds": -1
   },
   "_meta": {
-    "last_updated": "2025-11-29T01:01:43.036Z",
+    "last_updated": "2025-11-29T01:02:44.186Z",
     "version": "1.0"
   }
 }
