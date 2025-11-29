@@ -14,8 +14,8 @@
       "notes": ""
     },
     "doo_more": {
-      "score_modifier": -2,
-      "fit_score": 2
+      "score_modifier": -3,
+      "fit_score": 1
     },
     "doo_myra": {
       "weight": 6,
@@ -71,6 +71,14 @@
       "good_with_cats": "Unknown",
       "special_needs": "No",
       "notes": ""
+    },
+    "poo_bass": {
+      "score_modifier": -1,
+      "fit_score": 2
+    },
+    "poo_daniel": {
+      "score_modifier": -1,
+      "fit_score": 2
     }
   },
   "acknowledgedChanges": [],
@@ -94,7 +102,7 @@
     "specialNeeds": -1
   },
   "_meta": {
-    "last_updated": "2025-11-29T00:59:13.186Z",
+    "last_updated": "2025-11-29T00:59:24.988Z",
     "version": "1.0"
   }
 }
