@@ -33,6 +33,10 @@
       "good_with_cats": "Yes",
       "special_needs": "No",
       "notes": ""
+    },
+    "doo_amanda": {
+      "score_modifier": -1,
+      "fit_score": 7
     }
   },
   "acknowledgedChanges": [],
@@ -56,7 +60,7 @@
     "specialNeeds": -1
   },
   "_meta": {
-    "last_updated": "2025-11-29T00:58:14.599Z",
+    "last_updated": "2025-11-29T00:58:26.375Z",
     "version": "1.0"
   }
 }
