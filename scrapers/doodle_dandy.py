@@ -105,51 +105,59 @@ class DoodleDandyScraper(BaseScraper):
         page.goto(url, wait_until="networkidle", timeout=60000)
         
         # Wait for initial content to load
-        page.wait_for_timeout(3000)
+        page.wait_for_timeout(2000)
         
         # Click "Load More" button repeatedly until all dogs are loaded
         load_more_clicks = 0
-        max_clicks = 20  # Safety limit
+        max_clicks = 10  # Safety limit (reduced from 20)
         
         while load_more_clicks < max_clicks:
-          # Look for Load More button - Wix uses various patterns
-          load_more_selectors = [
-            'button:has-text("Load More")',
-            'button:has-text("load more")',
-            'button:has-text("Show More")',
-            'button:has-text("show more")',
-            '[data-testid="load-more"]',
-            '.load-more-button',
-            'button[aria-label*="Load"]',
-            'button[aria-label*="load"]',
-            'span:has-text("Load More")',
-            'span:has-text("load more")',
-          ]
+          # Use JavaScript to find and click Load More button (much faster than selectors)
+          clicked = page.evaluate("""
+            () => {
+              // Look for buttons/elements containing "Load More" or "Show More" text
+              const texts = ['load more', 'show more', 'see more'];
+              
+              // Check buttons first
+              const buttons = document.querySelectorAll('button, [role="button"]');
+              for (const btn of buttons) {
+                const text = btn.textContent.toLowerCase().trim();
+                if (texts.some(t => text.includes(t)) && btn.offsetParent !== null) {
+                  btn.click();
+                  return true;
+                }
+              }
+              
+              // Check spans/divs that might be clickable
+              const allElements = document.querySelectorAll('span, div, a');
+              for (const el of allElements) {
+                const text = el.textContent.toLowerCase().trim();
+                // Only match if text is short (actual button text, not page content)
+                if (text.length < 20 && texts.some(t => text.includes(t)) && el.offsetParent !== null) {
+                  // Check if it looks clickable
+                  const style = window.getComputedStyle(el);
+                  if (style.cursor === 'pointer' || el.onclick || el.closest('button')) {
+                    el.click();
+                    return true;
+                  }
+                }
+              }
+              
+              return false;
+            }
+          """)
           
-          button_found = False
-          for selector in load_more_selectors:
-            try:
-              button = page.locator(selector).first
-              if button.is_visible(timeout=1000):
-                # Scroll button into view
-                button.scroll_into_view_if_needed()
-                page.wait_for_timeout(500)
-                
-                # Click the button
-                button.click()
-                load_more_clicks += 1
-                print(f"    ↳ Clicked Load More (#{load_more_clicks})")
-                
-                # Wait for new content to load
-                page.wait_for_timeout(2000)
-                button_found = True
-                break
-            except Exception:
-              continue
-          
-          if not button_found:
+          if clicked:
+            load_more_clicks += 1
+            print(f"    ↳ Clicked Load More (#{load_more_clicks})")
+            # Wait for new content to load
+            page.wait_for_timeout(1500)
+          else:
             # No more Load More button - all dogs loaded
-            print(f"    ↳ No more Load More button found - all content loaded")
+            if load_more_clicks == 0:
+              print(f"    ↳ No Load More button found on this page")
+            else:
+              print(f"    ↳ All content loaded")
             break
         
         if load_more_clicks > 0:
@@ -157,7 +165,7 @@ class DoodleDandyScraper(BaseScraper):
         
         # Scroll to ensure all lazy-loaded images are triggered
         page.evaluate("window.scrollTo(0, document.body.scrollHeight)")
-        page.wait_for_timeout(1500)
+        page.wait_for_timeout(1000)
         page.evaluate("window.scrollTo(0, 0)")
         page.wait_for_timeout(500)
         
@@ -206,12 +214,8 @@ class DoodleDandyScraper(BaseScraper):
     Extract dog images from Wix gallery structure.
     Returns dict mapping lowercase dog names to image URLs.
     
-    Two patterns:
-    1. Linked images (available/pending pages):
-       <a href="/all-adoptable-doodles/{slug}"><wow-image><img src="..."></wow-image></a>
-    
-    2. Non-linked images (coming-soon page):
-       <img alt="{DogName}" src="..."> followed by text with dog info
+    Strategy: Find image+name pairs by looking at the DOM structure.
+    Wix typically places image and name in adjacent/nearby elements.
     """
     images = {}
     
@@ -222,7 +226,7 @@ class DoodleDandyScraper(BaseScraper):
       "/doodles-coming-soon/"
     ]
     
-    # Pattern 1: Find all links that point to individual dog pages
+    # Pattern 1: Find all links that point to individual dog pages (available/pending)
     for a_tag in soup.find_all("a", href=True):
       href = a_tag.get("href", "")
       
@@ -253,8 +257,12 @@ class DoodleDandyScraper(BaseScraper):
             if alt_clean:
               images[alt_clean] = src
     
-    # Pattern 2: Direct image extraction (for coming-soon page with no links)
-    # Look for wixstatic images that might be dog photos
+    # Pattern 2: For coming-soon page - use SEQUENTIAL pairing
+    # The page structure is: image1, name1, breed1, ..., image2, name2, breed2, ...
+    # We need to extract images and names IN ORDER and pair them sequentially
+    
+    # First, collect all dog-sized images in DOM order
+    all_dog_images = []
     for img in soup.find_all("img"):
       src = img.get("src", "") or img.get("data-src", "")
       
@@ -264,19 +272,6 @@ class DoodleDandyScraper(BaseScraper):
       # Skip tiny icons and UI elements
       if any(skip in src.lower() for skip in ["logo", "icon", "button", "social", "arrow"]):
         continue
-      
-      # Try to get image dimensions from URL or attributes
-      width = img.get("width", "")
-      height = img.get("height", "")
-      
-      # Skip very small images (likely icons)
-      try:
-        if width and int(width) < 100:
-          continue
-        if height and int(height) < 100:
-          continue
-      except ValueError:
-        pass
       
       # Check for size in URL (wix uses w_NNN,h_NNN format)
       size_match = re.search(r"w_(\d+),h_(\d+)", src)
@@ -288,84 +283,75 @@ class DoodleDandyScraper(BaseScraper):
       # Upgrade to larger size
       src = re.sub(r"/v1/fill/w_\d+,h_\d+", "/v1/fill/w_400,h_400", src)
       
-      # Try to find the dog name associated with this image
-      # Look at the text immediately following the image in the DOM
-      parent = img.parent
-      if parent:
-        # Get next siblings' text
-        next_text = ""
-        for sibling in parent.next_siblings:
-          if hasattr(sibling, "get_text"):
-            next_text = sibling.get_text(strip=True)
-            break
-          elif isinstance(sibling, str) and sibling.strip():
-            next_text = sibling.strip()
-            break
-        
-        if next_text and len(next_text) > 1 and len(next_text) < 30:
-          # This might be the dog name
-          name_clean = re.sub(r"[^a-z]", "", next_text.lower())
-          if name_clean and name_clean not in images:
-            images[name_clean] = src
-      
-      # Also try wow-image wrapper
-      wow = img.find_parent("wow-image")
-      if wow:
-        # Get the next text element after wow-image
-        for sibling in wow.next_siblings:
-          text = ""
-          if hasattr(sibling, "get_text"):
-            text = sibling.get_text(strip=True)
-          elif isinstance(sibling, str):
-            text = sibling.strip()
-          
-          if text and len(text) > 1 and len(text) < 30:
-            name_clean = re.sub(r"[^a-z]", "", text.lower())
-            if name_clean and name_clean not in images:
-              images[name_clean] = src
-            break
+      # Avoid duplicates (same image URL)
+      if src not in all_dog_images:
+        all_dog_images.append(src)
     
-    # Pattern 3: Extract images by sequence matching with text
-    # The coming-soon page alternates: image, name, breed, age, sex, weight, location
-    # Build a list of all wixstatic image URLs in order
-    all_images = []
-    for img in soup.find_all("img"):
-      src = img.get("src", "") or img.get("data-src", "")
-      if src and "wixstatic" in src:
-        # Skip small/icon images
-        size_match = re.search(r"w_(\d+),h_(\d+)", src)
-        if size_match:
-          w, h = int(size_match.group(1)), int(size_match.group(2))
-          if w >= 100 and h >= 100:
-            src = re.sub(r"/v1/fill/w_\d+,h_\d+", "/v1/fill/w_400,h_400", src)
-            all_images.append(src)
-    
-    # Get all text lines that look like dog names
+    # Now find dog names in order by looking for the Name/Breed/Age/Sex/Weight/Location pattern
     text = soup.get_text(separator="\n", strip=True)
     lines = [l.strip() for l in text.split("\n") if l.strip()]
     
-    # Find potential dog names (followed by breed, age, sex, weight, location pattern)
-    breed_patterns = [r"doodle", r"poo\b", r"poodle", r"maltipoo", r"shih-?poo"]
-    potential_names = []
+    breed_patterns = [r"doodle", r"poo\b", r"poodle", r"maltipoo", r"shih-?poo", r"cavapoo"]
+    dog_names_in_order = []
     
-    for idx, line in enumerate(lines):
-      # Check if next line looks like a breed
-      if idx + 1 < len(lines):
-        next_line = lines[idx + 1].lower()
-        if any(re.search(p, next_line) for p in breed_patterns):
-          # This line is probably a dog name
-          name = line.strip()
-          if len(name) > 1 and len(name) < 30 and not any(re.search(p, name.lower()) for p in breed_patterns):
-            potential_names.append(name)
+    i = 0
+    while i < len(lines):
+      line = lines[i]
+      
+      # Skip if this looks like a breed, age, weight, sex, or location
+      line_lower = line.lower()
+      is_breed = any(re.search(p, line_lower) for p in breed_patterns)
+      is_age = re.search(r"\d+\.?\d*\s*(yr|mos|wks|mo|wk|year|month|week)", line_lower)
+      is_weight = re.search(r"^\d+\s*lbs?$", line_lower)
+      is_sex = line_lower in ["male", "female"]
+      is_location = line.upper() in ["HOU", "DFW", "AUS", "SA", "ATX", "SATX", "AUSTIN", "HOUSTON", "DALLAS", "SAN ANTONIO"]
+      
+      # Skip navigation/UI text
+      skip_words = ["adopt", "foster", "home", "about", "contact", "facebook", "instagram", 
+                    "application", "policy", "welcome", "rescue", "available", "pending", 
+                    "coming soon", "read more", "view", "click", "copyright", "fur-ever"]
+      is_skip = any(sw in line_lower for sw in skip_words) and len(line) < 50
+      
+      if not is_breed and not is_age and not is_weight and not is_sex and not is_location and not is_skip:
+        # Check if NEXT line is a breed (strong indicator this is a dog name)
+        if i + 1 < len(lines):
+          next_line = lines[i + 1].lower()
+          if any(re.search(p, next_line) for p in breed_patterns):
+            # This is likely a dog name
+            name = line.strip()
+            # Additional validation
+            if (len(name) >= 2 and len(name) <= 30 and 
+                not re.search(r"\.(jpg|png|gif|jpeg)$", name.lower()) and
+                name.lower() not in ["male", "female"] and
+                not re.search(r"^\d+", name)):  # Doesn't start with number
+              dog_names_in_order.append(name)
+      
+      i += 1
     
-    # Match images to names by position
-    for i, name in enumerate(potential_names):
-      if i < len(all_images):
-        name_clean = re.sub(r"[^a-z]", "", name.lower())
-        if name_clean and name_clean not in images:
-          images[name_clean] = all_images[i]
+    # Now pair images with names by position
+    # Remove any already-matched names from Pattern 1
+    already_matched = set(images.keys())
     
-    print(f"  📸 Total images mapped: {len(images)}")
+    image_idx = 0
+    for name in dog_names_in_order:
+      name_clean = re.sub(r"[^a-z]", "", name.lower())
+      
+      # Skip if already matched via Pattern 1
+      if name_clean in already_matched:
+        image_idx += 1  # Still advance image index
+        continue
+      
+      if image_idx < len(all_dog_images):
+        images[name_clean] = all_dog_images[image_idx]
+        image_idx += 1
+    
+    print(f"  📸 Images mapped: {len(images)} (from {len(all_dog_images)} images, {len(dog_names_in_order)} names)")
+    
+    # Debug: show first few mappings
+    for name, url in list(images.items())[:3]:
+      short_url = url.split("/")[-1][:30] if url else "?"
+      print(f"    → {name}: {short_url}...")
+    
     return images
   
   def _parse_dog_cards(self, text: str, status: str, image_urls: dict = None) -> List[Dog]:
