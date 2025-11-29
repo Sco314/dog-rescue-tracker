@@ -171,8 +171,8 @@
       "fit_score": 2
     },
     "doo_fbpx": {
-      "score_modifier": -2,
-      "fit_score": 2
+      "score_modifier": -3,
+      "fit_score": 1
     },
     "doo_load_more": {
       "weight": null,
@@ -287,7 +287,7 @@
     "specialNeeds": -1
   },
   "_meta": {
-    "last_updated": "2025-11-29T02:02:31.673Z",
+    "last_updated": "2025-11-29T14:37:19.561Z",
     "version": "1.0"
   }
 }
