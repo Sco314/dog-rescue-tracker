@@ -131,6 +131,19 @@
       "notes": "",
       "score_modifier": -5,
       "fit_score": 4
+    },
+    "doo_ellie": {
+      "weight": 25,
+      "age_range": "3 yrs",
+      "energy_level": "Low",
+      "shedding": "Low",
+      "good_with_dogs": "Yes",
+      "good_with_kids": "Yes",
+      "good_with_cats": "Yes",
+      "special_needs": "No",
+      "notes": "",
+      "score_modifier": -4,
+      "fit_score": 5
     }
   },
   "acknowledgedChanges": [],
@@ -154,7 +167,7 @@
     "specialNeeds": -1
   },
   "_meta": {
-    "last_updated": "2025-11-29T01:02:44.186Z",
+    "last_updated": "2025-11-29T01:02:51.018Z",
     "version": "1.0"
   }
 }
