@@ -52,8 +52,8 @@
       "fit_score": 3
     },
     "doo_liliana": {
-      "score_modifier": -3,
-      "fit_score": 3
+      "score_modifier": -4,
+      "fit_score": 2
     },
     "doo_clancy": {
       "score_modifier": -2,
@@ -110,7 +110,7 @@
     "specialNeeds": -1
   },
   "_meta": {
-    "last_updated": "2025-11-29T01:00:25.733Z",
+    "last_updated": "2025-11-29T01:00:29.174Z",
     "version": "1.0"
   }
 }
