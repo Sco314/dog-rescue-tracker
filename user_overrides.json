@@ -239,8 +239,8 @@
       "fit_score": 5
     },
     "doo_chloe_simone": {
-      "score_modifier": -1,
-      "fit_score": 6
+      "score_modifier": -2,
+      "fit_score": 5
     },
     "doo_maverick": {
       "score_modifier": -1,
@@ -283,7 +283,7 @@
     "specialNeeds": -1
   },
   "_meta": {
-    "last_updated": "2025-11-29T02:02:06.210Z",
+    "last_updated": "2025-11-29T02:02:07.400Z",
     "version": "1.0"
   }
 }
