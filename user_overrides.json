@@ -186,6 +186,9 @@
       "notes": "",
       "score_modifier": -6,
       "fit_score": 0
+    },
+    "doo_pacey": {
+      "watch_list": "Yes"
     }
   },
   "acknowledgedChanges": [
@@ -216,7 +219,7 @@
     "specialNeeds": -1
   },
   "_meta": {
-    "last_updated": "2025-11-29T01:49:21.221Z",
+    "last_updated": "2025-11-29T01:49:36.020Z",
     "version": "1.0"
   }
 }
