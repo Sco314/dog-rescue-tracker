@@ -39,8 +39,8 @@
       "fit_score": 5
     },
     "doo_merritt": {
-      "score_modifier": -1,
-      "fit_score": 6
+      "score_modifier": -2,
+      "fit_score": 5
     },
     "doo_liliana": {
       "score_modifier": -1,
@@ -72,7 +72,7 @@
     "specialNeeds": -1
   },
   "_meta": {
-    "last_updated": "2025-11-29T00:58:36.693Z",
+    "last_updated": "2025-11-29T00:58:39.021Z",
     "version": "1.0"
   }
 }
