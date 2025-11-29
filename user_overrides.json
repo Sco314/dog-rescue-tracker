@@ -253,6 +253,10 @@
     "doo_armadillo": {
       "score_modifier": -2,
       "fit_score": 5
+    },
+    "doo_deke": {
+      "score_modifier": -1,
+      "fit_score": 5
     }
   },
   "acknowledgedChanges": [
@@ -283,7 +287,7 @@
     "specialNeeds": -1
   },
   "_meta": {
-    "last_updated": "2025-11-29T02:02:09.543Z",
+    "last_updated": "2025-11-29T02:02:10.794Z",
     "version": "1.0"
   }
 }
