@@ -79,6 +79,10 @@
     "poo_daniel": {
       "score_modifier": -1,
       "fit_score": 2
+    },
+    "doo_river_summit": {
+      "score_modifier": -1,
+      "fit_score": 6
     }
   },
   "acknowledgedChanges": [],
@@ -102,7 +106,7 @@
     "specialNeeds": -1
   },
   "_meta": {
-    "last_updated": "2025-11-29T00:59:42.290Z",
+    "last_updated": "2025-11-29T00:59:58.490Z",
     "version": "1.0"
   }
 }
