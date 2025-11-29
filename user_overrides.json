@@ -20,6 +20,10 @@
       "notes": "",
       "score_modifier": -3,
       "fit_score": 1
+    },
+    "doo_kru": {
+      "score_modifier": 1,
+      "fit_score": 12
     }
   },
   "acknowledgedChanges": [],
@@ -43,7 +47,7 @@
     "specialNeeds": -1
   },
   "_meta": {
-    "last_updated": "2025-11-29T00:57:47.700Z",
+    "last_updated": "2025-11-29T00:58:00.077Z",
     "version": "1.0"
   }
 }
