@@ -44,8 +44,17 @@
       "notes": ""
     },
     "doo_amanda": {
-      "score_modifier": -6,
-      "fit_score": 2
+      "score_modifier": -4,
+      "fit_score": 4,
+      "weight": 5,
+      "age_range": "",
+      "energy_level": "Medium",
+      "shedding": "Low",
+      "good_with_dogs": "Yes",
+      "good_with_kids": "Yes",
+      "good_with_cats": "Yes",
+      "special_needs": "No",
+      "notes": ""
     },
     "doo_merritt": {
       "score_modifier": -6,
@@ -119,7 +128,7 @@
     "specialNeeds": -1
   },
   "_meta": {
-    "last_updated": "2025-11-29T01:00:36.116Z",
+    "last_updated": "2025-11-29T01:00:51.963Z",
     "version": "1.0"
   }
 }
