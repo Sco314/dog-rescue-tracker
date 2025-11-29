@@ -198,6 +198,10 @@
     },
     "doo_plomo": {
       "watch_list": "Yes"
+    },
+    "doo_lucabrasi": {
+      "score_modifier": -1,
+      "fit_score": 3
     }
   },
   "acknowledgedChanges": [
@@ -228,7 +232,7 @@
     "specialNeeds": -1
   },
   "_meta": {
-    "last_updated": "2025-11-29T01:49:58.228Z",
+    "last_updated": "2025-11-29T01:50:04.838Z",
     "version": "1.0"
   }
 }
