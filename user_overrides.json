@@ -35,8 +35,8 @@
       "notes": ""
     },
     "doo_amanda": {
-      "score_modifier": -3,
-      "fit_score": 5
+      "score_modifier": -4,
+      "fit_score": 4
     },
     "doo_merritt": {
       "score_modifier": -2,
@@ -72,7 +72,7 @@
     "specialNeeds": -1
   },
   "_meta": {
-    "last_updated": "2025-11-29T00:58:39.021Z",
+    "last_updated": "2025-11-29T00:58:41.321Z",
     "version": "1.0"
   }
 }
