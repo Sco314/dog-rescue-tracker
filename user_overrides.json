@@ -142,8 +142,8 @@
       "good_with_cats": "Yes",
       "special_needs": "No",
       "notes": "",
-      "score_modifier": -4,
-      "fit_score": 5
+      "score_modifier": -5,
+      "fit_score": 4
     },
     "doo_thumper": {
       "weight": 10,
@@ -287,7 +287,7 @@
     "specialNeeds": -1
   },
   "_meta": {
-    "last_updated": "2025-11-29T02:02:30.461Z",
+    "last_updated": "2025-11-29T02:02:31.673Z",
     "version": "1.0"
   }
 }
