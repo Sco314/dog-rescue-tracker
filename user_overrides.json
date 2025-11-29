@@ -1,7 +1,7 @@
 {
   "dogs": {
     "doo_gallery": {
-      "score_modifier": -6,
+      "score_modifier": -7,
       "fit_score": 0,
       "weight": null,
       "age_range": "",
@@ -102,7 +102,7 @@
     "specialNeeds": -1
   },
   "_meta": {
-    "last_updated": "2025-11-29T00:59:32.781Z",
+    "last_updated": "2025-11-29T00:59:35.509Z",
     "version": "1.0"
   }
 }
