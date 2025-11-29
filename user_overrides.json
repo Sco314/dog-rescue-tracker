@@ -173,6 +173,19 @@
     "doo_fbpx": {
       "score_modifier": -2,
       "fit_score": 2
+    },
+    "doo_load_more": {
+      "weight": null,
+      "age_range": "",
+      "energy_level": "Medium",
+      "shedding": "Low",
+      "good_with_dogs": "Unknown",
+      "good_with_kids": "Unknown",
+      "good_with_cats": "Unknown",
+      "special_needs": "No",
+      "notes": "",
+      "score_modifier": -6,
+      "fit_score": 0
     }
   },
   "acknowledgedChanges": [],
@@ -196,7 +209,7 @@
     "specialNeeds": -1
   },
   "_meta": {
-    "last_updated": "2025-11-29T01:47:20.522Z",
+    "last_updated": "2025-11-29T01:48:03.174Z",
     "version": "1.0"
   }
 }
