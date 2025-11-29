@@ -263,8 +263,8 @@
       "fit_score": 0
     },
     "doo_maryb": {
-      "score_modifier": -1,
-      "fit_score": 1
+      "score_modifier": -2,
+      "fit_score": 0
     }
   },
   "acknowledgedChanges": [
@@ -295,7 +295,7 @@
     "specialNeeds": -1
   },
   "_meta": {
-    "last_updated": "2025-11-29T14:37:41.844Z",
+    "last_updated": "2025-11-29T14:37:42.815Z",
     "version": "1.0"
   }
 }
