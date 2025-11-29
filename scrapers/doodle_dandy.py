@@ -1,6 +1,12 @@
 """
 Scraper for Doodle Dandy Rescue (DFW/Houston/Austin/SA)
-v3.0.0 - Uses Playwright to handle "Load More" button for full dog listings
+v3.1.0 - Fixed image matching + expanded breed patterns + better Load More handling
+
+Changes in v3.1.0:
+- Fixed image-to-dog matching to prevent photo jumbling
+- Expanded breed patterns to catch more doodle/poo variations
+- Increased Load More clicks to 25 (from 10) to ensure all dogs loaded
+- Added dog count logging for visibility
 
 The site is Wix-based and uses a "Load More" button to paginate dogs.
 This scraper uses Playwright to click the button and load all dogs.
@@ -107,9 +113,28 @@ class DoodleDandyScraper(BaseScraper):
         # Wait for initial content to load
         page.wait_for_timeout(2000)
         
+        # Count initial dogs visible
+        initial_count = page.evaluate("""
+          () => {
+            // Count wixstatic images that are likely dog photos
+            const imgs = document.querySelectorAll('img[src*="wixstatic"]');
+            let count = 0;
+            for (const img of imgs) {
+              const src = img.src || '';
+              // Skip small images (icons)
+              if (src.includes('w_') && src.includes('h_')) {
+                const match = src.match(/w_(\\d+)/);
+                if (match && parseInt(match[1]) >= 100) count++;
+              }
+            }
+            return count;
+          }
+        """)
+        print(f"    ↳ Initial dog images visible: {initial_count}")
+        
         # Click "Load More" button repeatedly until all dogs are loaded
         load_more_clicks = 0
-        max_clicks = 10  # Safety limit (reduced from 20)
+        max_clicks = 25  # Increased to handle larger lists
         
         while load_more_clicks < max_clicks:
           # Use JavaScript to find and click Load More button (much faster than selectors)
@@ -168,6 +193,23 @@ class DoodleDandyScraper(BaseScraper):
         page.wait_for_timeout(1000)
         page.evaluate("window.scrollTo(0, 0)")
         page.wait_for_timeout(500)
+        
+        # Count final dogs visible
+        final_count = page.evaluate("""
+          () => {
+            const imgs = document.querySelectorAll('img[src*="wixstatic"]');
+            let count = 0;
+            for (const img of imgs) {
+              const src = img.src || '';
+              if (src.includes('w_') && src.includes('h_')) {
+                const match = src.match(/w_(\\d+)/);
+                if (match && parseInt(match[1]) >= 100) count++;
+              }
+            }
+            return count;
+          }
+        """)
+        print(f"    ↳ Final dog images visible: {final_count}")
         
         # Get final page content
         html = page.content()
@@ -409,11 +451,17 @@ class DoodleDandyScraper(BaseScraper):
       r"full bio", r"right for you", r"oster family",
     ]
     
-    # Valid breeds
+    # Valid breeds - expanded to catch all doodle/poo variations
     breed_patterns = [
       r"doodle", r"poo\b", r"poodle", r"bernedoodle", r"goldendoodle",
       r"labradoodle", r"aussiedoodle", r"sheepadoodle", r"maltipoo",
-      r"cockapoo", r"shih-?poo", r"cavapoo"
+      r"cockapoo", r"shih-?poo", r"cavapoo", r"schnoodle", r"whoodle",
+      r"bordoodle", r"newfypoo", r"pyredoodle", r"rottle", r"boxerdoodle",
+      r"irish.?doodle", r"double.?doodle", r"mini.?doodle", r"standard.?poodle",
+      r"toy.?poodle", r"mini.?poodle", r"bichpoo", r"yorkipoo", r"pomapoo",
+      r"havapoo", r"corgipoo", r"eskipoo", r"bassetoodle", r"dalmadoodle",
+      r"mountain.?doodle", r"australian.?mountain", r"f1b?\s", r"poo-", r"-poo",
+      r"^poo", r"mix$"  # catch "Poo mix" or similar
     ]
     
     # Location codes
@@ -505,13 +553,17 @@ class DoodleDandyScraper(BaseScraper):
     
     # Look at next 5 lines for dog attributes
     breed_found = False
+    breed_patterns = [
+      r"doodle", r"poo\b", r"poodle", r"maltipoo", r"shih-?poo", r"cavapoo",
+      r"schnoodle", r"whoodle", r"bordoodle", r"irish.?doodle", r"mountain.?doodle",
+      r"australian", r"f1b?\s", r"poo-", r"-poo", r"mix$"
+    ]
     for j in range(1, min(6, len(lines) - start_idx)):
       line = lines[start_idx + j]
       line_lower = line.lower()
       
       # Check for breed
-      if not breed_found and any(re.search(p, line_lower) for p in 
-          [r"doodle", r"poo\b", r"poodle", r"maltipoo", r"shih-?poo", r"cavapoo"]):
+      if not breed_found and any(re.search(p, line_lower) for p in breed_patterns):
         data["breed"] = line
         breed_found = True
         data["lines_consumed"] = j + 1
