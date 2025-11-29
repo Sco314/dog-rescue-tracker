@@ -204,7 +204,18 @@
       "fit_score": 2
     },
     "doo_gusty": {
-      "watch_list": "Yes"
+      "watch_list": "Yes",
+      "weight": 70,
+      "age_range": "3 yrs",
+      "energy_level": "Medium",
+      "shedding": "None",
+      "good_with_dogs": "Yes",
+      "good_with_kids": "Yes",
+      "good_with_cats": "Unknown",
+      "special_needs": "No",
+      "notes": "",
+      "score_modifier": 0,
+      "fit_score": 12
     }
   },
   "acknowledgedChanges": [
@@ -235,7 +246,7 @@
     "specialNeeds": -1
   },
   "_meta": {
-    "last_updated": "2025-11-29T01:53:57.646Z",
+    "last_updated": "2025-11-29T01:54:37.014Z",
     "version": "1.0"
   }
 }
