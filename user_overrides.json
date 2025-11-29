@@ -195,6 +195,9 @@
     },
     "doo_chili": {
       "watch_list": "Yes"
+    },
+    "doo_plomo": {
+      "watch_list": "Yes"
     }
   },
   "acknowledgedChanges": [
@@ -225,7 +228,7 @@
     "specialNeeds": -1
   },
   "_meta": {
-    "last_updated": "2025-11-29T01:49:50.622Z",
+    "last_updated": "2025-11-29T01:49:58.228Z",
     "version": "1.0"
   }
 }
