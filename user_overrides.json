@@ -216,6 +216,19 @@
       "notes": "",
       "score_modifier": 0,
       "fit_score": 12
+    },
+    "doo_cosmo2": {
+      "weight": 40,
+      "age_range": "9 mos",
+      "energy_level": "High",
+      "shedding": "Low",
+      "good_with_dogs": "Unknown",
+      "good_with_kids": "Unknown",
+      "good_with_cats": "Unknown",
+      "special_needs": "No",
+      "notes": "",
+      "score_modifier": -4,
+      "fit_score": 2
     }
   },
   "acknowledgedChanges": [
@@ -246,7 +259,7 @@
     "specialNeeds": -1
   },
   "_meta": {
-    "last_updated": "2025-11-29T01:54:37.014Z",
+    "last_updated": "2025-11-29T01:56:18.910Z",
     "version": "1.0"
   }
 }
