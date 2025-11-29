@@ -14,8 +14,8 @@
       "notes": ""
     },
     "doo_more": {
-      "score_modifier": -3,
-      "fit_score": 1
+      "score_modifier": -4,
+      "fit_score": 0
     },
     "doo_myra": {
       "weight": 6,
@@ -102,7 +102,7 @@
     "specialNeeds": -1
   },
   "_meta": {
-    "last_updated": "2025-11-29T00:59:24.988Z",
+    "last_updated": "2025-11-29T00:59:32.781Z",
     "version": "1.0"
   }
 }
