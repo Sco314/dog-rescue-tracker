@@ -172,60 +172,70 @@ def generate_html_dashboard(output_path="dashboard.html"):
     }
     .dog-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
       gap: 20px;
     }
     .dog-card {
       background: var(--bg-card);
-      border-radius: 10px;
-      padding: 20px;
+      border-radius: 12px;
+      padding: 0;
       transition: transform 0.2s, box-shadow 0.2s;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
     }
     .dog-card:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+      transform: translateY(-3px);
+      box-shadow: 0 12px 40px rgba(0,0,0,0.4);
     }
     .dog-card.watched { border: 2px solid var(--star); }
-    .dog-card.pending { opacity: 0.7; }
+    .dog-card.pending { opacity: 0.75; }
     .dog-image {
-      height: 180px;
-      border-radius: 8px 8px 0 0;
-      margin: -20px -20px 15px -20px;
-      width: calc(100% + 40px);
+      height: 200px;
+      width: 100%;
       overflow: hidden;
-      background: var(--bg-secondary);
+      background: linear-gradient(135deg, var(--bg-secondary) 0%, #2d3748 100%);
       display: flex;
       align-items: center;
       justify-content: center;
+      flex-shrink: 0;
     }
     .dog-image img {
       width: 100%;
       height: 100%;
       object-fit: cover;
-      object-position: center top;
+      object-position: center 20%;
+      transition: transform 0.3s ease;
+    }
+    .dog-card:hover .dog-image img {
+      transform: scale(1.05);
     }
     .dog-image-placeholder {
-      font-size: 3rem;
+      font-size: 4rem;
       color: var(--text-secondary);
-      height: 100%;
+      opacity: 0.5;
+    }
+    .dog-content {
+      padding: 16px;
+      flex: 1;
       display: flex;
-      align-items: center;
-      justify-content: center;
+      flex-direction: column;
     }
     .dog-header {
       display: flex;
       justify-content: space-between;
       align-items: flex-start;
-      margin-bottom: 15px;
+      margin-bottom: 12px;
     }
-    .dog-name { font-size: 1.25rem; font-weight: bold; }
-    .dog-rescue { font-size: 0.875rem; color: var(--text-secondary); }
+    .dog-name { font-size: 1.2rem; font-weight: 600; }
+    .dog-rescue { font-size: 0.8rem; color: var(--text-secondary); margin-top: 2px; }
     .star-btn {
       background: none;
       border: none;
-      font-size: 1.5rem;
+      font-size: 1.4rem;
       cursor: pointer;
       transition: transform 0.2s;
+      padding: 0;
     }
     .star-btn:hover { transform: scale(1.2); }
     .star-btn.starred { color: var(--star); }
@@ -233,13 +243,13 @@ def generate_html_dashboard(output_path="dashboard.html"):
     .dog-score {
       display: flex;
       align-items: center;
-      gap: 10px;
-      margin-bottom: 15px;
+      gap: 8px;
+      margin-bottom: 12px;
     }
     .score-display {
-      font-size: 2rem;
+      font-size: 1.75rem;
       font-weight: bold;
-      min-width: 50px;
+      min-width: 40px;
       text-align: center;
     }
     .score-high { color: var(--success); }
@@ -247,35 +257,36 @@ def generate_html_dashboard(output_path="dashboard.html"):
     .score-low { color: var(--danger); }
     .score-controls { display: flex; flex-direction: column; gap: 2px; }
     .score-btn {
-      width: 30px;
-      height: 24px;
+      width: 26px;
+      height: 20px;
       border: 1px solid #374151;
       border-radius: 4px;
       background: var(--bg-secondary);
       color: var(--text-primary);
       cursor: pointer;
       font-weight: bold;
+      font-size: 0.8rem;
     }
     .score-btn:hover { background: var(--accent); }
-    .score-modifier { font-size: 0.75rem; color: var(--text-secondary); }
+    .score-modifier { font-size: 0.7rem; color: var(--text-secondary); }
     .dog-details {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 8px;
-      font-size: 0.875rem;
-      margin-bottom: 15px;
+      gap: 6px 12px;
+      font-size: 0.8rem;
+      margin-bottom: 12px;
     }
     .detail { display: flex; justify-content: space-between; }
     .detail-label { color: var(--text-secondary); }
-    .detail-value { font-weight: 500; }
+    .detail-value { font-weight: 500; text-align: right; }
     .detail-value.good { color: var(--success); }
     .detail-value.bad { color: var(--danger); }
     .detail-value.unknown { color: var(--text-secondary); }
     .dog-status {
       display: inline-block;
-      padding: 4px 12px;
+      padding: 3px 10px;
       border-radius: 20px;
-      font-size: 0.875rem;
+      font-size: 0.75rem;
       font-weight: 500;
     }
     .status-available { background: rgba(16, 185, 129, 0.2); color: var(--success); }
@@ -283,23 +294,41 @@ def generate_html_dashboard(output_path="dashboard.html"):
     .status-upcoming { background: rgba(59, 130, 246, 0.2); color: var(--accent); }
     .dog-actions {
       display: flex;
-      gap: 10px;
-      margin-top: 15px;
-      padding-top: 15px;
+      gap: 8px;
+      margin-top: auto;
+      padding-top: 12px;
       border-top: 1px solid #374151;
     }
     .action-btn {
       flex: 1;
-      padding: 8px 15px;
+      padding: 8px 12px;
       border: 1px solid #374151;
       border-radius: 6px;
       background: var(--bg-secondary);
       color: var(--text-primary);
       cursor: pointer;
-      font-size: 0.875rem;
+      font-size: 0.8rem;
       transition: all 0.2s;
     }
     .action-btn:hover { background: var(--accent); border-color: var(--accent); }
+    .dog-link {
+      color: var(--accent);
+      text-decoration: none;
+      font-size: 0.8rem;
+      display: inline-block;
+      margin-bottom: 8px;
+    }
+    .dog-link:hover { text-decoration: underline; }
+    .dog-notes {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      margin-bottom: 8px;
+      padding: 6px 8px;
+      background: rgba(0,0,0,0.2);
+      border-radius: 4px;
+      max-height: 60px;
+      overflow: hidden;
+    }
     .modal {
       display: none;
       position: fixed;
@@ -1533,7 +1562,7 @@ def generate_html_dashboard(output_path="dashboard.html"):
       const scoreClass = (dog.fit_score || 0) >= 5 ? 'score-high' : (dog.fit_score || 0) >= 3 ? 'score-medium' : 'score-low';
       const statusClass = (dog.status || '').toLowerCase();
       const mod = userOverrides.dogs[dog.dog_id]?.score_modifier || 0;
-      const modDisplay = mod !== 0 ? '(' + (mod > 0 ? '+' : '') + mod + ')' : '';
+      const modDisplay = mod !== 0 ? '<span class="score-modifier">(' + (mod > 0 ? '+' : '') + mod + ')</span>' : '';
       const valueClass = (val) => val === 'Yes' ? 'good' : val === 'No' ? 'bad' : 'unknown';
       const url = dog.source_url || '#';
       const dogId = dog.dog_id;
@@ -1543,37 +1572,38 @@ def generate_html_dashboard(output_path="dashboard.html"):
       card.className = 'dog-card' + (isWatched ? ' watched' : '') + (statusClass === 'pending' ? ' pending' : '');
       
       card.innerHTML = `
-        ${imageUrl ? '<div class="dog-image"><img src="' + imageUrl + '" alt="' + (dog.dog_name || 'Dog') + '" onerror="this.parentElement.innerHTML=\\'🐕\\'"></div>' : '<div class="dog-image dog-image-placeholder">🐕</div>'}
-        <div class="dog-header">
-          <div>
-            <div class="dog-name">${dog.dog_name || 'Unknown'}</div>
-            <div class="dog-rescue">${dog.rescue_name || 'Unknown Rescue'}</div>
+        ${imageUrl ? '<div class="dog-image"><img src="' + imageUrl + '" alt="' + (dog.dog_name || 'Dog') + '" loading="lazy" onerror="this.parentElement.classList.add(\\'dog-image-placeholder\\');this.parentElement.innerHTML=\\'🐕\\';"></div>' : '<div class="dog-image dog-image-placeholder">🐕</div>'}
+        <div class="dog-content">
+          <div class="dog-header">
+            <div>
+              <div class="dog-name">${dog.dog_name || 'Unknown'}</div>
+              <div class="dog-rescue">${dog.rescue_name || 'Unknown Rescue'}</div>
+            </div>
+            <button class="star-btn ${isWatched ? 'starred' : ''}" data-action="watch" data-id="${dogId}">${isWatched ? '★' : '☆'}</button>
           </div>
-          <button class="star-btn ${isWatched ? 'starred' : ''}" data-action="watch" data-id="${dogId}">${isWatched ? '★' : '☆'}</button>
-        </div>
-        <div class="dog-score">
-          <div class="score-display ${scoreClass}">${dog.fit_score || 0}</div>
-          <div class="score-controls">
-            <button class="score-btn" data-action="score-up" data-id="${dogId}">+</button>
-            <button class="score-btn" data-action="score-down" data-id="${dogId}">−</button>
+          <div class="dog-score">
+            <div class="score-display ${scoreClass}">${dog.fit_score || 0}</div>
+            <div class="score-controls">
+              <button class="score-btn" data-action="score-up" data-id="${dogId}">+</button>
+              <button class="score-btn" data-action="score-down" data-id="${dogId}">−</button>
+            </div>
+            ${modDisplay}
+            <span class="dog-status status-${statusClass}">${dog.status || 'Unknown'}</span>
           </div>
-          <div class="score-modifier">${modDisplay}</div>
-          <span class="dog-status status-${statusClass}">${dog.status || 'Unknown'}</span>
-        </div>
-        <div class="dog-details">
-          <div class="detail"><span class="detail-label">Weight</span><span class="detail-value">${dog.weight ? dog.weight + ' lbs' : '?'}</span></div>
-          <div class="detail"><span class="detail-label">Age</span><span class="detail-value">${dog.age_range || '?'}</span></div>
-          <div class="detail"><span class="detail-label">Breed</span><span class="detail-value">${dog.breed || '?'}</span></div>
-          <div class="detail"><span class="detail-label">Energy</span><span class="detail-value">${dog.energy_level || '?'}</span></div>
-          <div class="detail"><span class="detail-label">Dogs</span><span class="detail-value ${valueClass(dog.good_with_dogs)}">${dog.good_with_dogs || '?'}</span></div>
-          <div class="detail"><span class="detail-label">Kids</span><span class="detail-value ${valueClass(dog.good_with_kids)}">${dog.good_with_kids || '?'}</span></div>
-          <div class="detail"><span class="detail-label">Cats</span><span class="detail-value ${valueClass(dog.good_with_cats)}">${dog.good_with_cats || '?'}</span></div>
-          <div class="detail"><span class="detail-label">Shedding</span><span class="detail-value">${dog.shedding || '?'}</span></div>
-        </div>
-        ${dog.notes ? '<div style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 10px;">📝 ' + dog.notes + '</div>' : ''}
-        <a href="${url}" target="_blank" class="dog-link">🔗 View on rescue site</a>
-        <div class="dog-actions">
-          <button class="action-btn" data-action="edit" data-id="${dogId}">✏️ Edit</button>
+          <div class="dog-details">
+            <div class="detail"><span class="detail-label">Weight</span><span class="detail-value">${dog.weight ? dog.weight + ' lbs' : '?'}</span></div>
+            <div class="detail"><span class="detail-label">Age</span><span class="detail-value">${dog.age_range || '?'}</span></div>
+            <div class="detail"><span class="detail-label">Breed</span><span class="detail-value">${dog.breed || '?'}</span></div>
+            <div class="detail"><span class="detail-label">Energy</span><span class="detail-value">${dog.energy_level || '?'}</span></div>
+            <div class="detail"><span class="detail-label">Dogs</span><span class="detail-value ${valueClass(dog.good_with_dogs)}">${dog.good_with_dogs || '?'}</span></div>
+            <div class="detail"><span class="detail-label">Kids</span><span class="detail-value ${valueClass(dog.good_with_kids)}">${dog.good_with_kids || '?'}</span></div>
+            <div class="detail"><span class="detail-label">Cats</span><span class="detail-value ${valueClass(dog.good_with_cats)}">${dog.good_with_cats || '?'}</span></div>
+            <div class="detail"><span class="detail-label">Shedding</span><span class="detail-value">${dog.shedding || '?'}</span></div>
+          </div>
+          <a href="${url}" target="_blank" class="dog-link">🔗 View on rescue site</a>
+          <div class="dog-actions">
+            <button class="action-btn" data-action="edit" data-id="${dogId}">✏️ Edit</button>
+          </div>
         </div>
       `;
       
