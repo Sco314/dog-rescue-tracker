@@ -257,6 +257,10 @@
     "doo_deke": {
       "score_modifier": -2,
       "fit_score": 4
+    },
+    "doo_susanna": {
+      "score_modifier": -1,
+      "fit_score": 1
     }
   },
   "acknowledgedChanges": [
@@ -287,7 +291,7 @@
     "specialNeeds": -1
   },
   "_meta": {
-    "last_updated": "2025-11-29T14:37:24.257Z",
+    "last_updated": "2025-11-29T14:37:32.891Z",
     "version": "1.0"
   }
 }
