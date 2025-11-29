@@ -1,8 +1,49 @@
 {
-  "_meta": {
-    "description": "User overrides for dog fit scores and preferences",
-    "last_updated": "",
-    "version": "1.0"
+  "dogs": {
+    "doo_gallery": {
+      "score_modifier": -1,
+      "fit_score": 3
+    },
+    "doo_more": {
+      "score_modifier": -1,
+      "fit_score": 3
+    },
+    "doo_myra": {
+      "weight": 6,
+      "age_range": "8 yrs",
+      "energy_level": "Low",
+      "shedding": "Low",
+      "good_with_dogs": "Yes",
+      "good_with_kids": "Yes",
+      "good_with_cats": "Yes",
+      "special_needs": "No",
+      "notes": "",
+      "score_modifier": -3,
+      "fit_score": 1
+    }
   },
-  "dogs": {}
+  "acknowledgedChanges": [],
+  "scoringConfig": {
+    "weight40Plus": 2,
+    "ageSweet": 2,
+    "ageGood": 1,
+    "ageNeutral": 0,
+    "ageOlder": -1,
+    "ageSenior": -4,
+    "sheddingNone": 2,
+    "sheddingLow": 1,
+    "sheddingHigh": -1,
+    "sheddingUnknown": 1,
+    "energyLowMed": 2,
+    "energyUnknown": 1,
+    "goodWithDogs": 2,
+    "goodWithKids": 1,
+    "goodWithCats": 1,
+    "doodleBreed": 1,
+    "specialNeeds": -1
+  },
+  "_meta": {
+    "last_updated": "2025-11-29T00:57:47.700Z",
+    "version": "1.0"
+  }
 }
