@@ -290,7 +290,7 @@ class DoodleDandyScraper(BaseScraper):
         # Extract images and parse dogs
         image_urls = self._extract_images(soup, url)
         text = soup.get_text(separator="\n", strip=True)
-        dogs = self._parse_dog_cards(text, status, image_urls)
+        dogs = self._parse_dog_cards(text, status, image_urls, url)
         
     except Exception as e:
       print(f"  ❌ Playwright error: {e}")
@@ -316,7 +316,7 @@ class DoodleDandyScraper(BaseScraper):
     text = soup.get_text(separator="\n", strip=True)
     
     # Parse dog cards from text
-    dogs = self._parse_dog_cards(text, status, image_urls)
+    dogs = self._parse_dog_cards(text, status, image_urls, url)
     
     return dogs
   
@@ -465,7 +465,7 @@ class DoodleDandyScraper(BaseScraper):
     
     return images
   
-  def _parse_dog_cards(self, text: str, status: str, image_urls: dict = None) -> List[Dog]:
+  def _parse_dog_cards(self, text: str, status: str, image_urls: dict = None, page_url: str = None) -> List[Dog]:
     """
     Parse dog info from structured text.
     
@@ -480,6 +480,17 @@ class DoodleDandyScraper(BaseScraper):
     dogs = []
     lines = [line.strip() for line in text.split("\n") if line.strip()]
     image_urls = image_urls or {}
+    
+    # Determine source URL based on status if not provided
+    if not page_url:
+      if status == "Available":
+        page_url = "https://www.doodledandyrescue.org/all-adoptable-doodles"
+      elif status == "Pending":
+        page_url = "https://www.doodledandyrescue.org/adoption-pending-doodles"
+      elif status == "Upcoming":
+        page_url = "https://www.doodledandyrescue.org/doodles-coming-soon"
+      else:
+        page_url = "https://www.doodledandyrescue.org"
     
     # Debug: count potential dog names before filtering
     print(f"  📝 Text has {len(lines)} non-empty lines")
@@ -596,6 +607,7 @@ class DoodleDandyScraper(BaseScraper):
           # Try to find matching image
           name_key = re.sub(r"[^a-z]", "", dog_data["name"].lower())
           dog_data["image_url"] = image_urls.get(name_key, "")
+          dog_data["source_url"] = page_url
           
           dog = self._create_dog(dog_data, status)
           if dog:
@@ -766,6 +778,7 @@ class DoodleDandyScraper(BaseScraper):
       platform=self.platform,
       location=data.get("location", self.location),
       status=status,
+      source_url=data.get("source_url", "https://www.doodledandyrescue.org/all-adoptable-doodles"),
       image_url=data.get("image_url", ""),
       date_collected=get_current_date()
     )
