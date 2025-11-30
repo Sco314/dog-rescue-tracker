@@ -301,6 +301,10 @@
       "notes": "Dani -girl Posted on November 28, 2025 November 29, 2025 by Amanda Her people called her Dannie. She is a one year old Golden Poodle mix. e adopt within 350 miles of Texarkana TX or Hot Springs AR (exceptions are made for excellent applicants -we do not ship). Adoption fee $300. We do not process incomplete apps. A volunteer will contact you within  7-10 days after you submit the app. You will get an automatic unmonitored email from the site stating we have your application. If you do not get th",
       "score_modifier": 0,
       "fit_score": 3
+    },
+    "poo_jojo": {
+      "score_modifier": -1,
+      "fit_score": 8
     }
   },
   "acknowledgedChanges": [
@@ -334,7 +338,7 @@
     "pendingPenalty": -8
   },
   "_meta": {
-    "last_updated": "2025-11-30T03:36:20.059Z",
+    "last_updated": "2025-11-30T03:44:04.726Z",
     "version": "1.0"
   }
 }
