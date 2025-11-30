@@ -44,8 +44,8 @@
       "notes": ""
     },
     "doo_amanda": {
-      "score_modifier": -6,
-      "fit_score": 2,
+      "score_modifier": -7,
+      "fit_score": 1,
       "weight": 5,
       "age_range": "",
       "energy_level": "Medium",
@@ -307,7 +307,7 @@
     "specialNeeds": -1
   },
   "_meta": {
-    "last_updated": "2025-11-30T02:26:01.900Z",
+    "last_updated": "2025-11-30T02:26:07.264Z",
     "version": "1.0"
   }
 }
