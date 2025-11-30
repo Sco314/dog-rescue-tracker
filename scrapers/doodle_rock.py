@@ -1,8 +1,9 @@
 """
 Scraper for Doodle Rock Rescue (Dallas, TX)
-v2.0.0 - Uses Playwright for JS rendering (works in GitHub Actions)
+v2.1.0 - Uses Playwright for JS rendering + pagination support
 
 This site is heavily JavaScript-rendered and requires a headless browser.
+Uses WordPress Views pagination (?wpv_paged=N)
 """
 import re
 import os
@@ -32,12 +33,12 @@ class DoodleRockScraper(BaseScraper):
       available_url = self.config.get("available_url")
       if available_url:
         print(f"\n🐩 Scraping Doodle Rock - Available Dogs")
-        dogs.extend(self._scrape_with_playwright(available_url, "Available"))
+        dogs.extend(self._scrape_with_playwright_paginated(available_url, "Available"))
       
       upcoming_url = self.config.get("upcoming_url")
       if upcoming_url:
         print(f"\n🐩 Scraping Doodle Rock - Upcoming Dogs")
-        dogs.extend(self._scrape_with_playwright(upcoming_url, "Upcoming"))
+        dogs.extend(self._scrape_with_playwright_paginated(upcoming_url, "Upcoming"))
     else:
       # Fallback: try basic fetch (won't get much data)
       print("  ⚠️ Playwright not available - trying basic fetch")
@@ -64,8 +65,109 @@ class DoodleRockScraper(BaseScraper):
     except ImportError:
       return False
   
+  def _scrape_with_playwright_paginated(self, base_url: str, status: str) -> List[Dog]:
+    """Scrape all pages using Playwright with WordPress pagination"""
+    all_dogs = []
+    page_num = 1
+    max_pages = 10  # Safety limit
+    
+    try:
+      from playwright.sync_api import sync_playwright
+      
+      with sync_playwright() as p:
+        browser = p.chromium.launch(headless=True)
+        page = browser.new_page()
+        
+        while page_num <= max_pages:
+          # Build URL with pagination
+          if page_num == 1:
+            url = base_url
+          else:
+            # WordPress Views pagination format
+            if "?" in base_url:
+              url = f"{base_url}&wpv_paged={page_num}"
+            else:
+              url = f"{base_url}?wpv_paged={page_num}"
+          
+          print(f"  🔍 Fetching page {page_num}: {url}")
+          
+          try:
+            page.goto(url, wait_until="networkidle", timeout=60000)
+          except Exception as e:
+            print(f"  ⚠️ Page {page_num} load error: {e}")
+            break
+          
+          # Wait for content to load
+          page.wait_for_timeout(3000)
+          
+          # Scroll to load lazy content
+          page.evaluate("window.scrollTo(0, document.body.scrollHeight)")
+          page.wait_for_timeout(2000)
+          page.evaluate("window.scrollTo(0, 0)")
+          page.wait_for_timeout(1000)
+          
+          # Get page content
+          html = page.content()
+          soup = BeautifulSoup(html, "html.parser")
+          
+          # Parse dogs from this page
+          page_dogs = self._parse_dog_page(soup, url, status)
+          
+          if not page_dogs:
+            print(f"  ↳ No dogs found on page {page_num}, stopping pagination")
+            break
+          
+          print(f"  ↳ Found {len(page_dogs)} dogs on page {page_num}")
+          all_dogs.extend(page_dogs)
+          
+          # Check if there's a next page
+          has_next = self._has_next_page(soup, page_num)
+          if not has_next:
+            print(f"  ↳ No more pages after page {page_num}")
+            break
+          
+          page_num += 1
+        
+        browser.close()
+        
+    except Exception as e:
+      print(f"  ❌ Playwright error: {e}")
+    
+    return all_dogs
+  
+  def _has_next_page(self, soup: BeautifulSoup, current_page: int) -> bool:
+    """Check if there's a next page in WordPress pagination"""
+    # Look for pagination links
+    # Common patterns: wpv-pagination, page-numbers, pagination
+    
+    # Check for "next" link
+    next_links = soup.find_all("a", class_=re.compile(r"(next|wpv-pagination-next)"))
+    if next_links:
+      return True
+    
+    # Check for page number links
+    page_links = soup.find_all("a", href=re.compile(r"wpv_paged=\d+"))
+    for link in page_links:
+      href = link.get("href", "")
+      match = re.search(r"wpv_paged=(\d+)", href)
+      if match:
+        linked_page = int(match.group(1))
+        if linked_page > current_page:
+          return True
+    
+    # Check for page-numbers class (WordPress default)
+    page_numbers = soup.find_all("a", class_="page-numbers")
+    for link in page_numbers:
+      text = link.get_text(strip=True)
+      if text.isdigit() and int(text) > current_page:
+        return True
+      if "next" in link.get("class", []) or "→" in text or "»" in text:
+        return True
+    
+    return False
+  
   def _scrape_with_playwright(self, url: str, status: str) -> List[Dog]:
-    """Scrape using Playwright for full JS rendering"""
+    """Scrape single page using Playwright for full JS rendering (legacy)"""
     dogs = []
     
     try:
@@ -158,9 +260,17 @@ class DoodleRockScraper(BaseScraper):
       if not name or len(name) < 2 or len(name) > 40:
         continue
       
-      # Skip non-dog entries
-      skip_words = ["adopt", "foster", "alumni", "apply", "rescue", "doodle rock", "facebook"]
+      # Skip non-dog entries (including tracking pixels like fbpx)
+      skip_words = [
+        "adopt", "foster", "alumni", "apply", "rescue", "doodle rock", "facebook",
+        "fbpx", "pixel", "tracking", "script", "analytics", "gtag", "gtm",
+        "widget", "sidebar", "footer", "header", "menu", "nav", "search"
+      ]
       if any(word in name.lower() for word in skip_words):
+        continue
+      
+      # Skip if name looks like code/technical
+      if re.match(r"^[a-z]{2,4}$", name.lower()) and name.lower() in ["fbpx", "gtag", "init", "load"]:
         continue
       
       # Determine breed from text
@@ -297,7 +407,12 @@ class DoodleRockScraper(BaseScraper):
       if len(alt) < 3 or len(alt) > 40:
         continue
       
-      skip_words = ["logo", "image", "photo", "icon", "banner", "doodle rock", "rescue"]
+      skip_words = [
+        "logo", "image", "photo", "icon", "banner", "doodle rock", "rescue",
+        "fbpx", "pixel", "tracking", "script", "analytics", "gtag", "gtm",
+        "widget", "sidebar", "footer", "header", "menu", "nav", "search",
+        "facebook", "twitter", "instagram", "social"
+      ]
       if any(word in alt.lower() for word in skip_words):
         continue
       
