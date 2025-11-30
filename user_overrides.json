@@ -32,14 +32,14 @@
     },
     "doo_kru": {
       "score_modifier": 2,
-      "fit_score": 13,
+      "fit_score": 12,
       "weight": 60,
       "age_range": "3 yrs",
       "energy_level": "Low",
       "shedding": "Low",
       "good_with_dogs": "Yes",
       "good_with_kids": "Yes",
-      "good_with_cats": "Yes",
+      "good_with_cats": "Unknown",
       "special_needs": "No",
       "notes": ""
     },
@@ -303,7 +303,7 @@
     "specialNeeds": -1
   },
   "_meta": {
-    "last_updated": "2025-11-29T14:37:47.596Z",
+    "last_updated": "2025-11-30T01:49:35.726Z",
     "version": "1.0"
   }
 }
