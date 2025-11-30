@@ -283,7 +283,8 @@
     },
     "doo_blitz": {
       "score_modifier": 4,
-      "fit_score": 6
+      "fit_score": 6,
+      "watch_list": "Yes"
     },
     "doo_skipper": {
       "score_modifier": 2,
@@ -338,7 +339,7 @@
     "pendingPenalty": -8
   },
   "_meta": {
-    "last_updated": "2025-11-30T03:44:10.797Z",
+    "last_updated": "2025-11-30T03:44:26.173Z",
     "version": "1.0"
   }
 }
