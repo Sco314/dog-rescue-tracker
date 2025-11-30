@@ -100,44 +100,53 @@ def generate_html_dashboard(output_path="dashboard.html"):
       background: var(--bg-secondary);
       border-radius: 12px;
     }
-    header h1 { font-size: 2rem; margin-bottom: 0; }
+    header h1 { font-size: 1.75rem; margin-bottom: 0; }
+    @media (max-width: 900px) {
+      header h1 { font-size: 1.25rem; }
+    }
     .controls {
       display: flex;
-      gap: 15px;
+      gap: 8px;
       margin-bottom: 20px;
-      flex-wrap: wrap;
+      flex-wrap: nowrap;
       align-items: center;
     }
+    @media (max-width: 1200px) {
+      .controls { flex-wrap: wrap; }
+    }
     .search-box {
-      flex: 1;
-      min-width: 200px;
-      padding: 10px 15px;
+      flex: 1 1 150px;
+      min-width: 100px;
+      padding: 8px 12px;
       border: 1px solid #374151;
       border-radius: 8px;
       background: var(--bg-card);
       color: var(--text-primary);
-      font-size: 1rem;
+      font-size: 0.9rem;
     }
     .filter-btn {
-      padding: 10px 20px;
+      padding: 8px 14px;
       border: 1px solid #374151;
       border-radius: 8px;
       background: var(--bg-card);
       color: var(--text-primary);
       cursor: pointer;
       transition: all 0.2s;
+      white-space: nowrap;
+      font-size: 0.9rem;
     }
     .filter-btn:hover, .filter-btn.active {
       background: var(--accent);
       border-color: var(--accent);
     }
     .sort-select {
-      padding: 10px 15px;
+      padding: 8px 10px;
       border: 1px solid #374151;
       border-radius: 8px;
       background: var(--bg-card);
       color: var(--text-primary);
-      font-size: 1rem;
+      font-size: 0.85rem;
+      max-width: 140px;
     }
     .section {
       background: var(--bg-secondary);
@@ -525,10 +534,10 @@ def generate_html_dashboard(output_path="dashboard.html"):
 <body>
   <div class="container">
     <header>
-      <div style="display: flex; justify-content: flex-end; margin-bottom: 10px;">
-        <button class="export-btn" onclick="openConfigModal()" style="background: var(--bg-card);">⚙️ Settings</button>
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <h1>🐕 Scott's Texas Standard Poodle / Doodle Rescue Dashboard</h1>
+        <button class="export-btn" onclick="openConfigModal()" style="background: var(--bg-card); white-space: nowrap;">⚙️ Settings</button>
       </div>
-      <h1>🐕 Standard Poodle / Doodle Rescue Dashboard</h1>
     </header>
     
     <div class="controls">
@@ -861,7 +870,8 @@ def generate_html_dashboard(output_path="dashboard.html"):
         goodWithKids: 1,
         goodWithCats: 1,
         doodleBreed: 1,
-        specialNeeds: -1
+        specialNeeds: -1,
+        pendingPenalty: -8
       }
     };
     let overridesFileSha = null; // Needed for GitHub updates
@@ -1257,6 +1267,9 @@ def generate_html_dashboard(output_path="dashboard.html"):
       
       // Special needs
       if (dog.special_needs === 'Yes') score += sc.specialNeeds;
+      
+      // Pending status penalty (-8 points)
+      if (dog.status === 'Pending') score += (sc.pendingPenalty || -8);
       
       // Manual modifier
       const mod = dog.score_modifier || 0;
