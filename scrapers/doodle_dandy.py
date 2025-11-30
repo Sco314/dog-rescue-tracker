@@ -1,12 +1,12 @@
 """
 Scraper for Doodle Dandy Rescue (DFW/Houston/Austin/SA)
-v3.1.0 - Fixed image matching + expanded breed patterns + better Load More handling
+v3.2.0 - Fixed Load More detection + block junk names + thorough scrolling
 
-Changes in v3.1.0:
-- Fixed image-to-dog matching to prevent photo jumbling
-- Expanded breed patterns to catch more doodle/poo variations
-- Increased Load More clicks to 25 (from 10) to ensure all dogs loaded
-- Added dog count logging for visibility
+Changes in v3.2.0:
+- Fixed Load More detection to stop when no new dogs load (was clicking 25x pointlessly)
+- Added "Austin", "More", "Load More", "Gallery", "SAN" to skip patterns (were being picked up as dog names)
+- Added thorough scrolling to trigger lazy-loaded Wix gallery content
+- More specific Load More button detection (exact text match, not contains)
 
 The site is Wix-based and uses a "Load More" button to paginate dogs.
 This scraper uses Playwright to click the button and load all dogs.
@@ -81,7 +81,14 @@ class DoodleDandyScraper(BaseScraper):
         seen.add(dog.dog_id)
         unique_dogs.append(dog)
     
-    print(f"  ✅ Found {len(unique_dogs)} unique dogs from Doodle Dandy")
+    # Print summary of all dogs found
+    print(f"\n  ✅ Found {len(unique_dogs)} unique dogs from Doodle Dandy")
+    print(f"  📋 Dogs list:")
+    for dog in unique_dogs:
+      status_emoji = "🟢" if dog.status == "Available" else "🟡" if dog.status == "Upcoming" else "🔴"
+      img_emoji = "📷" if dog.image_url else "  "
+      print(f"    {status_emoji} {img_emoji} {dog.dog_name} ({dog.breed}, {dog.weight or '?'}lbs) - {dog.status}")
+    
     return unique_dogs
   
   def _playwright_available(self) -> bool:
@@ -134,36 +141,46 @@ class DoodleDandyScraper(BaseScraper):
         
         # Click "Load More" button repeatedly until all dogs are loaded
         load_more_clicks = 0
-        max_clicks = 25  # Increased to handle larger lists
+        max_clicks = 15  # Reasonable limit
+        last_count = initial_count
+        no_change_count = 0
         
         while load_more_clicks < max_clicks:
-          # Use JavaScript to find and click Load More button (much faster than selectors)
+          # Use JavaScript to find and click Load More button
+          # Be more specific: look for Wix gallery load more buttons
           clicked = page.evaluate("""
             () => {
-              // Look for buttons/elements containing "Load More" or "Show More" text
-              const texts = ['load more', 'show more', 'see more'];
+              // Wix sites often use specific patterns for Load More
+              // Look for elements with exact "Load More" text
+              const loadMoreTexts = ['load more', 'show more'];
               
-              // Check buttons first
-              const buttons = document.querySelectorAll('button, [role="button"]');
+              // Method 1: Look for buttons with Load More text
+              const buttons = document.querySelectorAll('button, [role="button"], [data-testid*="load"], [data-testid*="more"]');
               for (const btn of buttons) {
-                const text = btn.textContent.toLowerCase().trim();
-                if (texts.some(t => text.includes(t)) && btn.offsetParent !== null) {
+                const text = (btn.textContent || '').toLowerCase().trim();
+                if (loadMoreTexts.some(t => text === t) && btn.offsetParent !== null) {
                   btn.click();
-                  return true;
+                  return 'button';
                 }
               }
               
-              // Check spans/divs that might be clickable
-              const allElements = document.querySelectorAll('span, div, a');
+              // Method 2: Look for Wix-specific gallery load more
+              const wixLoadMore = document.querySelector('[data-hook="load-more-button"], .load-more-button, [class*="loadMore"]');
+              if (wixLoadMore && wixLoadMore.offsetParent !== null) {
+                wixLoadMore.click();
+                return 'wix-hook';
+              }
+              
+              // Method 3: Look for clickable spans/divs with EXACT "Load More" text
+              const allElements = document.querySelectorAll('span, div, a, p');
               for (const el of allElements) {
-                const text = el.textContent.toLowerCase().trim();
-                // Only match if text is short (actual button text, not page content)
-                if (text.length < 20 && texts.some(t => text.includes(t)) && el.offsetParent !== null) {
-                  // Check if it looks clickable
+                const text = (el.textContent || '').toLowerCase().trim();
+                // Must be EXACT match or very close, not just contains
+                if ((text === 'load more' || text === 'show more') && el.offsetParent !== null) {
                   const style = window.getComputedStyle(el);
-                  if (style.cursor === 'pointer' || el.onclick || el.closest('button')) {
+                  if (style.cursor === 'pointer' || el.onclick) {
                     el.click();
-                    return true;
+                    return 'span-exact';
                   }
                 }
               }
@@ -174,9 +191,35 @@ class DoodleDandyScraper(BaseScraper):
           
           if clicked:
             load_more_clicks += 1
-            print(f"    ↳ Clicked Load More (#{load_more_clicks})")
+            print(f"    ↳ Clicked Load More (#{load_more_clicks}) via {clicked}")
             # Wait for new content to load
-            page.wait_for_timeout(1500)
+            page.wait_for_timeout(2000)
+            
+            # Check if dog count increased
+            new_count = page.evaluate("""
+              () => {
+                const imgs = document.querySelectorAll('img[src*="wixstatic"]');
+                let count = 0;
+                for (const img of imgs) {
+                  const src = img.src || '';
+                  if (src.includes('w_') && src.includes('h_')) {
+                    const match = src.match(/w_(\\d+)/);
+                    if (match && parseInt(match[1]) >= 100) count++;
+                  }
+                }
+                return count;
+              }
+            """)
+            
+            if new_count > last_count:
+              print(f"    ↳ Dogs increased: {last_count} → {new_count}")
+              last_count = new_count
+              no_change_count = 0
+            else:
+              no_change_count += 1
+              if no_change_count >= 2:
+                print(f"    ↳ No new dogs after {no_change_count} clicks, stopping")
+                break
           else:
             # No more Load More button - all dogs loaded
             if load_more_clicks == 0:
@@ -188,11 +231,35 @@ class DoodleDandyScraper(BaseScraper):
         if load_more_clicks > 0:
           print(f"    ✅ Clicked Load More {load_more_clicks} time(s)")
         
-        # Scroll to ensure all lazy-loaded images are triggered
-        page.evaluate("window.scrollTo(0, document.body.scrollHeight)")
-        page.wait_for_timeout(1000)
-        page.evaluate("window.scrollTo(0, 0)")
-        page.wait_for_timeout(500)
+        # Thorough scrolling to trigger ALL lazy-loaded content
+        # Wix galleries often lazy-load as you scroll
+        print(f"    ↳ Scrolling through page to trigger lazy loading...")
+        page.evaluate("""
+          async () => {
+            const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+            const height = document.body.scrollHeight;
+            const step = window.innerHeight / 2;
+            
+            // Scroll down in steps
+            for (let y = 0; y < height; y += step) {
+              window.scrollTo(0, y);
+              await delay(300);
+            }
+            
+            // Scroll to bottom and wait
+            window.scrollTo(0, document.body.scrollHeight);
+            await delay(500);
+            
+            // Scroll back up in steps (sometimes triggers more loading)
+            for (let y = document.body.scrollHeight; y >= 0; y -= step) {
+              window.scrollTo(0, y);
+              await delay(200);
+            }
+            
+            window.scrollTo(0, 0);
+          }
+        """)
+        page.wait_for_timeout(1500)
         
         # Count final dogs visible
         final_count = page.evaluate("""
@@ -412,6 +479,9 @@ class DoodleDandyScraper(BaseScraper):
     lines = [line.strip() for line in text.split("\n") if line.strip()]
     image_urls = image_urls or {}
     
+    # Debug: count potential dog names before filtering
+    print(f"  📝 Text has {len(lines)} non-empty lines")
+    
     # Words/patterns to skip (not dog names) - EXPANDED LIST
     skip_patterns = [
       # Image files
@@ -449,6 +519,19 @@ class DoodleDandyScraper(BaseScraper):
       r"policies and procedures", r"fur-ever", r"forever home",
       r"ready for adoption", r"doodles ready", r"rescue 20",
       r"full bio", r"right for you", r"oster family",
+      
+      # UI elements that get picked up as names
+      r"^load\s*more$", r"^show\s*more$", r"^see\s*more$", r"^more$",
+      r"^gallery$", r"^menu$", r"^search$", r"^filter",
+      r"^sort", r"^back$", r"^next$", r"^prev",
+      
+      # Location names (these are NOT dog names!)
+      r"^austin$", r"^houston$", r"^dallas$", r"^san\s*antonio$",
+      r"^hou$", r"^dfw$", r"^aus$", r"^atx$", r"^satx$", r"^san$", r"^sa$",
+      r"^texas$", r"^tx$",
+      
+      # Fill out form text
+      r"^fill\s*out", r"form$", r"^how\s*our",
     ]
     
     # Valid breeds - expanded to catch all doodle/poo variations
@@ -519,6 +602,7 @@ class DoodleDandyScraper(BaseScraper):
       
       i += 1
     
+    print(f"  ✅ Parsed {len(dogs)} dogs from this page")
     return dogs
   
   def _try_parse_dog_card(self, lines: List[str], start_idx: int) -> Optional[dict]:
@@ -622,9 +706,14 @@ class DoodleDandyScraper(BaseScraper):
       "adoption", "application", "adopt", "rescue",
       "policies", "procedures", "copyright", "privacy",
       "facebook", "instagram", "tiktok", "youtube",
-      "male", "female", "hou", "dfw", "aus", "sa", "atx",
+      "male", "female", "hou", "dfw", "aus", "sa", "atx", "satx", "san",
       "low", "medium", "high", "unknown",
       "our policies", "oster family", "happy tails",
+      # UI elements
+      "load more", "show more", "see more", "more", "gallery",
+      "menu", "search", "filter", "sort", "back", "next",
+      # Location names
+      "austin", "houston", "dallas", "san antonio", "texas",
     ]
     if name.lower() in reject_names:
       return None
