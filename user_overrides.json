@@ -113,7 +113,8 @@
     },
     "poo_zira": {
       "score_modifier": -1,
-      "fit_score": 4
+      "fit_score": 4,
+      "watch_list": ""
     },
     "poo_happy_tails": {
       "score_modifier": -3,
@@ -316,10 +317,11 @@
     "goodWithKids": 1,
     "goodWithCats": 1,
     "doodleBreed": 1,
-    "specialNeeds": -1
+    "specialNeeds": -1,
+    "pendingPenalty": -8
   },
   "_meta": {
-    "last_updated": "2025-11-30T02:56:23.735Z",
+    "last_updated": "2025-11-30T03:35:17.210Z",
     "version": "1.0"
   }
 }
