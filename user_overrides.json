@@ -306,6 +306,9 @@
     "poo_jojo": {
       "score_modifier": -2,
       "fit_score": 7
+    },
+    "doo_strider": {
+      "watch_list": "Yes"
     }
   },
   "acknowledgedChanges": [
@@ -339,7 +342,7 @@
     "pendingPenalty": -8
   },
   "_meta": {
-    "last_updated": "2025-11-30T03:44:26.173Z",
+    "last_updated": "2025-11-30T03:44:28.824Z",
     "version": "1.0"
   }
 }
