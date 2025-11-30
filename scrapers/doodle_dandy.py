@@ -236,32 +236,36 @@ class DoodleDandyScraper(BaseScraper):
         # Thorough scrolling to trigger ALL lazy-loaded content
         # Wix galleries often lazy-load as you scroll
         print(f"    ↳ Scrolling through page to trigger lazy loading...")
-        page.evaluate("""
-          async () => {
-            const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
-            const height = document.body.scrollHeight;
-            const step = window.innerHeight / 2;
-            
-            // Scroll down in steps
-            for (let y = 0; y < height; y += step) {
-              window.scrollTo(0, y);
+        
+        # Multiple scroll passes to ensure all virtual content is rendered
+        for scroll_pass in range(3):
+          page.evaluate("""
+            async () => {
+              const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+              const height = document.body.scrollHeight;
+              const step = 300;  // Smaller steps for better coverage
+              
+              // Scroll down slowly
+              for (let y = 0; y < height + 1000; y += step) {
+                window.scrollTo(0, y);
+                await delay(150);
+              }
+              
+              // Wait at bottom
+              window.scrollTo(0, document.body.scrollHeight);
+              await delay(800);
+              
+              // Scroll back up
+              for (let y = document.body.scrollHeight; y >= 0; y -= step) {
+                window.scrollTo(0, y);
+                await delay(100);
+              }
+              
+              window.scrollTo(0, 0);
               await delay(300);
             }
-            
-            // Scroll to bottom and wait
-            window.scrollTo(0, document.body.scrollHeight);
-            await delay(500);
-            
-            // Scroll back up in steps (sometimes triggers more loading)
-            for (let y = document.body.scrollHeight; y >= 0; y -= step) {
-              window.scrollTo(0, y);
-              await delay(200);
-            }
-            
-            window.scrollTo(0, 0);
-          }
-        """)
-        page.wait_for_timeout(1500)
+          """)
+          page.wait_for_timeout(1000)
         
         # Count final dogs visible
         final_count = page.evaluate("""
