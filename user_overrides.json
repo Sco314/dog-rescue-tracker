@@ -273,6 +273,10 @@
     "doo_eleanorb": {
       "score_modifier": -2,
       "fit_score": 0
+    },
+    "poo_charlie": {
+      "score_modifier": -1,
+      "fit_score": 4
     }
   },
   "acknowledgedChanges": [
@@ -303,7 +307,7 @@
     "specialNeeds": -1
   },
   "_meta": {
-    "last_updated": "2025-11-30T01:49:35.726Z",
+    "last_updated": "2025-11-30T01:50:17.214Z",
     "version": "1.0"
   }
 }
