@@ -532,6 +532,9 @@ class DoodleDandyScraper(BaseScraper):
       
       # Fill out form text
       r"^fill\s*out", r"form$", r"^how\s*our",
+      
+      # Site navigation/footer text that appears as fake dogs
+      r"^rehome$", r"^community$", r"^copyright",
     ]
     
     # Valid breeds - expanded to catch all doodle/poo variations
@@ -714,6 +717,8 @@ class DoodleDandyScraper(BaseScraper):
       "menu", "search", "filter", "sort", "back", "next",
       # Location names
       "austin", "houston", "dallas", "san antonio", "texas",
+      # Site navigation text
+      "rehome", "community", "copyright",
     ]
     if name.lower() in reject_names:
       return None
