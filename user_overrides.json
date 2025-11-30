@@ -112,8 +112,8 @@
       "fit_score": 5
     },
     "poo_zira": {
-      "score_modifier": -1,
-      "fit_score": 4,
+      "score_modifier": -2,
+      "fit_score": 3,
       "watch_list": ""
     },
     "poo_happy_tails": {
@@ -321,7 +321,7 @@
     "pendingPenalty": -8
   },
   "_meta": {
-    "last_updated": "2025-11-30T03:35:17.210Z",
+    "last_updated": "2025-11-30T03:35:19.260Z",
     "version": "1.0"
   }
 }
