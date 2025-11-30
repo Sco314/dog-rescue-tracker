@@ -1,6 +1,8 @@
 """
 Scraper for Poodle Patch Rescue (Texarkana, TX)
-WordPress-based site - more static HTML friendly
+v2.0.0 - WordPress-based site with improved pending detection and data extraction
+
+Poodle Patch indicates pending status by adding "-pending" or "pending" to dog names.
 """
 import re
 from typing import List, Optional
@@ -123,11 +125,16 @@ class PoodlePatchScraper(BaseScraper):
     for link in soup.find_all("a", href=True):
       href = link["href"]
       if re.match(r"https?://poodlepatchrescue\.com/[a-zA-Z0-9-]+/?$", href):
-        excluded = ["about-us", "application", "contact", "category", 
-                    "our-animals", "adoptable-pets", "donate", "foster",
-                    "happy-tails", "author", "tag", "page"]
+        # Expanded exclusion list
+        excluded = [
+          "about-us", "application", "contact", "category", 
+          "our-animals", "adoptable-pets", "donate", "foster",
+          "happy-tails", "adopted-animals", "author", "tag", "page",
+          "privacy", "terms", "faq", "home", "blog", "news",
+          "volunteer", "events", "resources", "education"
+        ]
         slug = href.rstrip("/").split("/")[-1].lower()
-        if slug not in excluded and not any(ex in href for ex in excluded):
+        if slug not in excluded and not any(ex in href.lower() for ex in excluded):
           dog_links.add(href)
     
     print(f"  🔗 Found {len(dog_links)} potential dog pages")
@@ -141,7 +148,7 @@ class PoodlePatchScraper(BaseScraper):
     
     return dogs
   
-  def _scrape_dog_page(self, url: str, status: str, listing_image_url: str = "") -> Optional[Dog]:
+  def _scrape_dog_page(self, url: str, default_status: str, listing_image_url: str = "") -> Optional[Dog]:
     """Scrape individual dog profile page"""
     soup = self.fetch_page(url)
     if not soup:
@@ -165,6 +172,27 @@ class PoodlePatchScraper(BaseScraper):
     # Clean up name - remove rescue suffix that sometimes appears
     name = re.sub(r"\s*[-–—]\s*Poodle Patch Rescue.*$", "", name, flags=re.IGNORECASE)
     name = name.strip()
+    
+    # Skip non-dog pages
+    skip_names = [
+      "happy tails", "adopted animals", "adoptable pets", "our animals",
+      "home", "about", "contact", "donate", "foster", "volunteer",
+      "application", "faq", "privacy", "terms"
+    ]
+    if name.lower() in skip_names or any(skip in name.lower() for skip in skip_names):
+      return None
+    
+    # Detect pending status from name
+    # Patterns: "Name-pending", "Name pending", "Name -pending", "Name 2 pending"
+    status = default_status
+    original_name = name
+    if re.search(r"[-\s]pending\s*$", name, re.IGNORECASE):
+      status = "Pending"
+      # Clean the pending suffix from the name
+      name = re.sub(r"\s*[-\s]pending\s*$", "", name, flags=re.IGNORECASE).strip()
+    
+    # Also check for "-girl" or "-boy" suffix (descriptive, not pending)
+    name = re.sub(r"\s*-\s*(girl|boy)\s*$", "", name, flags=re.IGNORECASE).strip()
     
     # Get description/bio text
     bio = ""
@@ -225,7 +253,8 @@ class PoodlePatchScraper(BaseScraper):
     dog.fit_score = calculate_fit_score(dog)
     dog.watch_list = check_watch_list(dog)
     
-    print(f"  🐕 {name}: {weight or '?'}lbs | Fit: {dog.fit_score} | {status}")
+    status_icon = "⏳" if status == "Pending" else "🐕"
+    print(f"  {status_icon} {name}: {weight or '?'}lbs | Fit: {dog.fit_score} | {status}")
     return dog
   
   def _extract_image(self, soup: BeautifulSoup) -> str:
@@ -264,31 +293,76 @@ class PoodlePatchScraper(BaseScraper):
   
   def _extract_weight_from_text(self, text: str) -> Optional[int]:
     """Extract weight from bio text"""
+    text_lower = text.lower()
     patterns = [
+      # "weighs 53 lbs" or "He weighs 53 lbs"
       r"weighs?\s*(\d+)\s*(?:lbs?|pounds?)",
-      r"(\d+)\s*(?:lbs?|pounds?)",
-      r"weight[:\s]+(\d+)"
+      # "53 lbs" standalone
+      r"\b(\d+)\s*(?:lbs?|pounds?)\b",
+      # "weight: 53" or "weight 53"
+      r"weight[:\s]+(\d+)",
+      # "83 lbs now" or "currently 53 lbs"
+      r"(\d+)\s*(?:lbs?|pounds?)\s*(?:now|currently)",
+      # "needs to weigh closer to 70"
+      r"weigh\s*(?:closer\s*to\s*)?(\d+)",
     ]
     for pattern in patterns:
-      match = re.search(pattern, text.lower())
+      match = re.search(pattern, text_lower)
       if match:
-        return int(match.group(1))
+        weight = int(match.group(1))
+        # Sanity check - dogs typically 5-150 lbs
+        if 5 <= weight <= 150:
+          return weight
     return None
   
   def _extract_age_from_text(self, text: str) -> str:
     """Extract age from bio text"""
+    text_lower = text.lower()
+    
     patterns = [
+      # "2 years old" or "two year old" 
       r"(\d+)\s*(?:years?|yrs?)\s*old",
+      # "is 2 years old"
+      r"is\s*(\d+)\s*(?:years?|yrs?)",
+      # "5 years old" at start of sentence
+      r"(?:he|she|dog)\s+is\s+(\d+)\s*(?:years?|yrs?)",
+      # "age: 2" or "age 2"
       r"age[:\s]+(\d+)",
-      r"(\d+)\s*(?:months?|mos?)\s*old"
+      # "6 months old"
+      r"(\d+)\s*(?:months?|mos?)\s*old",
+      # "is 6 months"
+      r"is\s*(\d+)\s*(?:months?|mos?)",
+      # "one year old", "two year old", etc.
+      r"(one|two|three|four|five|six|seven|eight|nine|ten)\s*(?:years?|yrs?)\s*old",
+      # DOB pattern - calculate age (simplified)
+      r"dob\s*(?:is\s*)?(\d{1,2})/(\d{1,2})/(\d{2,4})",
     ]
+    
+    # Number word to digit mapping
+    word_to_num = {
+      "one": "1", "two": "2", "three": "3", "four": "4", "five": "5",
+      "six": "6", "seven": "7", "eight": "8", "nine": "9", "ten": "10"
+    }
+    
     for pattern in patterns:
-      match = re.search(pattern, text.lower())
+      match = re.search(pattern, text_lower)
       if match:
         num = match.group(1)
-        if "month" in pattern:
-          return f"{num} months"
-        return f"{num} years"
+        
+        # Convert word to number if needed
+        if num in word_to_num:
+          num = word_to_num[num]
+        
+        # Check if it's months
+        if "month" in pattern or "mos" in pattern:
+          return f"{num} mos"
+        
+        # DOB pattern - skip for now, complex
+        if "dob" in pattern:
+          continue
+          
+        return f"{num} yrs"
+    
     return ""
   
   def _extract_sex_from_text(self, text: str) -> str:
@@ -357,16 +431,31 @@ class PoodlePatchScraper(BaseScraper):
   
   def _guess_breed(self, text: str) -> str:
     """Guess breed from bio text"""
-    breeds = [
-      "poodle", "goldendoodle", "labradoodle", "bernedoodle",
-      "aussiedoodle", "sheepadoodle", "poodle mix", "doodle"
-    ]
     text_lower = text.lower()
-    found = []
-    for breed in breeds:
-      if breed in text_lower:
-        found.append(breed.title())
-    return ", ".join(found) if found else "Poodle/Mix"
+    
+    # Specific breed patterns (order matters - more specific first)
+    breed_patterns = [
+      (r"standard\s+poodle", "Standard Poodle"),
+      (r"golden\s+poodle\s+mix", "Golden Poodle Mix"),
+      (r"poodle\s+lab\s+mix", "Poodle Lab Mix"),
+      (r"goldendoodle", "Goldendoodle"),
+      (r"labradoodle", "Labradoodle"),
+      (r"bernedoodle", "Bernedoodle"),
+      (r"aussiedoodle", "Aussiedoodle"),
+      (r"sheepadoodle", "Sheepadoodle"),
+      (r"cavapoo", "Cavapoo"),
+      (r"maltipoo", "Maltipoo"),
+      (r"cockapoo", "Cockapoo"),
+      (r"poodle\s+mix", "Poodle Mix"),
+      (r"doodle", "Doodle"),
+      (r"poodle", "Poodle"),
+    ]
+    
+    for pattern, breed_name in breed_patterns:
+      if re.search(pattern, text_lower):
+        return breed_name
+    
+    return "Poodle/Mix"
   
   def _guess_shedding(self, text: str) -> str:
     """Guess shedding level from breed/description"""
