@@ -303,8 +303,8 @@
       "fit_score": 3
     },
     "poo_jojo": {
-      "score_modifier": -1,
-      "fit_score": 8
+      "score_modifier": -2,
+      "fit_score": 7
     }
   },
   "acknowledgedChanges": [
@@ -338,7 +338,7 @@
     "pendingPenalty": -8
   },
   "_meta": {
-    "last_updated": "2025-11-30T03:44:04.726Z",
+    "last_updated": "2025-11-30T03:44:10.797Z",
     "version": "1.0"
   }
 }
