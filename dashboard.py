@@ -535,7 +535,7 @@ def generate_html_dashboard(output_path="dashboard.html"):
   <div class="container">
     <header>
       <div style="display: flex; justify-content: space-between; align-items: center;">
-        <h1>🐕 Scott's Texas Standard Poodle / Doodle Rescue Dashboard</h1>
+        <h1>Scott's Texas Doodle Rescue Tracker</h1>
         <button class="export-btn" onclick="openConfigModal()" style="background: var(--bg-card); white-space: nowrap;">⚙️ Settings</button>
       </div>
     </header>
