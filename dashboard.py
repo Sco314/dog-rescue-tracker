@@ -70,12 +70,12 @@ def generate_html_dashboard(output_path="dashboard.html"):
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>🐕 Dog Rescue Dashboard</title>
+  <title>🐕 Standard Poodle / Doodle Rescue Dashboard</title>
   <style>
     :root {
-      --bg-primary: #1a1a2e;
-      --bg-secondary: #16213e;
-      --bg-card: #1f2937;
+      --bg-primary: #121212;
+      --bg-secondary: #1e1e1e;
+      --bg-card: #252525;
       --text-primary: #e2e8f0;
       --text-secondary: #94a3b8;
       --accent: #3b82f6;
@@ -100,11 +100,7 @@ def generate_html_dashboard(output_path="dashboard.html"):
       background: var(--bg-secondary);
       border-radius: 12px;
     }
-    header h1 { font-size: 2rem; margin-bottom: 10px; }
-    .stats { display: flex; justify-content: center; gap: 30px; flex-wrap: wrap; }
-    .stat { text-align: center; }
-    .stat-value { font-size: 2rem; font-weight: bold; color: var(--accent); }
-    .stat-label { color: var(--text-secondary); font-size: 0.875rem; }
+    header h1 { font-size: 2rem; margin-bottom: 0; }
     .controls {
       display: flex;
       gap: 15px;
@@ -529,41 +525,25 @@ def generate_html_dashboard(output_path="dashboard.html"):
 <body>
   <div class="container">
     <header>
-      <div style="display: flex; justify-content: space-between; align-items: flex-start;">
-        <h1>🐕 Dog Rescue Dashboard</h1>
+      <div style="display: flex; justify-content: flex-end; margin-bottom: 10px;">
         <button class="export-btn" onclick="openConfigModal()" style="background: var(--bg-card);">⚙️ Settings</button>
       </div>
-      <p style="color: var(--text-secondary); margin-bottom: 15px;">
-        Last updated: ''' + datetime.now().strftime('%Y-%m-%d %H:%M:%S') + '''
-        <span id="syncStatus" style="margin-left: 10px;"></span>
-      </p>
-      <div class="stats">
-        <div class="stat">
-          <div class="stat-value" id="totalDogs">''' + str(len(data['dogs'])) + '''</div>
-          <div class="stat-label">Total Dogs</div>
-        </div>
-        <div class="stat">
-          <div class="stat-value" id="watchCount">''' + str(len([d for d in data['dogs'] if d.get('watch_list') == 'Yes'])) + '''</div>
-          <div class="stat-label">Watching</div>
-        </div>
-        <div class="stat">
-          <div class="stat-value" id="highFitCount">''' + str(len([d for d in data['dogs'] if (d.get('fit_score') or 0) >= 5])) + '''</div>
-          <div class="stat-label">High Fit (5+)</div>
-        </div>
-        <div class="stat">
-          <div class="stat-value" id="availableCount">''' + str(len([d for d in data['dogs'] if d.get('status') == 'Available'])) + '''</div>
-          <div class="stat-label">Available</div>
-        </div>
-      </div>
+      <h1>🐕 Standard Poodle / Doodle Rescue Dashboard</h1>
     </header>
     
     <div class="controls">
       <input type="text" class="search-box" id="searchBox" placeholder="🔍 Search dogs by name, breed, rescue...">
-      <button class="filter-btn active" data-filter="all">All</button>
-      <button class="filter-btn" data-filter="watched">⭐ Watched</button>
-      <button class="filter-btn" data-filter="high-fit">High Fit</button>
       <button class="filter-btn" data-filter="available">Available</button>
       <button class="filter-btn" data-filter="upcoming">Upcoming</button>
+      <button class="filter-btn" data-filter="watched">⭐ Watched</button>
+      <button class="filter-btn" data-filter="high-fit">High Fit</button>
+      <button class="filter-btn active" data-filter="all">All</button>
+      <select class="sort-select" id="rescueFilter">
+        <option value="all">All Rescues</option>
+        <option value="Doodle Rock Rescue">Doodle Rock</option>
+        <option value="Doodle Dandy Rescue">Doodle Dandy</option>
+        <option value="Poodle Patch Rescue">Poodle Patch</option>
+      </select>
       <select class="sort-select" id="sortSelect">
         <option value="fit-desc">Sort: Fit Score ↓</option>
         <option value="fit-asc">Sort: Fit Score ↑</option>
@@ -587,23 +567,11 @@ def generate_html_dashboard(output_path="dashboard.html"):
         <h2 class="section-title">🐕 All Dogs <span class="badge" id="visibleCount">''' + str(len(data['dogs'])) + '''</span></h2>
       </div>
       <div class="dog-grid" id="dogGrid"></div>
-      
-      <div class="export-section">
-        <h3 style="margin-bottom: 10px;">📤 Backup / Restore</h3>
-        <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 10px;">
-          Your changes sync automatically to GitHub. Use these buttons to backup or transfer settings.
-        </p>
-        <p style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 15px;">
-          Your star ratings, score adjustments, and edits are saved in your browser. 
-          Export them to keep a backup or import on another device.
-        </p>
-        <button class="export-btn" onclick="exportMods()">📥 Export Changes</button>
-        <button class="export-btn" onclick="document.getElementById('importFile').click()">📤 Import Changes</button>
-        <input type="file" id="importFile" style="display:none" accept=".json" onchange="importMods(event)">
-        <button class="export-btn" style="background: var(--danger);" onclick="clearMods()">🗑️ Clear All Changes</button>
-      </div>
     </div>
   </div>
+  
+  <!-- Hidden file input for imports -->
+  <input type="file" id="importFile" style="display:none" accept=".json" onchange="importMods(event)">
   
   <!-- Edit Modal -->
   <div class="modal" id="editModal">
@@ -630,7 +598,7 @@ def generate_html_dashboard(output_path="dashboard.html"):
             <!-- Populated by JS -->
           </div>
           <div class="score-note">
-            ⚠️ Changes saved in browser only (localStorage). Export to keep them.
+            ✅ Changes sync automatically to GitHub when saved.
           </div>
         </div>
         
@@ -731,6 +699,17 @@ def generate_html_dashboard(output_path="dashboard.html"):
         <button class="modal-close" onclick="closeConfigModal()">&times;</button>
       </div>
       
+      <!-- Dashboard Info Section -->
+      <div style="margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid #374151;">
+        <h4 style="margin-bottom: 10px; color: var(--accent);">📋 Dashboard Info</h4>
+        <p style="color: var(--text-secondary); font-size: 0.85rem;">
+          Last updated: ''' + datetime.now().strftime('%Y-%m-%d %H:%M:%S') + '''
+        </p>
+        <p style="color: var(--text-secondary); font-size: 0.85rem; margin-top: 5px;">
+          <span id="syncStatusSettings"></span>
+        </p>
+      </div>
+      
       <!-- GitHub Token Section -->
       <div style="margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid #374151;">
         <h4 style="margin-bottom: 10px; color: var(--accent);">🔗 GitHub Sync</h4>
@@ -741,6 +720,19 @@ def generate_html_dashboard(output_path="dashboard.html"):
         <p style="color: var(--text-secondary); font-size: 0.7rem;">
           Fine-grained token with Contents (Read/write) permission for Sco314/dog-rescue-tracker
         </p>
+      </div>
+      
+      <!-- Backup/Restore Section -->
+      <div style="margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid #374151;">
+        <h4 style="margin-bottom: 10px; color: var(--accent);">📤 Backup / Restore</h4>
+        <p style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 10px;">
+          Export your settings for backup or import on another device.
+        </p>
+        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+          <button class="export-btn" onclick="exportMods()">📥 Export</button>
+          <button class="export-btn" onclick="document.getElementById('importFile').click()">📤 Import</button>
+          <button class="export-btn" style="background: var(--danger);" onclick="clearMods()">🗑️ Clear All</button>
+        </div>
       </div>
       
       <!-- Scoring Config Section -->
@@ -1087,6 +1079,9 @@ def generate_html_dashboard(output_path="dashboard.html"):
           msg = field + ': ' + oldVal + ' → ' + newVal;
         }
         
+        // Escape changeKey for use in HTML attribute
+        const safeChangeKey = changeKey.replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+        
         return '<div class="change-item">' +
           '<span class="change-icon">' + icon + '</span>' +
           '<div class="change-details">' +
@@ -1094,12 +1089,13 @@ def generate_html_dashboard(output_path="dashboard.html"):
             '<div class="change-msg">' + msg + '</div>' +
           '</div>' +
           '<span class="change-time">' + timeStr + '</span>' +
-          '<button class="change-ack-btn" data-ack="' + changeKey + '">✓</button>' +
+          '<button class="change-ack-btn" data-ack="' + safeChangeKey + '" title="Acknowledge">✓</button>' +
         '</div>';
       }).join('');
     }
     
     async function acknowledgeChange(changeKey) {
+      console.log('Acknowledging change:', changeKey);
       if (!userOverrides.acknowledgedChanges) {
         userOverrides.acknowledgedChanges = [];
       }
@@ -1526,13 +1522,20 @@ def generate_html_dashboard(output_path="dashboard.html"):
       const searchTerm = document.getElementById('searchBox').value.toLowerCase();
       const activeFilter = document.querySelector('.filter-btn.active').dataset.filter;
       const sortBy = document.getElementById('sortSelect').value;
+      const rescueFilter = document.getElementById('rescueFilter').value;
       
       let filtered = dogsData.filter(dog => {
+        // Search filter
         const searchMatch = !searchTerm || 
           (dog.dog_name || '').toLowerCase().includes(searchTerm) ||
           (dog.breed || '').toLowerCase().includes(searchTerm) ||
           (dog.rescue_name || '').toLowerCase().includes(searchTerm);
         if (!searchMatch) return false;
+        
+        // Rescue filter
+        if (rescueFilter !== 'all' && dog.rescue_name !== rescueFilter) return false;
+        
+        // Status/type filter
         switch (activeFilter) {
           case 'watched': return dog.watch_list === 'Yes';
           case 'high-fit': return (dog.fit_score || 0) >= 5;
@@ -1624,12 +1627,8 @@ def generate_html_dashboard(output_path="dashboard.html"):
       else if (action === 'edit') openEdit(dogId);
     });
     
-    function updateStats() {
-      document.getElementById('totalDogs').textContent = dogsData.length;
-      document.getElementById('watchCount').textContent = dogsData.filter(d => d.watch_list === 'Yes').length;
-      document.getElementById('highFitCount').textContent = dogsData.filter(d => (d.fit_score || 0) >= 5).length;
-      document.getElementById('availableCount').textContent = dogsData.filter(d => d.status === 'Available').length;
-    }
+    // Stats removed - function kept as empty for backward compatibility
+    function updateStats() {}
     
     function exportMods() {
       const data = JSON.stringify(userOverrides, null, 2);
@@ -1679,6 +1678,7 @@ def generate_html_dashboard(output_path="dashboard.html"):
     
     document.getElementById('searchBox').addEventListener('input', renderDogs);
     document.getElementById('sortSelect').addEventListener('change', renderDogs);
+    document.getElementById('rescueFilter').addEventListener('change', renderDogs);
     document.querySelectorAll('.filter-btn').forEach(btn => {
       btn.addEventListener('click', function() {
         document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
@@ -1696,8 +1696,13 @@ def generate_html_dashboard(output_path="dashboard.html"):
     // Initialize: Load overrides from GitHub, then render
     (async function init() {
       await loadOverridesFromGitHub();
+      
+      // Set Available as default filter
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      document.querySelector('.filter-btn[data-filter="available"]').classList.add('active');
+      
       renderDogs();
-      updateStats();
+      renderChanges();
       
       // Show config hint if no token
       if (!githubToken) {
