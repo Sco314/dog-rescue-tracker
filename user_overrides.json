@@ -312,6 +312,9 @@
     },
     "doo_wilson": {
       "watch_list": "Yes"
+    },
+    "doo_macduff": {
+      "watch_list": "Yes"
     }
   },
   "acknowledgedChanges": [
@@ -345,7 +348,7 @@
     "pendingPenalty": -8
   },
   "_meta": {
-    "last_updated": "2025-11-30T03:44:32.778Z",
+    "last_updated": "2025-11-30T03:44:35.373Z",
     "version": "1.0"
   }
 }
