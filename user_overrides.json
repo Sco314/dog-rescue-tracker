@@ -277,6 +277,10 @@
     "poo_charlie": {
       "score_modifier": -1,
       "fit_score": 4
+    },
+    "doo_blitz": {
+      "score_modifier": 1,
+      "fit_score": 3
     }
   },
   "acknowledgedChanges": [
@@ -309,7 +313,7 @@
     "specialNeeds": -1
   },
   "_meta": {
-    "last_updated": "2025-11-30T02:36:20.483Z",
+    "last_updated": "2025-11-30T02:56:12.963Z",
     "version": "1.0"
   }
 }
