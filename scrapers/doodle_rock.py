@@ -315,7 +315,120 @@ class DoodleRockScraper(BaseScraper):
     
     # Fallback: if no dogs found with structured parsing, try other methods
     if not dogs:
+      # Try parsing from center tags without /rescue-dog/ links (for upcoming page)
+      dogs = self._parse_from_center_tags(soup, status)
+    
+    if not dogs:
       dogs = self._parse_from_images(soup, status)
+    
+    return dogs
+  
+  def _parse_from_center_tags(self, soup: BeautifulSoup, status: str) -> List[Dog]:
+    """
+    Parse dog info from <center> tags - used for upcoming dogs page
+    where dogs don't have individual /rescue-dog/ pages yet.
+    
+    Structure is typically:
+    <center>
+      <strong>Name,</strong> Breed<br>
+      Status text
+    </center>
+    """
+    dogs = []
+    seen_names = set()
+    
+    for col in soup.find_all("div", class_=re.compile(r"col-sm-\d")):
+      # Look for center tag with dog info
+      center = col.find("center")
+      if not center:
+        continue
+      
+      # Get text content
+      text = center.get_text(separator=" ", strip=True)
+      if not text or len(text) < 3:
+        continue
+      
+      # Try to find name - usually before comma or in <strong> tag
+      name = ""
+      strong = center.find("strong")
+      if strong:
+        name = strong.get_text(strip=True).rstrip(",").strip()
+      else:
+        # Take first part before comma
+        if "," in text:
+          name = text.split(",")[0].strip()
+        else:
+          # First word might be name
+          words = text.split()
+          if words:
+            name = words[0].strip()
+      
+      # Clean name
+      name = re.sub(r"#\d+", "", name).strip()
+      name = name.rstrip(",").strip()
+      
+      if not name or len(name) < 2 or len(name) > 40:
+        continue
+      
+      # Skip non-dog entries
+      skip_words = [
+        "adopt", "foster", "alumni", "apply", "rescue", "doodle rock", "facebook",
+        "fbpx", "pixel", "tracking", "script", "analytics", "the", "this",
+        "available", "coming", "soon", "welcome", "dog"
+      ]
+      if name.lower() in skip_words or any(word == name.lower() for word in skip_words):
+        continue
+      
+      # Skip duplicates
+      name_key = name.lower()
+      if name_key in seen_names:
+        continue
+      seen_names.add(name_key)
+      
+      # Get image from the col
+      image_url = ""
+      img = col.find("img")
+      if img:
+        image_url = img.get("src", "") or img.get("data-src", "")
+      
+      # Determine breed from text
+      breed = "Poodle Mix"
+      if "," in text:
+        breed_part = text.split(",", 1)[1].strip()
+        # Clean up breed - take first line/part
+        breed_part = breed_part.split("\n")[0].split("<")[0].strip()
+        if breed_part and len(breed_part) < 50:
+          breed = breed_part
+      
+      # Check for status indicators in text
+      text_lower = text.lower()
+      dog_status = status
+      if "pending" in text_lower:
+        dog_status = "Pending"
+      elif "adopted" in text_lower:
+        continue  # Skip adopted dogs
+      
+      dog = Dog(
+        dog_id=self.create_dog_id(name),
+        dog_name=name,
+        rescue_name=self.rescue_name,
+        breed=breed,
+        shedding="Low",  # Poodle mixes
+        energy_level="Medium",
+        platform=self.platform,
+        location=self.location,
+        status=dog_status,
+        source_url="https://doodlerockrescue.org/adopt/coming-soon-for-adoption/",
+        image_url=image_url,
+        date_collected=get_current_date()
+      )
+      
+      dog.fit_score = calculate_fit_score(dog)
+      dog.watch_list = check_watch_list(dog)
+      dogs.append(dog)
+      
+      img_icon = "📸" if image_url else "🐕"
+      print(f"  {img_icon} {name} | Fit: {dog.fit_score} | {dog_status}")
     
     return dogs
   
