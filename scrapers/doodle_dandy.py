@@ -192,8 +192,8 @@ class DoodleDandyScraper(BaseScraper):
           if clicked:
             load_more_clicks += 1
             print(f"    ↳ Clicked Load More (#{load_more_clicks}) via {clicked}")
-            # Wait for new content to load
-            page.wait_for_timeout(2000)
+            # Wait for new content to load (Wix can be slow)
+            page.wait_for_timeout(2500)
             
             # Check if dog count increased
             new_count = page.evaluate("""
@@ -217,7 +217,9 @@ class DoodleDandyScraper(BaseScraper):
               no_change_count = 0
             else:
               no_change_count += 1
-              if no_change_count >= 2:
+              # Allow 3 clicks with no change before giving up (was 2)
+              # This handles slow-loading Wix galleries
+              if no_change_count >= 3:
                 print(f"    ↳ No new dogs after {no_change_count} clicks, stopping")
                 break
           else:
