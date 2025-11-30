@@ -283,6 +283,10 @@
     "doo_blitz": {
       "score_modifier": 4,
       "fit_score": 6
+    },
+    "doo_skipper": {
+      "score_modifier": 1,
+      "fit_score": 5
     }
   },
   "acknowledgedChanges": [
@@ -315,7 +319,7 @@
     "specialNeeds": -1
   },
   "_meta": {
-    "last_updated": "2025-11-30T02:56:20.222Z",
+    "last_updated": "2025-11-30T02:56:22.842Z",
     "version": "1.0"
   }
 }
