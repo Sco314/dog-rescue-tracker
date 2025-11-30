@@ -279,8 +279,8 @@
       "fit_score": 4
     },
     "doo_blitz": {
-      "score_modifier": 2,
-      "fit_score": 4
+      "score_modifier": 3,
+      "fit_score": 5
     }
   },
   "acknowledgedChanges": [
@@ -313,7 +313,7 @@
     "specialNeeds": -1
   },
   "_meta": {
-    "last_updated": "2025-11-30T02:56:14.017Z",
+    "last_updated": "2025-11-30T02:56:14.724Z",
     "version": "1.0"
   }
 }
