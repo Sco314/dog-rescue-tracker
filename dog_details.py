@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 """
 Dog Details Page Generator
-v2.0.0 - Phase 2 (Editable)
+v2.0.1 - Phase 2 (Editable)
 
 Generates a clean, professional dog profile page with editable scoring.
 
