@@ -1,18 +1,26 @@
 name: Dog Rescue Scraper
 
 on:
+  # Run every 4 hours
   schedule:
     - cron: '0 */4 * * *'
+  
+  # Also allow manual trigger from GitHub UI
   workflow_dispatch:
+  
+  # Run on push to test changes
   push:
     branches: [main]
 
 jobs:
-  scrape:
+  scrape-and-deploy:
     runs-on: ubuntu-latest
     
+    # Give workflow permission to commit and deploy
     permissions:
       contents: write
+      pages: write
+      id-token: write
     
     steps:
       - name: Checkout repository
@@ -41,14 +49,17 @@ jobs:
         run: |
           python scraper.py --report
       
-      - name: Generate dashboard
+      - name: Generate static site
         run: |
-          python dashboard.py -o dashboard.html
+          python generate_site.py -o docs --clean
+          echo "Generated site contents:"
+          ls -la docs/
+          ls -la docs/dogs/ | head -20
       
-      - name: Commit database and dashboard
+      - name: Commit database and site
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
-          git add dogs.db dashboard.html || true
-          git diff --staged --quiet || git commit -m "🐕 Update dog database [$(date +'%Y-%m-%d %H:%M')]"
+          git add dogs.db docs/ || true
+          git diff --staged --quiet || git commit -m "🐕 Update dogs & site [$(date +'%Y-%m-%d %H:%M')]"
           git push || echo "Nothing to push"
