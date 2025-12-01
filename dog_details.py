@@ -141,6 +141,28 @@ def generate_dog_details_html(dog: Dog, dal: DAL, user_id: str = "default_user")
             <span class="score-points negative">-8</span>
           </div>
         </div>'''
+  
+  # Build bio section HTML
+  bio_section_html = ""
+  if bio_text:
+    bio_section_html = f'''<div class="section">
+      <div class="section-header">
+        <h2 class="section-title">About {dog.dog_name}</h2>
+      </div>
+      <p class="bio-text">{bio_text}</p>
+    </div>'''
+  
+  # Build adoption section HTML
+  adoption_section_html = ""
+  if adoption_req or dog.adoption_fee:
+    fee_html = f'<p style="margin-top: 15px;"><strong>Adoption Fee:</strong> {dog.adoption_fee}</p>' if dog.adoption_fee else ''
+    adoption_section_html = f'''<div class="section">
+      <div class="section-header">
+        <h2 class="section-title">Adoption Info</h2>
+      </div>
+      <p class="bio-text">{adoption_req}</p>
+      {fee_html}
+    </div>'''
 
   html = f'''<!DOCTYPE html>
 <html lang="en">
@@ -813,21 +835,10 @@ def generate_dog_details_html(dog: Dog, dal: DAL, user_id: str = "default_user")
     </div>
     
     <!-- Bio Section -->
-    {f'''<div class="section">
-      <div class="section-header">
-        <h2 class="section-title">About {dog.dog_name}</h2>
-      </div>
-      <p class="bio-text">{bio_text}</p>
-    </div>''' if bio_text else ''}
+    {bio_section_html}
     
     <!-- Adoption Requirements -->
-    {f'''<div class="section">
-      <div class="section-header">
-        <h2 class="section-title">Adoption Info</h2>
-      </div>
-      <p class="bio-text">{adoption_req}</p>
-      {f'<p style="margin-top: 15px;"><strong>Adoption Fee:</strong> {dog.adoption_fee}</p>' if dog.adoption_fee else ''}
-    </div>''' if adoption_req or dog.adoption_fee else ''}
+    {adoption_section_html}
     
     <!-- Timeline Section -->
     <div class="section">
