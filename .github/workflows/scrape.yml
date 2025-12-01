@@ -51,10 +51,24 @@ jobs:
       
       - name: Generate static site
         run: |
+          echo "=== Checking database before generation ==="
+          python3 -c "
+          import sqlite3
+          conn = sqlite3.connect('dogs.db')
+          cursor = conn.cursor()
+          cursor.execute('SELECT dog_id, dog_name, is_active FROM dogs WHERE is_active = 1')
+          rows = cursor.fetchall()
+          print(f'Active dogs in database: {len(rows)}')
+          for r in rows[:10]:
+              print(f'  {r[0]}: {r[1]}')
+          conn.close()
+          "
+          echo "=== Running site generator ==="
           python generate_site.py -o docs --clean
-          echo "Generated site contents:"
+          echo "=== Generated site contents ==="
           ls -la docs/
-          ls -la docs/dogs/ | head -20
+          echo "=== Dog pages ==="
+          ls -la docs/dogs/ 2>/dev/null || echo "No dogs folder!"
       
       - name: Commit database and site
         run: |
