@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 """
 Site Generator for Dog Rescue Tracker
 v1.0.0 - Phase 3 Dashboard Integration
