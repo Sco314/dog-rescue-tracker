@@ -38,6 +38,7 @@ class Dog:
   notes: str = ""
   source_url: str = ""
   image_url: str = ""  # Primary photo URL
+  additional_images: List[str] = field(default_factory=list)  # Additional photo URLs
   date_collected: str = ""
   date_posted: str = ""
   date_updated: str = ""
