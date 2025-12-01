@@ -128,6 +128,20 @@ def generate_dog_details_html(dog: Dog, dal: DAL, user_id: str = "default_user")
   orig_kids = dog.good_with_kids or "Unknown"
   orig_cats = dog.good_with_cats or "Unknown"
 
+  # Build pending penalty HTML (avoid nested f-string issues)
+  pending_penalty_html = ""
+  if dog.status == "Pending":
+    pending_penalty_html = '''
+        <div class="score-row">
+          <div class="score-row-label">
+            <span class="score-row-icon">-</span>
+            <span>Pending Status</span>
+          </div>
+          <div class="score-row-right">
+            <span class="score-points negative">-8</span>
+          </div>
+        </div>'''
+
   html = f'''<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -794,16 +808,7 @@ def generate_dog_details_html(dog: Dog, dal: DAL, user_id: str = "default_user")
           </div>
         </div>
         
-        {f'''<!-- Pending Penalty -->
-        <div class="score-row">
-          <div class="score-row-label">
-            <span class="score-row-icon">-</span>
-            <span>Pending Status</span>
-          </div>
-          <div class="score-row-right">
-            <span class="score-points negative">-8</span>
-          </div>
-        </div>''' if dog.status == 'Pending' else ''}
+        {pending_penalty_html}
       </div>
     </div>
     
