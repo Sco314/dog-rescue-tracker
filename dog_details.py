@@ -1030,7 +1030,7 @@ def generate_dog_details_html(dog: Dog, dal: DAL, user_id: str = "default_user")
       const success = await saveAll();
       if (success) {{
         setTimeout(() => {{
-          window.location.href = 'dashboard.html';
+          window.location.href = '../dashboard.html';
         }}, 500);
       }}
     }}
@@ -1043,7 +1043,7 @@ def generate_dog_details_html(dog: Dog, dal: DAL, user_id: str = "default_user")
           return;
         }}
       }}
-      window.location.href = 'dashboard.html';
+      window.location.href = '../dashboard.html';
     }}
     
     function checkForChanges() {{
