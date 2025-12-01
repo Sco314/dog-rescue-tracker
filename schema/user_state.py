@@ -29,16 +29,28 @@ class UserOverrides:
   good_with_cats: Optional[str] = None
   good_with_kids: Optional[str] = None
   weight_lbs: Optional[int] = None
+  weight: Optional[int] = None  # Alias for weight_lbs
   age_years: Optional[float] = None
   special_needs: Optional[bool] = None
+  breed_bonus: Optional[str] = None  # Yes/No/Unknown override
   
   # Direct score adjustment (+/- points)
   manual_score_adjustment: int = 0
+  
+  def __post_init__(self):
+    # Sync weight aliases
+    if self.weight is not None and self.weight_lbs is None:
+      self.weight_lbs = self.weight
+    elif self.weight_lbs is not None and self.weight is None:
+      self.weight = self.weight_lbs
   
   def to_dict(self) -> Dict:
     result = {}
     for key, value in asdict(self).items():
       if value is not None and value != 0:
+        # Skip the weight alias in output (use weight_lbs)
+        if key == 'weight' and self.weight_lbs is not None:
+          continue
         result[key] = value
     return result
   
@@ -54,6 +66,8 @@ class UserOverrides:
       if key == 'manual_score_adjustment':
         if value != 0:
           return True
+      elif key == 'weight':  # Skip alias
+        continue
       elif value is not None:
         return True
     return False
