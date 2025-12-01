@@ -70,7 +70,7 @@ def generate_html_dashboard(output_path="dashboard.html"):
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Scott's Texas Doodle Rescue Tracker</title>
+  <title>🐕 Standard Poodle / Doodle Rescue Dashboard</title>
   <style>
     :root {
       --bg-primary: #121212;
@@ -316,14 +316,22 @@ def generate_html_dashboard(output_path="dashboard.html"):
       transition: all 0.2s;
     }
     .action-btn:hover { background: var(--accent); border-color: var(--accent); }
+    .dog-links {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 8px;
+    }
     .dog-link {
       color: var(--accent);
       text-decoration: none;
       font-size: 0.8rem;
-      display: inline-block;
-      margin-bottom: 8px;
     }
     .dog-link:hover { text-decoration: underline; }
+    .dog-link.detail-link { color: var(--text-secondary); }
+    .dog-link.detail-link:hover { color: var(--accent); }
+    .dog-image-link { display: block; }
+    .dog-name-link { text-decoration: none; color: inherit; }
+    .dog-name-link:hover .dog-name { color: var(--accent); }
     .dog-notes {
       font-size: 0.75rem;
       color: var(--text-secondary);
@@ -535,7 +543,7 @@ def generate_html_dashboard(output_path="dashboard.html"):
   <div class="container">
     <header>
       <div style="display: flex; justify-content: space-between; align-items: center;">
-        <h1>Scott's Texas Doodle Rescue Tracker</h1>
+        <h1>🐕 Scott's Texas Standard Poodle / Doodle Rescue Dashboard</h1>
         <button class="export-btn" onclick="openConfigModal()" style="background: var(--bg-card); white-space: nowrap;">⚙️ Settings</button>
       </div>
     </header>
@@ -1315,22 +1323,9 @@ def generate_html_dashboard(output_path="dashboard.html"):
     }
     
     function openEdit(dogId) {
-      const dog = dogsData.find(d => d.dog_id === dogId);
-      if (!dog) return;
-      document.getElementById('editDogId').value = dogId;
-      document.getElementById('editName').value = dog.dog_name || '';
-      document.getElementById('editWeight').value = dog.weight || '';
-      document.getElementById('editAge').value = dog.age_range || '';
-      document.getElementById('editEnergy').value = dog.energy_level || 'Unknown';
-      document.getElementById('editShedding').value = dog.shedding || 'Unknown';
-      document.getElementById('editGoodDogs').value = dog.good_with_dogs || 'Unknown';
-      document.getElementById('editGoodKids').value = dog.good_with_kids || 'Unknown';
-      document.getElementById('editGoodCats').value = dog.good_with_cats || 'Unknown';
-      document.getElementById('editSpecialNeeds').value = dog.special_needs || 'No';
-      document.getElementById('editScoreModifier').value = userOverrides.dogs[dogId]?.score_modifier || 0;
-      document.getElementById('editNotes').value = dog.notes || '';
-      updateScoreBreakdown();
-      document.getElementById('editModal').classList.add('active');
+      // Navigate to the detail page for this dog
+      const detailUrl = 'dogs/' + dogId.replace(/\\//g, '_') + '.html';
+      window.location.href = detailUrl;
     }
     
     function updateScoreBreakdown() {
@@ -1587,12 +1582,14 @@ def generate_html_dashboard(output_path="dashboard.html"):
       const card = document.createElement('div');
       card.className = 'dog-card' + (isWatched ? ' watched' : '') + (statusClass === 'pending' ? ' pending' : '');
       
+      const detailUrl = 'dogs/' + dogId.replace(/\\//g, '_') + '.html';
+      
       card.innerHTML = `
-        ${imageUrl ? '<div class="dog-image"><img src="' + imageUrl + '" alt="' + (dog.dog_name || 'Dog') + '" loading="lazy" onerror="this.parentElement.classList.add(\\'dog-image-placeholder\\');this.parentElement.innerHTML=\\'🐕\\';"></div>' : '<div class="dog-image dog-image-placeholder">🐕</div>'}
+        ${imageUrl ? '<a href="' + detailUrl + '" class="dog-image-link"><div class="dog-image"><img src="' + imageUrl + '" alt="' + (dog.dog_name || 'Dog') + '" loading="lazy" onerror="this.parentElement.classList.add(\\'dog-image-placeholder\\');this.parentElement.innerHTML=\\'🐕\\';"></div></a>' : '<a href="' + detailUrl + '" class="dog-image-link"><div class="dog-image dog-image-placeholder">🐕</div></a>'}
         <div class="dog-content">
           <div class="dog-header">
             <div>
-              <div class="dog-name">${dog.dog_name || 'Unknown'}</div>
+              <a href="${detailUrl}" class="dog-name-link"><div class="dog-name">${dog.dog_name || 'Unknown'}</div></a>
               <div class="dog-rescue">${dog.rescue_name || 'Unknown Rescue'}</div>
             </div>
             <button class="star-btn ${isWatched ? 'starred' : ''}" data-action="watch" data-id="${dogId}">${isWatched ? '★' : '☆'}</button>
@@ -1616,9 +1613,9 @@ def generate_html_dashboard(output_path="dashboard.html"):
             <div class="detail"><span class="detail-label">Cats</span><span class="detail-value ${valueClass(dog.good_with_cats)}">${dog.good_with_cats || '?'}</span></div>
             <div class="detail"><span class="detail-label">Shedding</span><span class="detail-value">${dog.shedding || '?'}</span></div>
           </div>
-          <a href="${url}" target="_blank" class="dog-link">🔗 View on rescue site</a>
-          <div class="dog-actions">
-            <button class="action-btn" data-action="edit" data-id="${dogId}">✏️ Edit</button>
+          <div class="dog-links">
+            <a href="${url}" target="_blank" class="dog-link">🔗 Rescue Site</a>
+            <a href="${detailUrl}" class="dog-link detail-link">📋 Details</a>
           </div>
         </div>
       `;
