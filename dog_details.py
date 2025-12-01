@@ -48,7 +48,7 @@ def generate_dog_details_html(dog: Dog, dal: DAL, user_id: str = "default_user")
   # Status styling
   status_colors = {
     "Available": ("#10b981", "✅"),
-    "Pending": ("#f59e0b", "⏳"),
+    "Pending": ("#f59e0b", "&#9203;"),
     "Upcoming": ("#3b82f6", "🔜"),
     "Adopted": ("#6b7280", "🏠"),
   }
@@ -778,7 +778,7 @@ def generate_dog_details_html(dog: Dog, dal: DAL, user_id: str = "default_user")
         {f'''<!-- Pending Penalty -->
         <div class="score-row">
           <div class="score-row-label">
-            <span class="score-row-icon">⏳</span>
+            <span class="score-row-icon">&#9203;</span>
             <span>Pending Status</span>
           </div>
           <div class="score-row-right">
@@ -1076,7 +1076,7 @@ def generate_dog_details_html(dog: Dog, dal: DAL, user_id: str = "default_user")
         '👶 Good with Kids: +1\\n' +
         '🐱 Good with Cats: +1\\n' +
         '🐩 Doodle/Poodle: +1\\n' +
-        '⏳ Pending status: -8');
+        '&#9203; Pending status: -8');
     }}
     
     function showToast(message, isError = false) {{
