@@ -48,7 +48,7 @@ def generate_dog_details_html(dog: Dog, dal: DAL, user_id: str = "default_user")
   # Status styling
   status_colors = {
     "Available": ("#10b981", "✅"),
-    "Pending": ("#f59e0b", "&#9203;"),
+    "Pending": ("#f59e0b", "P"),
     "Upcoming": ("#3b82f6", "🔜"),
     "Adopted": ("#6b7280", "🏠"),
   }
@@ -61,6 +61,25 @@ def generate_dog_details_html(dog: Dog, dal: DAL, user_id: str = "default_user")
   # Image URL with fallback
   image_url = dog.primary_image_url or dog.image_url or ""
   image_html = f'<img src="{image_url}" alt="{dog.dog_name}" class="dog-photo">' if image_url else '<div class="dog-photo-placeholder">🐕</div>'
+  
+  # Build list of all images
+  all_images = []
+  if image_url:
+    all_images.append(image_url)
+  # Add additional images if available
+  additional = getattr(dog, 'additional_images', []) or []
+  for img in additional:
+    if img and img not in all_images:
+      all_images.append(img)
+  
+  # Generate thumbnail HTML
+  thumbnails_html = ""
+  for i, img_url in enumerate(all_images):
+    active_class = "active" if i == 0 else ""
+    thumbnails_html += f'<img src="{img_url}" class="photo-thumb {active_class}" onclick="setMainPhoto(this.src)">'
+  
+  photo_count = len(all_images)
+  photo_count_text = f"{photo_count} photo{'s' if photo_count != 1 else ''}" if photo_count > 0 else "No photos"
   
   # Build timeline HTML
   timeline_html = ""
@@ -547,9 +566,9 @@ def generate_dog_details_html(dog: Dog, dal: DAL, user_id: str = "default_user")
         
         <!-- Thumbnail gallery (ready for multiple photos) -->
         <div class="photo-thumbnails" id="photoThumbnails">
-          {f'<img src="{image_url}" class="photo-thumb active" onclick="setMainPhoto(this.src)">' if image_url else ''}
+          {thumbnails_html}
         </div>
-        <div class="photo-count" id="photoCount">{f"1 photo" if image_url else "No photos"}</div>
+        <div class="photo-count" id="photoCount">{photo_count_text}</div>
       </div>
       
       <div class="hero-info">
@@ -778,7 +797,7 @@ def generate_dog_details_html(dog: Dog, dal: DAL, user_id: str = "default_user")
         {f'''<!-- Pending Penalty -->
         <div class="score-row">
           <div class="score-row-label">
-            <span class="score-row-icon">&#9203;</span>
+            <span class="score-row-icon">-</span>
             <span>Pending Status</span>
           </div>
           <div class="score-row-right">
@@ -1076,7 +1095,7 @@ def generate_dog_details_html(dog: Dog, dal: DAL, user_id: str = "default_user")
         '👶 Good with Kids: +1\\n' +
         '🐱 Good with Cats: +1\\n' +
         '🐩 Doodle/Poodle: +1\\n' +
-        '&#9203; Pending status: -8');
+        'Pending status: -8');
     }}
     
     function showToast(message, isError = false) {{
