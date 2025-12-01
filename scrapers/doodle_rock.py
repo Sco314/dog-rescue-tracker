@@ -491,15 +491,35 @@ class DoodleRockScraper(BaseScraper):
                                          "blind", "deaf", "three legs", "wheelchair"]):
         dog.special_needs = True
       
-      # Try to get a better image if we don't have one
-      if not dog.image_url:
-        # Look for featured image or main dog photo
-        for img in soup.find_all("img"):
-          src = img.get("src", "")
-          if src and "wp-content/uploads" in src and "150x150" not in src:
-            # Skip tiny thumbnails
-            dog.image_url = src
-            break
+      # Collect ALL images from the page
+      collected_images = []
+      seen_urls = set()
+      
+      for img in soup.find_all("img"):
+        src = img.get("src", "") or img.get("data-src", "")
+        if not src:
+          continue
+        
+        # Only want wp-content/uploads images (actual dog photos)
+        if "wp-content/uploads" not in src:
+          continue
+        
+        # Skip tiny thumbnails (wpcf_200x200, 150x150, etc.)
+        if any(size in src for size in ["wpcf_200x200", "150x150", "100x100", "50x50", "-150x", "-100x", "-50x"]):
+          continue
+        
+        # Skip if we've seen this URL
+        if src in seen_urls:
+          continue
+        seen_urls.add(src)
+        
+        collected_images.append(src)
+      
+      # Set primary image and additional images
+      if collected_images:
+        dog.image_url = collected_images[0]  # Legacy field
+        dog.additional_images = collected_images[1:] if len(collected_images) > 1 else []
+        print(f"    📸 Found {len(collected_images)} images")
       
       print(f"    ↳ Enriched: {dog.weight or '?'}lbs, energy={dog.energy_level}, dogs={dog.good_with_dogs or '?'}")
       
