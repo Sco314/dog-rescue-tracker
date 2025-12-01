@@ -137,24 +137,38 @@ def generate_dog_details_html(dog: Dog, dal: DAL, user_id: str = "default_user")
     
     .header {{
       background: var(--bg-secondary);
-      padding: 15px 20px;
+      padding: 12px 20px;
       display: flex;
       align-items: center;
-      gap: 15px;
+      gap: 12px;
       border-bottom: 1px solid #333;
+      position: sticky;
+      top: 0;
+      z-index: 100;
     }}
-    .back-btn {{
-      background: none;
-      border: 1px solid #444;
-      color: var(--text-primary);
+    .header-title {{ flex: 1; font-size: 1.1rem; color: var(--text-secondary); }}
+    
+    .header-actions {{ display: flex; gap: 8px; }}
+    .header-btn {{
       padding: 8px 16px;
       border-radius: 6px;
-      cursor: pointer;
-      text-decoration: none;
       font-size: 0.9rem;
+      font-weight: 500;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s;
     }}
-    .back-btn:hover {{ background: #333; }}
-    .header-title {{ flex: 1; font-size: 1.1rem; color: var(--text-secondary); }}
+    .header-btn.save {{
+      background: var(--success);
+      color: white;
+    }}
+    .header-btn.save:hover {{ opacity: 0.9; }}
+    .header-btn.cancel {{
+      background: none;
+      border: 1px solid #444;
+      color: var(--text-secondary);
+    }}
+    .header-btn.cancel:hover {{ border-color: #666; color: var(--text-primary); }}
     
     .container {{ max-width: 1000px; margin: 0 auto; padding: 20px; }}
     
@@ -185,7 +199,7 @@ def generate_dog_details_html(dog: Dog, dal: DAL, user_id: str = "default_user")
     }}
     
     .hero-info {{ display: flex; flex-direction: column; gap: 12px; }}
-    .name-row {{ display: flex; align-items: center; gap: 15px; }}
+    .name-row {{ display: flex; align-items: center; gap: 15px; flex-wrap: wrap; }}
     .dog-name {{ font-size: 2.2rem; font-weight: 700; }}
     .watch-btn {{
       font-size: 1.8rem;
@@ -212,23 +226,76 @@ def generate_dog_details_html(dog: Dog, dal: DAL, user_id: str = "default_user")
     }}
     
     .key-facts {{
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+      display: flex;
+      flex-wrap: wrap;
       gap: 10px;
       margin-top: 8px;
     }}
     .fact {{
       background: var(--bg-card);
-      padding: 10px;
+      padding: 12px 16px;
       border-radius: 8px;
       text-align: center;
+      min-width: 90px;
     }}
-    .fact-label {{ font-size: 0.7rem; color: var(--text-secondary); text-transform: uppercase; margin-bottom: 2px; }}
+    .fact-label {{ font-size: 0.65rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }}
     .fact-value {{ font-size: 1rem; font-weight: 600; }}
     
-    .rescue-link {{ margin-top: 10px; }}
-    .rescue-link a {{ color: var(--accent); text-decoration: none; font-size: 0.85rem; }}
+    .rescue-link {{ margin-top: 12px; }}
+    .rescue-link a {{ 
+      color: var(--accent); 
+      text-decoration: none; 
+      font-size: 0.9rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }}
     .rescue-link a:hover {{ text-decoration: underline; }}
+    
+    /* Photo Gallery */
+    .photo-section {{ display: flex; flex-direction: column; gap: 10px; }}
+    .main-photo {{
+      width: 100%;
+      aspect-ratio: 1;
+      object-fit: cover;
+      border-radius: 12px;
+      background: var(--bg-card);
+    }}
+    .photo-placeholder {{
+      width: 100%;
+      aspect-ratio: 1;
+      background: var(--bg-card);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 4rem;
+      color: var(--text-secondary);
+    }}
+    .photo-thumbnails {{
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 5px;
+    }}
+    .photo-thumb {{
+      width: 60px;
+      height: 60px;
+      object-fit: cover;
+      border-radius: 6px;
+      cursor: pointer;
+      border: 2px solid transparent;
+      opacity: 0.7;
+      transition: all 0.2s;
+      flex-shrink: 0;
+    }}
+    .photo-thumb:hover {{ opacity: 1; }}
+    .photo-thumb.active {{ border-color: var(--accent); opacity: 1; }}
+    .photo-count {{
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      text-align: center;
+    }}
     
     .section {{
       background: var(--bg-card);
@@ -244,11 +311,11 @@ def generate_dog_details_html(dog: Dog, dal: DAL, user_id: str = "default_user")
       padding-bottom: 12px;
       border-bottom: 1px solid #333;
     }}
-    .section-title {{ font-size: 1.1rem; font-weight: 600; }}
+    .section-title {{ font-size: 1.3rem; font-weight: 700; }}
     .settings-link {{
       color: var(--text-secondary);
       text-decoration: none;
-      font-size: 0.8rem;
+      font-size: 1rem;
     }}
     .settings-link:hover {{ color: var(--accent); }}
     
@@ -257,15 +324,15 @@ def generate_dog_details_html(dog: Dog, dal: DAL, user_id: str = "default_user")
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 15px;
+      gap: 20px;
       margin-bottom: 20px;
-      padding: 15px;
+      padding: 20px;
       background: var(--bg-secondary);
       border-radius: 10px;
     }}
     .score-adjust-btn {{
-      width: 44px;
-      height: 44px;
+      width: 48px;
+      height: 48px;
       border: 2px solid #444;
       background: var(--bg-card);
       color: var(--text-primary);
@@ -276,7 +343,7 @@ def generate_dog_details_html(dog: Dog, dal: DAL, user_id: str = "default_user")
     }}
     .score-adjust-btn:hover {{ border-color: var(--accent); background: var(--accent)22; }}
     .score-value {{
-      font-size: 3rem;
+      font-size: 3.5rem;
       font-weight: 700;
       color: var(--accent);
       min-width: 80px;
@@ -334,6 +401,39 @@ def generate_dog_details_html(dog: Dog, dal: DAL, user_id: str = "default_user")
     }}
     .score-input:focus {{ outline: none; border-color: var(--accent); }}
     .score-input.modified {{ border-color: var(--warning); background: var(--warning)11; }}
+    
+    /* Mini adjust buttons for Your Adjustment row */
+    .mini-adjust-btn {{
+      width: 28px;
+      height: 28px;
+      border: 1px solid #444;
+      background: var(--bg-card);
+      color: var(--text-primary);
+      font-size: 1rem;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }}
+    .mini-adjust-btn:hover {{ border-color: var(--accent); background: var(--accent)22; }}
+    
+    .adjust-row {{
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }}
+    
+    .reset-inline-btn {{
+      padding: 4px 10px;
+      background: none;
+      border: 1px solid #555;
+      border-radius: 4px;
+      color: var(--text-secondary);
+      cursor: pointer;
+      font-size: 0.75rem;
+      margin-left: auto;
+      transition: all 0.2s;
+    }}
+    .reset-inline-btn:hover {{ border-color: var(--danger); color: var(--danger); }}
     
     .score-points {{
       min-width: 35px;
@@ -430,15 +530,25 @@ def generate_dog_details_html(dog: Dog, dal: DAL, user_id: str = "default_user")
 </head>
 <body>
   <div class="header">
-    <a href="dashboard.html" class="back-btn">← Back</a>
     <div class="header-title">{dog.rescue_name}</div>
+    <div class="header-actions">
+      <button class="header-btn cancel" onclick="cancelAndClose()">Cancel</button>
+      <button class="header-btn save" onclick="saveAndClose()">Save & Close</button>
+    </div>
   </div>
   
   <div class="container">
     <!-- Hero Section -->
     <div class="hero">
-      <div class="photo-column">
-        {image_html}
+      <div class="photo-section">
+        <img src="{image_url}" alt="{dog.dog_name}" class="main-photo" id="mainPhoto" onerror="this.style.display='none'; document.getElementById('photoPlaceholder').style.display='flex';">
+        <div class="photo-placeholder" id="photoPlaceholder" style="display: none;">🐕</div>
+        
+        <!-- Thumbnail gallery (ready for multiple photos) -->
+        <div class="photo-thumbnails" id="photoThumbnails">
+          {f'<img src="{image_url}" class="photo-thumb active" onclick="setMainPhoto(this.src)">' if image_url else ''}
+        </div>
+        <div class="photo-count" id="photoCount">{f"1 photo" if image_url else "No photos"}</div>
       </div>
       
       <div class="hero-info">
@@ -473,7 +583,9 @@ def generate_dog_details_html(dog: Dog, dal: DAL, user_id: str = "default_user")
         </div>
         
         <div class="rescue-link">
-          <a href="{dog.rescue_dog_url or dog.source_url or '#'}" target="_blank">🔗 View on rescue website</a>
+          <a href="{dog.rescue_dog_url or dog.source_url or '#'}" target="_blank">
+            <span>🔗</span> View on rescue website
+          </a>
         </div>
       </div>
     </div>
@@ -646,14 +758,19 @@ def generate_dog_details_html(dog: Dog, dal: DAL, user_id: str = "default_user")
           </div>
         </div>
         
-        <!-- Manual Adjustment -->
-        <div class="score-row">
+        <!-- Manual Adjustment with +/- buttons and Reset -->
+        <div class="score-row" style="grid-column: span 2;">
           <div class="score-row-label">
             <span class="score-row-icon">✏️</span>
             <span>Your Adjustment</span>
           </div>
           <div class="score-row-right">
-            <span class="score-points {'positive' if score_modifier > 0 else 'negative' if score_modifier < 0 else 'neutral'}" id="modifierPoints">{f"+{score_modifier}" if score_modifier > 0 else score_modifier}</span>
+            <div class="adjust-row">
+              <button class="mini-adjust-btn" onclick="adjustScore(-1)">−</button>
+              <span class="score-points {'positive' if score_modifier > 0 else 'negative' if score_modifier < 0 else 'neutral'}" id="modifierPoints" style="min-width: 30px; text-align: center;">{f"+{score_modifier}" if score_modifier > 0 else score_modifier}</span>
+              <button class="mini-adjust-btn" onclick="adjustScore(+1)">+</button>
+            </div>
+            <button class="reset-inline-btn" onclick="resetOverrides()">Reset All</button>
           </div>
         </div>
         
@@ -703,11 +820,6 @@ def generate_dog_details_html(dog: Dog, dal: DAL, user_id: str = "default_user")
         <h2 class="section-title">Your Notes</h2>
       </div>
       <textarea class="notes-textarea" id="userNotes" placeholder="Add your private notes about this dog...">{user_state.notes}</textarea>
-      
-      <div class="btn-row">
-        <button class="save-btn" onclick="saveAll()">💾 Save All Changes</button>
-        <button class="reset-btn" onclick="resetOverrides()">Reset to Rescue Values</button>
-      </div>
     </div>
   </div>
   
@@ -906,23 +1018,64 @@ def generate_dog_details_html(dog: Dog, dal: DAL, user_id: str = "default_user")
         localStorage.setItem('dogTrackerOverrides', JSON.stringify(userOverrides));
         
         showToast('✅ Saved successfully!');
+        return true;
       }} catch (err) {{
         console.error('Save error:', err);
         showToast('❌ Save failed: ' + err.message, true);
+        return false;
       }}
+    }}
+    
+    async function saveAndClose() {{
+      const success = await saveAll();
+      if (success) {{
+        setTimeout(() => {{
+          window.location.href = 'dashboard.html';
+        }}, 500);
+      }}
+    }}
+    
+    function cancelAndClose() {{
+      // Check if there are unsaved changes
+      const hasChanges = checkForChanges();
+      if (hasChanges) {{
+        if (!confirm('You have unsaved changes. Discard and close?')) {{
+          return;
+        }}
+      }}
+      window.location.href = 'dashboard.html';
+    }}
+    
+    function checkForChanges() {{
+      const weightVal = document.getElementById('weight').value;
+      const ageVal = document.getElementById('age').value;
+      const weight = weightVal === '' ? null : parseFloat(weightVal);
+      const age = ageVal === '' ? null : parseFloat(ageVal);
+      
+      return (
+        weight !== rescueValues.weight ||
+        age !== rescueValues.age ||
+        document.getElementById('shedding').value !== rescueValues.shedding ||
+        document.getElementById('energy').value !== rescueValues.energy ||
+        document.getElementById('goodDogs').value !== rescueValues.goodDogs ||
+        document.getElementById('goodKids').value !== rescueValues.goodKids ||
+        document.getElementById('goodCats').value !== rescueValues.goodCats ||
+        document.getElementById('breed').value !== rescueValues.breed ||
+        scoreModifier !== 0
+      );
     }}
     
     function openSettings() {{
       alert('Scoring Settings:\\n\\n' +
-        'Weight ≥40 lbs: +2\\n' +
-        'Age 1-2 yrs: +2, 2-4 yrs: +1, 6+ yrs: -4\\n' +
-        'Shedding: None +2, Low +1, High -1\\n' +
-        'Energy: Low/Med +2, Unknown +1\\n' +
-        'Good with Dogs: +2\\n' +
-        'Good with Kids: +1\\n' +
-        'Good with Cats: +1\\n' +
-        'Doodle/Poodle breed: +1\\n' +
-        'Pending status: -8');
+        '⚖️ Weight ≥40 lbs: +2\\n' +
+        '🎂 Age: <2 yrs +2, 2-4 yrs +1, 4-6 yrs 0, 6+ yrs -4\\n' +
+        '🧹 Shedding: None +2, Low +1, Moderate 0, High -1\\n' +
+        '⚡ Energy: Low/Med +2, High 0, Unknown +1\\n' +
+        '🐕 Good with Dogs: +2\\n' +
+        '👶 Good with Kids: +1\\n' +
+        '🐱 Good with Cats: +1\\n' +
+        '🐩 Doodle/Poodle: +1\\n' +
+        '⏳ Pending status: -8');
     }}
     
     function showToast(message, isError = false) {{
@@ -931,6 +1084,38 @@ def generate_dog_details_html(dog: Dog, dal: DAL, user_id: str = "default_user")
       toast.classList.toggle('error', isError);
       toast.classList.add('show');
       setTimeout(() => toast.classList.remove('show'), 2500);
+    }}
+    
+    // Photo gallery functions
+    function setMainPhoto(src) {{
+      document.getElementById('mainPhoto').src = src;
+      document.getElementById('mainPhoto').style.display = 'block';
+      document.getElementById('photoPlaceholder').style.display = 'none';
+      
+      // Update active thumbnail
+      document.querySelectorAll('.photo-thumb').forEach(thumb => {{
+        thumb.classList.toggle('active', thumb.src === src);
+      }});
+    }}
+    
+    function addPhotosToGallery(photos) {{
+      // For future use: dynamically add photos to gallery
+      const container = document.getElementById('photoThumbnails');
+      const countEl = document.getElementById('photoCount');
+      
+      photos.forEach((url, idx) => {{
+        const thumb = document.createElement('img');
+        thumb.src = url;
+        thumb.className = 'photo-thumb' + (idx === 0 ? ' active' : '');
+        thumb.onclick = () => setMainPhoto(url);
+        container.appendChild(thumb);
+      }});
+      
+      countEl.textContent = photos.length + ' photo' + (photos.length !== 1 ? 's' : '');
+      
+      if (photos.length > 0) {{
+        setMainPhoto(photos[0]);
+      }}
     }}
     
     // Initial score calculation
