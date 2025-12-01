@@ -167,7 +167,8 @@ class Dog:
   
   # ===== IMAGES =====
   primary_image_url: Optional[str] = None  # Quick access to main photo
-  images: List[DogImage] = field(default_factory=list)
+  additional_images: List[str] = field(default_factory=list)  # Extra photo URLs
+  images: List[DogImage] = field(default_factory=list)  # Full image objects (future)
   
   # ===== RESCUE METADATA (Original Text) =====
   rescue_meta: Optional[RescueMeta] = None
