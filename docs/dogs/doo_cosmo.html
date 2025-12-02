@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Cosmo2 - Dog Details</title>
+  <title>Cosmo - Dog Details</title>
   <style>
     :root {
       --bg-primary: #121212;
@@ -431,7 +431,7 @@
     <!-- Hero Section -->
     <div class="hero">
       <div class="photo-section">
-        <img src="https://static.wixstatic.com/media/ff3e4c_d26b1dee890b4994b21b3d6d0b018237~mv2.jpg/v1/fill/w_400,h_400,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/Image-empty-state.jpg" alt="Cosmo2" class="main-photo" id="mainPhoto" onerror="this.style.display='none'; document.getElementById('photoPlaceholder').style.display='flex';">
+        <img src="https://static.wixstatic.com/media/ff3e4c_d26b1dee890b4994b21b3d6d0b018237~mv2.jpg/v1/fill/w_400,h_400,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/Image-empty-state.jpg" alt="Cosmo" class="main-photo" id="mainPhoto" onerror="this.style.display='none'; document.getElementById('photoPlaceholder').style.display='flex';">
         <div class="photo-placeholder" id="photoPlaceholder" style="display: none;">🐕</div>
         
         <!-- Thumbnail gallery (ready for multiple photos) -->
@@ -443,7 +443,7 @@
       
       <div class="hero-info">
         <div class="name-row">
-          <h1 class="dog-name">Cosmo2</h1>
+          <h1 class="dog-name">Cosmo</h1>
           <button class="watch-btn " id="watchBtn" onclick="toggleWatch()" title="Add to watch list">☆</button>
         </div>
         
@@ -491,7 +491,7 @@
       <div class="score-main">
         <button class="score-adjust-btn" onclick="adjustScore(-1)">−</button>
         <div>
-          <div class="score-value" id="totalScore">2</div>
+          <div class="score-value" id="totalScore">6</div>
           <div class="score-label">Total Score</div>
         </div>
         <button class="score-adjust-btn" onclick="adjustScore(+1)">+</button>
@@ -541,7 +541,7 @@
             </div>
           </div>
           <div class="score-row-right">
-            <select class="score-select modified" id="shedding" onchange="updateScore()">
+            <select class="score-select " id="shedding" onchange="updateScore()">
               <option value="None" >None</option>
               <option value="Low" selected>Low</option>
               <option value="Moderate" >Moderate</option>
@@ -562,7 +562,7 @@
             </div>
           </div>
           <div class="score-row-right">
-            <select class="score-select modified" id="energy" onchange="updateScore()">
+            <select class="score-select " id="energy" onchange="updateScore()">
               <option value="Low" >Low</option>
               <option value="Medium" >Medium</option>
               <option value="High" selected>High</option>
@@ -582,7 +582,7 @@
             </div>
           </div>
           <div class="score-row-right">
-            <select class="score-select modified" id="goodDogs" onchange="updateScore()">
+            <select class="score-select " id="goodDogs" onchange="updateScore()">
               <option value="Yes" >Yes</option>
               <option value="No" >No</option>
               <option value="Unknown" selected>Unknown</option>
@@ -601,7 +601,7 @@
             </div>
           </div>
           <div class="score-row-right">
-            <select class="score-select modified" id="goodKids" onchange="updateScore()">
+            <select class="score-select " id="goodKids" onchange="updateScore()">
               <option value="Yes" >Yes</option>
               <option value="No" >No</option>
               <option value="Unknown" selected>Unknown</option>
@@ -620,7 +620,7 @@
             </div>
           </div>
           <div class="score-row-right">
-            <select class="score-select modified" id="goodCats" onchange="updateScore()">
+            <select class="score-select " id="goodCats" onchange="updateScore()">
               <option value="Yes" >Yes</option>
               <option value="No" >No</option>
               <option value="Unknown" selected>Unknown</option>
@@ -657,7 +657,7 @@
           <div class="score-row-right">
             <div class="adjust-row">
               <button class="mini-adjust-btn" onclick="adjustScore(-1)">−</button>
-              <span class="score-points negative" id="modifierPoints" style="min-width: 30px; text-align: center;">-4</span>
+              <span class="score-points neutral" id="modifierPoints" style="min-width: 30px; text-align: center;">0</span>
               <button class="mini-adjust-btn" onclick="adjustScore(+1)">+</button>
             </div>
             <button class="reset-inline-btn" onclick="resetOverrides()">Reset All</button>
@@ -682,63 +682,9 @@
       <div class="timeline">
         
         <div class="timeline-item">
-          <span class="timeline-icon">📝</span>
+          <span class="timeline-icon">🆕</span>
           <span class="timeline-date">2025-12-02</span>
-          <span class="timeline-text">Fit Score: 2 → 5</span>
-        </div>
-      
-        <div class="timeline-item">
-          <span class="timeline-icon">📝</span>
-          <span class="timeline-date">2025-12-02</span>
-          <span class="timeline-text">Fit Score: 2 → 5</span>
-        </div>
-      
-        <div class="timeline-item">
-          <span class="timeline-icon">📝</span>
-          <span class="timeline-date">2025-12-01</span>
-          <span class="timeline-text">Fit Score: 2 → 5</span>
-        </div>
-      
-        <div class="timeline-item">
-          <span class="timeline-icon">📝</span>
-          <span class="timeline-date">2025-12-01</span>
-          <span class="timeline-text">Fit Score: 2 → 5</span>
-        </div>
-      
-        <div class="timeline-item">
-          <span class="timeline-icon">📝</span>
-          <span class="timeline-date">2025-12-01</span>
-          <span class="timeline-text">Fit Score: 2 → 5</span>
-        </div>
-      
-        <div class="timeline-item">
-          <span class="timeline-icon">📝</span>
-          <span class="timeline-date">2025-12-01</span>
-          <span class="timeline-text">Fit Score: 2 → 5</span>
-        </div>
-      
-        <div class="timeline-item">
-          <span class="timeline-icon">📝</span>
-          <span class="timeline-date">2025-12-01</span>
-          <span class="timeline-text">Fit Score: 2 → 5</span>
-        </div>
-      
-        <div class="timeline-item">
-          <span class="timeline-icon">📝</span>
-          <span class="timeline-date">2025-12-01</span>
-          <span class="timeline-text">Fit Score: 2 → 5</span>
-        </div>
-      
-        <div class="timeline-item">
-          <span class="timeline-icon">📝</span>
-          <span class="timeline-date">2025-12-01</span>
-          <span class="timeline-text">Fit Score: 2 → 5</span>
-        </div>
-      
-        <div class="timeline-item">
-          <span class="timeline-icon">📝</span>
-          <span class="timeline-date">2025-12-01</span>
-          <span class="timeline-text">Fit Score: 2 → 5</span>
+          <span class="timeline-text">First seen: Available (Fit Score: 5)</span>
         </div>
       
       </div>
@@ -756,7 +702,7 @@
   <div class="toast" id="toast">Saved!</div>
   
   <script>
-    const dogId = 'doo_cosmo2';
+    const dogId = 'doo_cosmo';
     const rescueValues = {
       weight: 40,
       age: 0.8,
@@ -768,7 +714,7 @@
       breed: 'Yes'
     };
     
-    let scoreModifier = -4;
+    let scoreModifier = 0;
     let watchList = false;
     
     // Score calculation constants

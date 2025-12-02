@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>maddis-mayflower-puppies - Dog Details</title>
+  <title>Maddi's Mayflower Puppies - Dog Details</title>
   <style>
     :root {
       --bg-primary: #121212;
@@ -431,7 +431,7 @@
     <!-- Hero Section -->
     <div class="hero">
       <div class="photo-section">
-        <img src="https://static.wixstatic.com/media/56d5c6_fa731f19e4064c2d91d33537119016c7~mv2.png/v1/fill/w_400,h_400,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/Image-empty-state.png" alt="maddis-mayflower-puppies" class="main-photo" id="mainPhoto" onerror="this.style.display='none'; document.getElementById('photoPlaceholder').style.display='flex';">
+        <img src="https://static.wixstatic.com/media/56d5c6_fa731f19e4064c2d91d33537119016c7~mv2.png/v1/fill/w_400,h_400,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/Image-empty-state.png" alt="Maddi's Mayflower Puppies" class="main-photo" id="mainPhoto" onerror="this.style.display='none'; document.getElementById('photoPlaceholder').style.display='flex';">
         <div class="photo-placeholder" id="photoPlaceholder" style="display: none;">🐕</div>
         
         <!-- Thumbnail gallery (ready for multiple photos) -->
@@ -443,7 +443,7 @@
       
       <div class="hero-info">
         <div class="name-row">
-          <h1 class="dog-name">maddis-mayflower-puppies</h1>
+          <h1 class="dog-name">Maddi's Mayflower Puppies</h1>
           <button class="watch-btn " id="watchBtn" onclick="toggleWatch()" title="Add to watch list">☆</button>
         </div>
         
@@ -456,11 +456,11 @@
           </div>
           <div class="fact">
             <div class="fact-label">Weight</div>
-            <div class="fact-value">7 lbs</div>
+            <div class="fact-value">?</div>
           </div>
           <div class="fact">
             <div class="fact-label">Age</div>
-            <div class="fact-value">9 Weeks</div>
+            <div class="fact-value">10 Weeks</div>
           </div>
           <div class="fact">
             <div class="fact-label">Sex</div>
@@ -505,12 +505,12 @@
             <span class="score-row-icon">⚖️</span>
             <div>
               <span>Weight (lbs)</span>
-              <div class="rescue-value">Rescue: 7 lbs</div>
+              <div class="rescue-value">Rescue: unknown</div>
             </div>
           </div>
           <div class="score-row-right">
             <input type="number" class="score-input " id="weight" 
-                   value="7" min="0" max="200" placeholder="?" onchange="updateScore()">
+                   value="" min="0" max="200" placeholder="?" onchange="updateScore()">
             <span class="score-points" id="weightPoints">0</span>
           </div>
         </div>
@@ -702,9 +702,9 @@
   <div class="toast" id="toast">Saved!</div>
   
   <script>
-    const dogId = 'doo_maddis-mayflower-puppies';
+    const dogId = 'doo_maddis_mayflower_puppies';
     const rescueValues = {
-      weight: 7,
+      weight: null,
       age: 0.2,
       shedding: 'Low',
       energy: 'High',
