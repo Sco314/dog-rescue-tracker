@@ -109,9 +109,9 @@
       border-radius: 20px;
       font-weight: 600;
       font-size: 0.9rem;
-      background: #3b82f622;
-      color: #3b82f6;
-      border: 1px solid #3b82f644;
+      background: #10b98122;
+      color: #10b981;
+      border: 1px solid #10b98144;
       width: fit-content;
     }
     
@@ -431,12 +431,12 @@
     <!-- Hero Section -->
     <div class="hero">
       <div class="photo-section">
-        <img src="https://doodlerockrescue.org/wp-content/uploads/2025/09/IMG_0066-scaled-wpcf_200x200.jpeg" alt="Harper" class="main-photo" id="mainPhoto" onerror="this.style.display='none'; document.getElementById('photoPlaceholder').style.display='flex';">
+        <img src="https://doodlerockrescue.org/wp-content/uploads/2019/01/DRR-Loading-Logo-e1548290131315.png" alt="Harper" class="main-photo" id="mainPhoto" onerror="this.style.display='none'; document.getElementById('photoPlaceholder').style.display='flex';">
         <div class="photo-placeholder" id="photoPlaceholder" style="display: none;">🐕</div>
         
         <!-- Thumbnail gallery (ready for multiple photos) -->
         <div class="photo-thumbnails" id="photoThumbnails">
-          <img src="https://doodlerockrescue.org/wp-content/uploads/2025/09/IMG_0066-scaled-wpcf_200x200.jpeg" class="photo-thumb active" onclick="setMainPhoto(this.src)">
+          <img src="https://doodlerockrescue.org/wp-content/uploads/2019/01/DRR-Loading-Logo-e1548290131315.png" class="photo-thumb active" onclick="setMainPhoto(this.src)">
         </div>
         <div class="photo-count" id="photoCount">1 photo</div>
       </div>
@@ -447,7 +447,7 @@
           <button class="watch-btn " id="watchBtn" onclick="toggleWatch()" title="Add to watch list">☆</button>
         </div>
         
-        <div class="status-badge">🔜 Upcoming</div>
+        <div class="status-badge">✅ Available</div>
         
         <div class="key-facts">
           <div class="fact">
@@ -456,7 +456,7 @@
           </div>
           <div class="fact">
             <div class="fact-label">Weight</div>
-            <div class="fact-value">?</div>
+            <div class="fact-value">7 lbs</div>
           </div>
           <div class="fact">
             <div class="fact-label">Age</div>
@@ -473,7 +473,7 @@
         </div>
         
         <div class="rescue-link">
-          <a href="https://doodlerockrescue.org/adopt/coming-soon-for-adoption/" target="_blank">
+          <a href="https://doodlerockrescue.org/rescue-dog/harper-2/" target="_blank">
             <span>🔗</span> View on rescue website
           </a>
         </div>
@@ -491,7 +491,7 @@
       <div class="score-main">
         <button class="score-adjust-btn" onclick="adjustScore(-1)">−</button>
         <div>
-          <div class="score-value" id="totalScore">4</div>
+          <div class="score-value" id="totalScore">8</div>
           <div class="score-label">Total Score</div>
         </div>
         <button class="score-adjust-btn" onclick="adjustScore(+1)">+</button>
@@ -505,12 +505,12 @@
             <span class="score-row-icon">⚖️</span>
             <div>
               <span>Weight (lbs)</span>
-              <div class="rescue-value">Rescue: unknown</div>
+              <div class="rescue-value">Rescue: 7 lbs</div>
             </div>
           </div>
           <div class="score-row-right">
             <input type="number" class="score-input " id="weight" 
-                   value="" min="0" max="200" placeholder="?" onchange="updateScore()">
+                   value="7" min="0" max="200" placeholder="?" onchange="updateScore()">
             <span class="score-points" id="weightPoints">0</span>
           </div>
         </div>
@@ -578,16 +578,16 @@
             <span class="score-row-icon">🐕</span>
             <div>
               <span>Good with Dogs</span>
-              <div class="rescue-value">Rescue: Unknown</div>
+              <div class="rescue-value">Rescue: Yes</div>
             </div>
           </div>
           <div class="score-row-right">
             <select class="score-select " id="goodDogs" onchange="updateScore()">
-              <option value="Yes" >Yes</option>
+              <option value="Yes" selected>Yes</option>
               <option value="No" >No</option>
-              <option value="Unknown" selected>Unknown</option>
+              <option value="Unknown" >Unknown</option>
             </select>
-            <span class="score-points" id="dogsPoints">0</span>
+            <span class="score-points" id="dogsPoints">+2</span>
           </div>
         </div>
         
@@ -597,16 +597,16 @@
             <span class="score-row-icon">👶</span>
             <div>
               <span>Good with Kids</span>
-              <div class="rescue-value">Rescue: Unknown</div>
+              <div class="rescue-value">Rescue: Yes</div>
             </div>
           </div>
           <div class="score-row-right">
             <select class="score-select " id="goodKids" onchange="updateScore()">
-              <option value="Yes" >Yes</option>
+              <option value="Yes" selected>Yes</option>
               <option value="No" >No</option>
-              <option value="Unknown" selected>Unknown</option>
+              <option value="Unknown" >Unknown</option>
             </select>
-            <span class="score-points" id="kidsPoints">0</span>
+            <span class="score-points" id="kidsPoints">+1</span>
           </div>
         </div>
         
@@ -616,16 +616,16 @@
             <span class="score-row-icon">🐱</span>
             <div>
               <span>Good with Cats</span>
-              <div class="rescue-value">Rescue: Unknown</div>
+              <div class="rescue-value">Rescue: Yes</div>
             </div>
           </div>
           <div class="score-row-right">
             <select class="score-select " id="goodCats" onchange="updateScore()">
-              <option value="Yes" >Yes</option>
+              <option value="Yes" selected>Yes</option>
               <option value="No" >No</option>
-              <option value="Unknown" selected>Unknown</option>
+              <option value="Unknown" >Unknown</option>
             </select>
-            <span class="score-points" id="catsPoints">0</span>
+            <span class="score-points" id="catsPoints">+1</span>
           </div>
         </div>
         
@@ -680,7 +680,19 @@
         <h2 class="section-title">Timeline</h2>
       </div>
       <div class="timeline">
-        <div class="timeline-empty">No events recorded yet</div>
+        
+        <div class="timeline-item">
+          <span class="timeline-icon">📝</span>
+          <span class="timeline-date">2025-12-04</span>
+          <span class="timeline-text">Weight: ? → 7 lbs; Good with kids: Yes; Good with dogs: Yes (+2 more)</span>
+        </div>
+      
+        <div class="timeline-item">
+          <span class="timeline-icon">📢</span>
+          <span class="timeline-date">2025-12-04</span>
+          <span class="timeline-text">Status: Upcoming → Available</span>
+        </div>
+      
       </div>
     </div>
     
@@ -698,13 +710,13 @@
   <script>
     const dogId = 'doo_harper';
     const rescueValues = {
-      weight: null,
+      weight: 7,
       age: null,
       shedding: 'Low',
       energy: 'Medium',
-      goodDogs: 'Unknown',
-      goodKids: 'Unknown',
-      goodCats: 'Unknown',
+      goodDogs: 'Yes',
+      goodKids: 'Yes',
+      goodCats: 'Yes',
       breed: 'Yes'
     };
     
