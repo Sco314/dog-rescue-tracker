@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Chandler - Dog Details</title>
+  <title>Liliana - Dog Details</title>
   <style>
     :root {
       --bg-primary: #121212;
@@ -109,9 +109,9 @@
       border-radius: 20px;
       font-weight: 600;
       font-size: 0.9rem;
-      background: #3b82f622;
-      color: #3b82f6;
-      border: 1px solid #3b82f644;
+      background: #f59e0b22;
+      color: #f59e0b;
+      border: 1px solid #f59e0b44;
       width: fit-content;
     }
     
@@ -431,40 +431,40 @@
     <!-- Hero Section -->
     <div class="hero">
       <div class="photo-section">
-        <img src="https://static.wixstatic.com/media/ff3e4c_ca0c0fbcff464d40ba7eccadc1296505~mv2.jpg/v1/fill/w_400,h_400,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/IMG_2698_edited.jpg" alt="Chandler" class="main-photo" id="mainPhoto" onerror="this.style.display='none'; document.getElementById('photoPlaceholder').style.display='flex';">
+        <img src="https://static.wixstatic.com/media/ff3e4c_100576d7d3b349d68b6b09f34b1d920f~mv2.jpg/v1/fill/w_400,h_400,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/Image-place-holder.jpg" alt="Liliana" class="main-photo" id="mainPhoto" onerror="this.style.display='none'; document.getElementById('photoPlaceholder').style.display='flex';">
         <div class="photo-placeholder" id="photoPlaceholder" style="display: none;">🐕</div>
         
         <!-- Thumbnail gallery (ready for multiple photos) -->
         <div class="photo-thumbnails" id="photoThumbnails">
-          <img src="https://static.wixstatic.com/media/ff3e4c_ca0c0fbcff464d40ba7eccadc1296505~mv2.jpg/v1/fill/w_400,h_400,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/IMG_2698_edited.jpg" class="photo-thumb active" onclick="setMainPhoto(this.src)">
+          <img src="https://static.wixstatic.com/media/ff3e4c_100576d7d3b349d68b6b09f34b1d920f~mv2.jpg/v1/fill/w_400,h_400,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/Image-place-holder.jpg" class="photo-thumb active" onclick="setMainPhoto(this.src)">
         </div>
         <div class="photo-count" id="photoCount">1 photo</div>
       </div>
       
       <div class="hero-info">
         <div class="name-row">
-          <h1 class="dog-name">Chandler</h1>
+          <h1 class="dog-name">Liliana</h1>
           <button class="watch-btn " id="watchBtn" onclick="toggleWatch()" title="Add to watch list">☆</button>
         </div>
         
-        <div class="status-badge">🔜 Upcoming</div>
+        <div class="status-badge">P Pending</div>
         
         <div class="key-facts">
           <div class="fact">
             <div class="fact-label">Breed</div>
-            <div class="fact-value">Goldendoodle</div>
+            <div class="fact-value">Maltipoo</div>
           </div>
           <div class="fact">
             <div class="fact-label">Weight</div>
-            <div class="fact-value">73 lbs</div>
+            <div class="fact-value">20 lbs</div>
           </div>
           <div class="fact">
             <div class="fact-label">Age</div>
-            <div class="fact-value">6.5 yrs</div>
+            <div class="fact-value">14 mos</div>
           </div>
           <div class="fact">
             <div class="fact-label">Sex</div>
-            <div class="fact-value">Male</div>
+            <div class="fact-value">Female</div>
           </div>
           <div class="fact">
             <div class="fact-label">Location</div>
@@ -473,7 +473,7 @@
         </div>
         
         <div class="rescue-link">
-          <a href="https://www.doodledandyrescue.org/doodles-coming-soon" target="_blank">
+          <a href="https://www.doodledandyrescue.org/adoption-pending-doodles" target="_blank">
             <span>🔗</span> View on rescue website
           </a>
         </div>
@@ -491,7 +491,7 @@
       <div class="score-main">
         <button class="score-adjust-btn" onclick="adjustScore(-1)">−</button>
         <div>
-          <div class="score-value" id="totalScore">5</div>
+          <div class="score-value" id="totalScore">0</div>
           <div class="score-label">Total Score</div>
         </div>
         <button class="score-adjust-btn" onclick="adjustScore(+1)">+</button>
@@ -505,13 +505,13 @@
             <span class="score-row-icon">⚖️</span>
             <div>
               <span>Weight (lbs)</span>
-              <div class="rescue-value">Rescue: 73 lbs</div>
+              <div class="rescue-value">Rescue: 20 lbs</div>
             </div>
           </div>
           <div class="score-row-right">
             <input type="number" class="score-input " id="weight" 
-                   value="73" min="0" max="200" placeholder="?" onchange="updateScore()">
-            <span class="score-points" id="weightPoints">+2</span>
+                   value="20" min="0" max="200" placeholder="?" onchange="updateScore()">
+            <span class="score-points" id="weightPoints">0</span>
           </div>
         </div>
         
@@ -521,13 +521,13 @@
             <span class="score-row-icon">🎂</span>
             <div>
               <span>Age (years)</span>
-              <div class="rescue-value">Rescue: 6.5 yrs</div>
+              <div class="rescue-value">Rescue: 1.2 yrs</div>
             </div>
           </div>
           <div class="score-row-right">
             <input type="number" class="score-input " id="age" 
-                   value="6.5" min="0" max="20" step="0.5" placeholder="?" onchange="updateScore()">
-            <span class="score-points" id="agePoints">-4</span>
+                   value="1.2" min="0" max="20" step="0.5" placeholder="?" onchange="updateScore()">
+            <span class="score-points" id="agePoints">+2</span>
           </div>
         </div>
         
@@ -635,7 +635,7 @@
             <span class="score-row-icon">🐩</span>
             <div>
               <span>Doodle/Poodle</span>
-              <div class="rescue-value">Rescue: Yes (Goldendoodle)</div>
+              <div class="rescue-value">Rescue: Yes (Maltipoo)</div>
             </div>
           </div>
           <div class="score-row-right">
@@ -657,7 +657,7 @@
           <div class="score-row-right">
             <div class="adjust-row">
               <button class="mini-adjust-btn" onclick="adjustScore(-1)">−</button>
-              <span class="score-points neutral" id="modifierPoints" style="min-width: 30px; text-align: center;">0</span>
+              <span class="score-points negative" id="modifierPoints" style="min-width: 30px; text-align: center;">-6</span>
               <button class="mini-adjust-btn" onclick="adjustScore(+1)">+</button>
             </div>
             <button class="reset-inline-btn" onclick="resetOverrides()">Reset All</button>
@@ -665,6 +665,15 @@
         </div>
         
         
+        <div class="score-row">
+          <div class="score-row-label">
+            <span class="score-row-icon">-</span>
+            <span>Pending Status</span>
+          </div>
+          <div class="score-row-right">
+            <span class="score-points negative">-8</span>
+          </div>
+        </div>
       </div>
     </div>
     
@@ -680,7 +689,67 @@
         <h2 class="section-title">Timeline</h2>
       </div>
       <div class="timeline">
-        <div class="timeline-empty">No events recorded yet</div>
+        
+        <div class="timeline-item">
+          <span class="timeline-icon">📝</span>
+          <span class="timeline-date">2025-12-07</span>
+          <span class="timeline-text">Fit Score: 0 → 6</span>
+        </div>
+      
+        <div class="timeline-item">
+          <span class="timeline-icon">📢</span>
+          <span class="timeline-date">2025-12-07</span>
+          <span class="timeline-text">Application submitted - now pending</span>
+        </div>
+      
+        <div class="timeline-item">
+          <span class="timeline-icon">📢</span>
+          <span class="timeline-date">2025-12-06</span>
+          <span class="timeline-text">Adopted! 🎉</span>
+        </div>
+      
+        <div class="timeline-item">
+          <span class="timeline-icon">📝</span>
+          <span class="timeline-date">2025-12-05</span>
+          <span class="timeline-text">Fit Score: 0 → 6</span>
+        </div>
+      
+        <div class="timeline-item">
+          <span class="timeline-icon">📝</span>
+          <span class="timeline-date">2025-12-05</span>
+          <span class="timeline-text">Fit Score: 0 → 6</span>
+        </div>
+      
+        <div class="timeline-item">
+          <span class="timeline-icon">📝</span>
+          <span class="timeline-date">2025-12-05</span>
+          <span class="timeline-text">Fit Score: 0 → 6</span>
+        </div>
+      
+        <div class="timeline-item">
+          <span class="timeline-icon">📝</span>
+          <span class="timeline-date">2025-12-05</span>
+          <span class="timeline-text">Fit Score: 0 → 6</span>
+        </div>
+      
+        <div class="timeline-item">
+          <span class="timeline-icon">📝</span>
+          <span class="timeline-date">2025-12-05</span>
+          <span class="timeline-text">Fit Score: 0 → 6</span>
+        </div>
+      
+        <div class="timeline-item">
+          <span class="timeline-icon">📝</span>
+          <span class="timeline-date">2025-12-05</span>
+          <span class="timeline-text">Fit Score: 0 → 6</span>
+        </div>
+      
+        <div class="timeline-item">
+          <span class="timeline-icon">📝</span>
+          <span class="timeline-date">2025-12-04</span>
+          <span class="timeline-text">Fit Score: 0 → 6</span>
+        </div>
+      
       </div>
     </div>
     
@@ -696,10 +765,10 @@
   <div class="toast" id="toast">Saved!</div>
   
   <script>
-    const dogId = 'doo_chandler';
+    const dogId = 'doo_liliana';
     const rescueValues = {
-      weight: 73,
-      age: 6.5,
+      weight: 20,
+      age: 1.2,
       shedding: 'Low',
       energy: 'Medium',
       goodDogs: 'Unknown',
@@ -708,7 +777,7 @@
       breed: 'Yes'
     };
     
-    let scoreModifier = 0;
+    let scoreModifier = -6;
     let watchList = false;
     
     // Score calculation constants
@@ -767,7 +836,7 @@
       score += breedScore;
       
       // Pending penalty
-      
+      score += -8;
       
       // Manual modifier
       score += scoreModifier;
