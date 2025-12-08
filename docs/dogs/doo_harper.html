@@ -109,9 +109,9 @@
       border-radius: 20px;
       font-weight: 600;
       font-size: 0.9rem;
-      background: #10b98122;
-      color: #10b981;
-      border: 1px solid #10b98144;
+      background: #f59e0b22;
+      color: #f59e0b;
+      border: 1px solid #f59e0b44;
       width: fit-content;
     }
     
@@ -447,7 +447,7 @@
           <button class="watch-btn " id="watchBtn" onclick="toggleWatch()" title="Add to watch list">☆</button>
         </div>
         
-        <div class="status-badge">✅ Available</div>
+        <div class="status-badge">P Pending</div>
         
         <div class="key-facts">
           <div class="fact">
@@ -460,7 +460,7 @@
           </div>
           <div class="fact">
             <div class="fact-label">Age</div>
-            <div class="fact-value">?</div>
+            <div class="fact-value">6 mos</div>
           </div>
           <div class="fact">
             <div class="fact-label">Sex</div>
@@ -491,7 +491,7 @@
       <div class="score-main">
         <button class="score-adjust-btn" onclick="adjustScore(-1)">−</button>
         <div>
-          <div class="score-value" id="totalScore">8</div>
+          <div class="score-value" id="totalScore">0</div>
           <div class="score-label">Total Score</div>
         </div>
         <button class="score-adjust-btn" onclick="adjustScore(+1)">+</button>
@@ -521,12 +521,12 @@
             <span class="score-row-icon">🎂</span>
             <div>
               <span>Age (years)</span>
-              <div class="rescue-value">Rescue: unknown</div>
+              <div class="rescue-value">Rescue: 0.5 yrs</div>
             </div>
           </div>
           <div class="score-row-right">
             <input type="number" class="score-input " id="age" 
-                   value="" min="0" max="20" step="0.5" placeholder="?" onchange="updateScore()">
+                   value="0.5" min="0" max="20" step="0.5" placeholder="?" onchange="updateScore()">
             <span class="score-points" id="agePoints">0</span>
           </div>
         </div>
@@ -665,6 +665,15 @@
         </div>
         
         
+        <div class="score-row">
+          <div class="score-row-label">
+            <span class="score-row-icon">-</span>
+            <span>Pending Status</span>
+          </div>
+          <div class="score-row-right">
+            <span class="score-points negative">-8</span>
+          </div>
+        </div>
       </div>
     </div>
     
@@ -681,6 +690,12 @@
       </div>
       <div class="timeline">
         
+        <div class="timeline-item">
+          <span class="timeline-icon">📢</span>
+          <span class="timeline-date">2025-12-08</span>
+          <span class="timeline-text">Application submitted - now pending</span>
+        </div>
+      
         <div class="timeline-item">
           <span class="timeline-icon">📝</span>
           <span class="timeline-date">2025-12-04</span>
@@ -711,7 +726,7 @@
     const dogId = 'doo_harper';
     const rescueValues = {
       weight: 7,
-      age: null,
+      age: 0.5,
       shedding: 'Low',
       energy: 'Medium',
       goodDogs: 'Yes',
@@ -779,7 +794,7 @@
       score += breedScore;
       
       // Pending penalty
-      
+      score += -8;
       
       // Manual modifier
       score += scoreModifier;
