@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Bare - Dog Details</title>
+  <title>Charliemagne - Dog Details</title>
   <style>
     :root {
       --bg-primary: #121212;
@@ -431,19 +431,19 @@
     <!-- Hero Section -->
     <div class="hero">
       <div class="photo-section">
-        <img src="https://static.wixstatic.com/media/ff3e4c_4d9d526413fe48ca8cf422fea7df1a0a~mv2.jpeg/v1/fill/w_400,h_400,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/Image-empty-state.jpeg" alt="Bare" class="main-photo" id="mainPhoto" onerror="this.style.display='none'; document.getElementById('photoPlaceholder').style.display='flex';">
+        <img src="https://static.wixstatic.com/media/ff3e4c_2909a0351c774354ba5a81ec31cb4b6a~mv2.jpg/v1/fill/w_400,h_400,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/Image-empty-state.jpg" alt="Charliemagne" class="main-photo" id="mainPhoto" onerror="this.style.display='none'; document.getElementById('photoPlaceholder').style.display='flex';">
         <div class="photo-placeholder" id="photoPlaceholder" style="display: none;">🐕</div>
         
         <!-- Thumbnail gallery (ready for multiple photos) -->
         <div class="photo-thumbnails" id="photoThumbnails">
-          <img src="https://static.wixstatic.com/media/ff3e4c_4d9d526413fe48ca8cf422fea7df1a0a~mv2.jpeg/v1/fill/w_400,h_400,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/Image-empty-state.jpeg" class="photo-thumb active" onclick="setMainPhoto(this.src)">
+          <img src="https://static.wixstatic.com/media/ff3e4c_2909a0351c774354ba5a81ec31cb4b6a~mv2.jpg/v1/fill/w_400,h_400,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/Image-empty-state.jpg" class="photo-thumb active" onclick="setMainPhoto(this.src)">
         </div>
         <div class="photo-count" id="photoCount">1 photo</div>
       </div>
       
       <div class="hero-info">
         <div class="name-row">
-          <h1 class="dog-name">Bare</h1>
+          <h1 class="dog-name">Charliemagne</h1>
           <button class="watch-btn " id="watchBtn" onclick="toggleWatch()" title="Add to watch list">☆</button>
         </div>
         
@@ -452,19 +452,19 @@
         <div class="key-facts">
           <div class="fact">
             <div class="fact-label">Breed</div>
-            <div class="fact-value">Labradoodle</div>
+            <div class="fact-value">Mini Goldendoodle</div>
           </div>
           <div class="fact">
             <div class="fact-label">Weight</div>
-            <div class="fact-value">83 lbs</div>
+            <div class="fact-value">23 lbs</div>
           </div>
           <div class="fact">
             <div class="fact-label">Age</div>
-            <div class="fact-value">8 yrs</div>
+            <div class="fact-value">3 yrs</div>
           </div>
           <div class="fact">
             <div class="fact-label">Sex</div>
-            <div class="fact-value">Female</div>
+            <div class="fact-value">Male</div>
           </div>
           <div class="fact">
             <div class="fact-label">Location</div>
@@ -491,7 +491,7 @@
       <div class="score-main">
         <button class="score-adjust-btn" onclick="adjustScore(-1)">−</button>
         <div>
-          <div class="score-value" id="totalScore">2</div>
+          <div class="score-value" id="totalScore">0</div>
           <div class="score-label">Total Score</div>
         </div>
         <button class="score-adjust-btn" onclick="adjustScore(+1)">+</button>
@@ -505,13 +505,13 @@
             <span class="score-row-icon">⚖️</span>
             <div>
               <span>Weight (lbs)</span>
-              <div class="rescue-value">Rescue: 83 lbs</div>
+              <div class="rescue-value">Rescue: 23 lbs</div>
             </div>
           </div>
           <div class="score-row-right">
             <input type="number" class="score-input " id="weight" 
-                   value="83" min="0" max="200" placeholder="?" onchange="updateScore()">
-            <span class="score-points" id="weightPoints">+2</span>
+                   value="23" min="0" max="200" placeholder="?" onchange="updateScore()">
+            <span class="score-points" id="weightPoints">0</span>
           </div>
         </div>
         
@@ -521,13 +521,13 @@
             <span class="score-row-icon">🎂</span>
             <div>
               <span>Age (years)</span>
-              <div class="rescue-value">Rescue: 8.0 yrs</div>
+              <div class="rescue-value">Rescue: 3.0 yrs</div>
             </div>
           </div>
           <div class="score-row-right">
             <input type="number" class="score-input " id="age" 
-                   value="8.0" min="0" max="20" step="0.5" placeholder="?" onchange="updateScore()">
-            <span class="score-points" id="agePoints">-4</span>
+                   value="3.0" min="0" max="20" step="0.5" placeholder="?" onchange="updateScore()">
+            <span class="score-points" id="agePoints">+1</span>
           </div>
         </div>
         
@@ -558,13 +558,13 @@
             <span class="score-row-icon">⚡</span>
             <div>
               <span>Energy</span>
-              <div class="rescue-value">Rescue: Low</div>
+              <div class="rescue-value">Rescue: Medium</div>
             </div>
           </div>
           <div class="score-row-right">
             <select class="score-select " id="energy" onchange="updateScore()">
-              <option value="Low" selected>Low</option>
-              <option value="Medium" >Medium</option>
+              <option value="Low" >Low</option>
+              <option value="Medium" selected>Medium</option>
               <option value="High" >High</option>
               <option value="Unknown" >Unknown</option>
             </select>
@@ -635,7 +635,7 @@
             <span class="score-row-icon">🐩</span>
             <div>
               <span>Doodle/Poodle</span>
-              <div class="rescue-value">Rescue: Yes (Labradoodle)</div>
+              <div class="rescue-value">Rescue: Yes (Mini Goldendoodle)</div>
             </div>
           </div>
           <div class="score-row-right">
@@ -657,7 +657,7 @@
           <div class="score-row-right">
             <div class="adjust-row">
               <button class="mini-adjust-btn" onclick="adjustScore(-1)">−</button>
-              <span class="score-points neutral" id="modifierPoints" style="min-width: 30px; text-align: center;">0</span>
+              <span class="score-points negative" id="modifierPoints" style="min-width: 30px; text-align: center;">-5</span>
               <button class="mini-adjust-btn" onclick="adjustScore(+1)">+</button>
             </div>
             <button class="reset-inline-btn" onclick="resetOverrides()">Reset All</button>
@@ -680,7 +680,67 @@
         <h2 class="section-title">Timeline</h2>
       </div>
       <div class="timeline">
-        <div class="timeline-empty">No events recorded yet</div>
+        
+        <div class="timeline-item">
+          <span class="timeline-icon">📝</span>
+          <span class="timeline-date">2025-12-08</span>
+          <span class="timeline-text">Fit Score: 0 → 4</span>
+        </div>
+      
+        <div class="timeline-item">
+          <span class="timeline-icon">📢</span>
+          <span class="timeline-date">2025-12-08</span>
+          <span class="timeline-text">Status: Adopted/Removed → Available</span>
+        </div>
+      
+        <div class="timeline-item">
+          <span class="timeline-icon">📢</span>
+          <span class="timeline-date">2025-12-08</span>
+          <span class="timeline-text">Adopted! 🎉</span>
+        </div>
+      
+        <div class="timeline-item">
+          <span class="timeline-icon">📝</span>
+          <span class="timeline-date">2025-12-08</span>
+          <span class="timeline-text">Fit Score: 0 → 4</span>
+        </div>
+      
+        <div class="timeline-item">
+          <span class="timeline-icon">📝</span>
+          <span class="timeline-date">2025-12-07</span>
+          <span class="timeline-text">Fit Score: 0 → 4</span>
+        </div>
+      
+        <div class="timeline-item">
+          <span class="timeline-icon">📝</span>
+          <span class="timeline-date">2025-12-07</span>
+          <span class="timeline-text">Fit Score: 0 → 4</span>
+        </div>
+      
+        <div class="timeline-item">
+          <span class="timeline-icon">📝</span>
+          <span class="timeline-date">2025-12-07</span>
+          <span class="timeline-text">Fit Score: 0 → 4</span>
+        </div>
+      
+        <div class="timeline-item">
+          <span class="timeline-icon">📝</span>
+          <span class="timeline-date">2025-12-07</span>
+          <span class="timeline-text">Fit Score: 0 → 4</span>
+        </div>
+      
+        <div class="timeline-item">
+          <span class="timeline-icon">📝</span>
+          <span class="timeline-date">2025-12-07</span>
+          <span class="timeline-text">Fit Score: 0 → 4</span>
+        </div>
+      
+        <div class="timeline-item">
+          <span class="timeline-icon">📝</span>
+          <span class="timeline-date">2025-12-07</span>
+          <span class="timeline-text">Fit Score: 0 → 4</span>
+        </div>
+      
       </div>
     </div>
     
@@ -696,19 +756,19 @@
   <div class="toast" id="toast">Saved!</div>
   
   <script>
-    const dogId = 'doo_bare';
+    const dogId = 'doo_charliemagne';
     const rescueValues = {
-      weight: 83,
-      age: 8.0,
+      weight: 23,
+      age: 3.0,
       shedding: 'Low',
-      energy: 'Low',
+      energy: 'Medium',
       goodDogs: 'Unknown',
       goodKids: 'Unknown',
       goodCats: 'Unknown',
       breed: 'Yes'
     };
     
-    let scoreModifier = 0;
+    let scoreModifier = -5;
     let watchList = false;
     
     // Score calculation constants
