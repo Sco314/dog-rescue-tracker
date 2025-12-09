@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Nova - Dog Details</title>
+  <title>Kris Kringle - Dog Details</title>
   <style>
     :root {
       --bg-primary: #121212;
@@ -420,7 +420,7 @@
 </head>
 <body>
   <div class="header">
-    <div class="header-title">Doodle Rock Rescue</div>
+    <div class="header-title">Doodle Dandy Rescue</div>
     <div class="header-actions">
       <button class="header-btn cancel" onclick="cancelAndClose()">Cancel</button>
       <button class="header-btn save" onclick="saveAndClose()">Save & Close</button>
@@ -431,19 +431,19 @@
     <!-- Hero Section -->
     <div class="hero">
       <div class="photo-section">
-        <img src="https://doodlerockrescue.org/wp-content/uploads/2025/07/20250729_095358-scaled-wpcf_200x200.jpg" alt="Nova" class="main-photo" id="mainPhoto" onerror="this.style.display='none'; document.getElementById('photoPlaceholder').style.display='flex';">
+        <img src="https://static.wixstatic.com/media/ff3e4c_146e9c57e83848778227e119f72488fc~mv2.png/v1/fill/w_400,h_400,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/IMG_2698_edited.png" alt="Kris Kringle" class="main-photo" id="mainPhoto" onerror="this.style.display='none'; document.getElementById('photoPlaceholder').style.display='flex';">
         <div class="photo-placeholder" id="photoPlaceholder" style="display: none;">🐕</div>
         
         <!-- Thumbnail gallery (ready for multiple photos) -->
         <div class="photo-thumbnails" id="photoThumbnails">
-          <img src="https://doodlerockrescue.org/wp-content/uploads/2025/07/20250729_095358-scaled-wpcf_200x200.jpg" class="photo-thumb active" onclick="setMainPhoto(this.src)">
+          <img src="https://static.wixstatic.com/media/ff3e4c_146e9c57e83848778227e119f72488fc~mv2.png/v1/fill/w_400,h_400,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/IMG_2698_edited.png" class="photo-thumb active" onclick="setMainPhoto(this.src)">
         </div>
         <div class="photo-count" id="photoCount">1 photo</div>
       </div>
       
       <div class="hero-info">
         <div class="name-row">
-          <h1 class="dog-name">Nova</h1>
+          <h1 class="dog-name">Kris Kringle</h1>
           <button class="watch-btn " id="watchBtn" onclick="toggleWatch()" title="Add to watch list">☆</button>
         </div>
         
@@ -452,7 +452,7 @@
         <div class="key-facts">
           <div class="fact">
             <div class="fact-label">Breed</div>
-            <div class="fact-value">Poodle Mix</div>
+            <div class="fact-value">Mini Doodle</div>
           </div>
           <div class="fact">
             <div class="fact-label">Weight</div>
@@ -460,20 +460,20 @@
           </div>
           <div class="fact">
             <div class="fact-label">Age</div>
-            <div class="fact-value">?</div>
+            <div class="fact-value">2 yrs</div>
           </div>
           <div class="fact">
             <div class="fact-label">Sex</div>
-            <div class="fact-value">?</div>
+            <div class="fact-value">Male</div>
           </div>
           <div class="fact">
             <div class="fact-label">Location</div>
-            <div class="fact-value">Dallas, TX</div>
+            <div class="fact-value">DFW</div>
           </div>
         </div>
         
         <div class="rescue-link">
-          <a href="https://doodlerockrescue.org/adopt/coming-soon-for-adoption/" target="_blank">
+          <a href="https://www.doodledandyrescue.org/doodles-coming-soon" target="_blank">
             <span>🔗</span> View on rescue website
           </a>
         </div>
@@ -491,7 +491,7 @@
       <div class="score-main">
         <button class="score-adjust-btn" onclick="adjustScore(-1)">−</button>
         <div>
-          <div class="score-value" id="totalScore">4</div>
+          <div class="score-value" id="totalScore">5</div>
           <div class="score-label">Total Score</div>
         </div>
         <button class="score-adjust-btn" onclick="adjustScore(+1)">+</button>
@@ -521,13 +521,13 @@
             <span class="score-row-icon">🎂</span>
             <div>
               <span>Age (years)</span>
-              <div class="rescue-value">Rescue: unknown</div>
+              <div class="rescue-value">Rescue: 2.0 yrs</div>
             </div>
           </div>
           <div class="score-row-right">
             <input type="number" class="score-input " id="age" 
-                   value="" min="0" max="20" step="0.5" placeholder="?" onchange="updateScore()">
-            <span class="score-points" id="agePoints">0</span>
+                   value="2.0" min="0" max="20" step="0.5" placeholder="?" onchange="updateScore()">
+            <span class="score-points" id="agePoints">+1</span>
           </div>
         </div>
         
@@ -635,7 +635,7 @@
             <span class="score-row-icon">🐩</span>
             <div>
               <span>Doodle/Poodle</span>
-              <div class="rescue-value">Rescue: Yes (Poodle Mix)</div>
+              <div class="rescue-value">Rescue: Yes (Mini Doodle)</div>
             </div>
           </div>
           <div class="score-row-right">
@@ -683,8 +683,8 @@
         
         <div class="timeline-item">
           <span class="timeline-icon">🆕</span>
-          <span class="timeline-date">2025-12-06</span>
-          <span class="timeline-text">First seen: Upcoming (Fit Score: 4)</span>
+          <span class="timeline-date">2025-12-09</span>
+          <span class="timeline-text">First seen: Upcoming (Fit Score: 5)</span>
         </div>
       
       </div>
@@ -702,10 +702,10 @@
   <div class="toast" id="toast">Saved!</div>
   
   <script>
-    const dogId = 'doo_nova';
+    const dogId = 'doo_kris_kringle';
     const rescueValues = {
       weight: null,
-      age: null,
+      age: 2.0,
       shedding: 'Low',
       energy: 'Medium',
       goodDogs: 'Unknown',
