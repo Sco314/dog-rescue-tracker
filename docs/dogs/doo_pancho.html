@@ -109,9 +109,9 @@
       border-radius: 20px;
       font-weight: 600;
       font-size: 0.9rem;
-      background: #3b82f622;
-      color: #3b82f6;
-      border: 1px solid #3b82f644;
+      background: #10b98122;
+      color: #10b981;
+      border: 1px solid #10b98144;
       width: fit-content;
     }
     
@@ -431,12 +431,12 @@
     <!-- Hero Section -->
     <div class="hero">
       <div class="photo-section">
-        <img src="https://static.wixstatic.com/media/ff3e4c_cbd0cf927eae48ffb366dbdb0f278aa0~mv2.jpg/v1/fill/w_400,h_400,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/IMG_2698_edited.jpg" alt="Pancho" class="main-photo" id="mainPhoto" onerror="this.style.display='none'; document.getElementById('photoPlaceholder').style.display='flex';">
+        <img src="https://static.wixstatic.com/media/ff3e4c_cbd0cf927eae48ffb366dbdb0f278aa0~mv2.jpg/v1/fill/w_400,h_400,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/Image-empty-state.jpg" alt="Pancho" class="main-photo" id="mainPhoto" onerror="this.style.display='none'; document.getElementById('photoPlaceholder').style.display='flex';">
         <div class="photo-placeholder" id="photoPlaceholder" style="display: none;">🐕</div>
         
         <!-- Thumbnail gallery (ready for multiple photos) -->
         <div class="photo-thumbnails" id="photoThumbnails">
-          <img src="https://static.wixstatic.com/media/ff3e4c_cbd0cf927eae48ffb366dbdb0f278aa0~mv2.jpg/v1/fill/w_400,h_400,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/IMG_2698_edited.jpg" class="photo-thumb active" onclick="setMainPhoto(this.src)">
+          <img src="https://static.wixstatic.com/media/ff3e4c_cbd0cf927eae48ffb366dbdb0f278aa0~mv2.jpg/v1/fill/w_400,h_400,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/Image-empty-state.jpg" class="photo-thumb active" onclick="setMainPhoto(this.src)">
         </div>
         <div class="photo-count" id="photoCount">1 photo</div>
       </div>
@@ -447,7 +447,7 @@
           <button class="watch-btn " id="watchBtn" onclick="toggleWatch()" title="Add to watch list">☆</button>
         </div>
         
-        <div class="status-badge">🔜 Upcoming</div>
+        <div class="status-badge">✅ Available</div>
         
         <div class="key-facts">
           <div class="fact">
@@ -468,12 +468,12 @@
           </div>
           <div class="fact">
             <div class="fact-label">Location</div>
-            <div class="fact-value">HOU</div>
+            <div class="fact-value">?</div>
           </div>
         </div>
         
         <div class="rescue-link">
-          <a href="https://www.doodledandyrescue.org/doodles-coming-soon" target="_blank">
+          <a href="https://www.doodledandyrescue.org/all-adoptable-doodles" target="_blank">
             <span>🔗</span> View on rescue website
           </a>
         </div>
@@ -681,6 +681,12 @@
       </div>
       <div class="timeline">
         
+        <div class="timeline-item">
+          <span class="timeline-icon">📢</span>
+          <span class="timeline-date">2025-12-29</span>
+          <span class="timeline-text">Status: Upcoming → Available</span>
+        </div>
+      
         <div class="timeline-item">
           <span class="timeline-icon">🆕</span>
           <span class="timeline-date">2025-12-01</span>
