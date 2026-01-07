@@ -109,9 +109,9 @@
       border-radius: 20px;
       font-weight: 600;
       font-size: 0.9rem;
-      background: #10b98122;
-      color: #10b981;
-      border: 1px solid #10b98144;
+      background: #f59e0b22;
+      color: #f59e0b;
+      border: 1px solid #f59e0b44;
       width: fit-content;
     }
     
@@ -447,7 +447,7 @@
           <button class="watch-btn " id="watchBtn" onclick="toggleWatch()" title="Add to watch list">☆</button>
         </div>
         
-        <div class="status-badge">✅ Available</div>
+        <div class="status-badge">P Pending</div>
         
         <div class="key-facts">
           <div class="fact">
@@ -491,7 +491,7 @@
       <div class="score-main">
         <button class="score-adjust-btn" onclick="adjustScore(-1)">−</button>
         <div>
-          <div class="score-value" id="totalScore">5</div>
+          <div class="score-value" id="totalScore">0</div>
           <div class="score-label">Total Score</div>
         </div>
         <button class="score-adjust-btn" onclick="adjustScore(+1)">+</button>
@@ -665,6 +665,15 @@
         </div>
         
         
+        <div class="score-row">
+          <div class="score-row-label">
+            <span class="score-row-icon">-</span>
+            <span>Pending Status</span>
+          </div>
+          <div class="score-row-right">
+            <span class="score-points negative">-8</span>
+          </div>
+        </div>
       </div>
     </div>
     
@@ -673,7 +682,7 @@
       <div class="section-header">
         <h2 class="section-title">About Memphis</h2>
       </div>
-      <p class="bio-text">Memphis Posted on October 20, 2025 December 12, 2025 by Amanda 62 pound, 2 year old, Standard male, was treated for heartworms, has a 6 month pro heart injection for prevention. He is neutered, vaccinated, chipped and house trained. Gets along great with other dogs. Fostered in Little Rock. We adopt within 350 miles of Texarkana TX or Hot Springs AR (exceptions are made for excellent applicants -we do not ship). Adoption fee $300. We do not process incomplete apps. A volunteer will contact you w</p>
+      <p class="bio-text">Memphis pending Posted on October 20, 2025 January 6, 2026 by Amanda 62 pound, 2 year old, Standard male, was treated for heartworms, has a 6 month pro heart injection for prevention. He is neutered, vaccinated, chipped and house trained. Gets along great with other dogs. Fostered in Little Rock. We adopt within 350 miles of Texarkana TX or Hot Springs AR (exceptions are made for excellent applicants -we do not ship). Adoption fee $300. We do not process incomplete apps. A volunteer will contact</p>
     </div>
     
     <!-- Adoption Requirements -->
@@ -692,6 +701,12 @@
       </div>
       <div class="timeline">
         
+        <div class="timeline-item">
+          <span class="timeline-icon">📢</span>
+          <span class="timeline-date">2026-01-07</span>
+          <span class="timeline-text">Application submitted - now pending</span>
+        </div>
+      
         <div class="timeline-item">
           <span class="timeline-icon">📝</span>
           <span class="timeline-date">2025-12-03</span>
@@ -784,7 +799,7 @@
       score += breedScore;
       
       // Pending penalty
-      
+      score += -8;
       
       // Manual modifier
       score += scoreModifier;
