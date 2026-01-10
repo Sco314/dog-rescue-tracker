@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Hunter - Dog Details</title>
+  <title>Scout Pilgrim - Dog Details</title>
   <style>
     :root {
       --bg-primary: #121212;
@@ -109,9 +109,9 @@
       border-radius: 20px;
       font-weight: 600;
       font-size: 0.9rem;
-      background: #3b82f622;
-      color: #3b82f6;
-      border: 1px solid #3b82f644;
+      background: #f59e0b22;
+      color: #f59e0b;
+      border: 1px solid #f59e0b44;
       width: fit-content;
     }
     
@@ -420,7 +420,7 @@
 </head>
 <body>
   <div class="header">
-    <div class="header-title">Doodle Rock Rescue</div>
+    <div class="header-title">Doodle Dandy Rescue</div>
     <div class="header-actions">
       <button class="header-btn cancel" onclick="cancelAndClose()">Cancel</button>
       <button class="header-btn save" onclick="saveAndClose()">Save & Close</button>
@@ -431,49 +431,49 @@
     <!-- Hero Section -->
     <div class="hero">
       <div class="photo-section">
-        <img src="https://doodlerockrescue.org/wp-content/uploads/2025/10/IMG_0233-scaled-wpcf_200x200.jpeg" alt="Hunter" class="main-photo" id="mainPhoto" onerror="this.style.display='none'; document.getElementById('photoPlaceholder').style.display='flex';">
+        <img src="https://static.wixstatic.com/media/d689db_a6ddfc91773f4ee29659c5a91131e8f4~mv2.jpg/v1/fill/w_400,h_400,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/Image-place-holder.jpg" alt="Scout Pilgrim" class="main-photo" id="mainPhoto" onerror="this.style.display='none'; document.getElementById('photoPlaceholder').style.display='flex';">
         <div class="photo-placeholder" id="photoPlaceholder" style="display: none;">🐕</div>
         
         <!-- Thumbnail gallery (ready for multiple photos) -->
         <div class="photo-thumbnails" id="photoThumbnails">
-          <img src="https://doodlerockrescue.org/wp-content/uploads/2025/10/IMG_0233-scaled-wpcf_200x200.jpeg" class="photo-thumb active" onclick="setMainPhoto(this.src)">
+          <img src="https://static.wixstatic.com/media/d689db_a6ddfc91773f4ee29659c5a91131e8f4~mv2.jpg/v1/fill/w_400,h_400,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/Image-place-holder.jpg" class="photo-thumb active" onclick="setMainPhoto(this.src)">
         </div>
         <div class="photo-count" id="photoCount">1 photo</div>
       </div>
       
       <div class="hero-info">
         <div class="name-row">
-          <h1 class="dog-name">Hunter</h1>
+          <h1 class="dog-name">Scout Pilgrim</h1>
           <button class="watch-btn " id="watchBtn" onclick="toggleWatch()" title="Add to watch list">☆</button>
         </div>
         
-        <div class="status-badge">🔜 Upcoming</div>
+        <div class="status-badge">P Pending</div>
         
         <div class="key-facts">
           <div class="fact">
             <div class="fact-label">Breed</div>
-            <div class="fact-value">Poodle Mix</div>
+            <div class="fact-value">Goldendoodle</div>
           </div>
           <div class="fact">
             <div class="fact-label">Weight</div>
-            <div class="fact-value">?</div>
+            <div class="fact-value">34 lbs</div>
           </div>
           <div class="fact">
             <div class="fact-label">Age</div>
-            <div class="fact-value">?</div>
+            <div class="fact-value">4 yrs</div>
           </div>
           <div class="fact">
             <div class="fact-label">Sex</div>
-            <div class="fact-value">?</div>
+            <div class="fact-value">Male</div>
           </div>
           <div class="fact">
             <div class="fact-label">Location</div>
-            <div class="fact-value">Dallas, TX</div>
+            <div class="fact-value">?</div>
           </div>
         </div>
         
         <div class="rescue-link">
-          <a href="https://doodlerockrescue.org/adopt/coming-soon-for-adoption/" target="_blank">
+          <a href="https://www.doodledandyrescue.org/adoption-pending-doodles" target="_blank">
             <span>🔗</span> View on rescue website
           </a>
         </div>
@@ -491,7 +491,7 @@
       <div class="score-main">
         <button class="score-adjust-btn" onclick="adjustScore(-1)">−</button>
         <div>
-          <div class="score-value" id="totalScore">4</div>
+          <div class="score-value" id="totalScore">0</div>
           <div class="score-label">Total Score</div>
         </div>
         <button class="score-adjust-btn" onclick="adjustScore(+1)">+</button>
@@ -505,12 +505,12 @@
             <span class="score-row-icon">⚖️</span>
             <div>
               <span>Weight (lbs)</span>
-              <div class="rescue-value">Rescue: unknown</div>
+              <div class="rescue-value">Rescue: 34 lbs</div>
             </div>
           </div>
           <div class="score-row-right">
             <input type="number" class="score-input " id="weight" 
-                   value="" min="0" max="200" placeholder="?" onchange="updateScore()">
+                   value="34" min="0" max="200" placeholder="?" onchange="updateScore()">
             <span class="score-points" id="weightPoints">0</span>
           </div>
         </div>
@@ -521,12 +521,12 @@
             <span class="score-row-icon">🎂</span>
             <div>
               <span>Age (years)</span>
-              <div class="rescue-value">Rescue: unknown</div>
+              <div class="rescue-value">Rescue: 4.0 yrs</div>
             </div>
           </div>
           <div class="score-row-right">
             <input type="number" class="score-input " id="age" 
-                   value="" min="0" max="20" step="0.5" placeholder="?" onchange="updateScore()">
+                   value="4.0" min="0" max="20" step="0.5" placeholder="?" onchange="updateScore()">
             <span class="score-points" id="agePoints">0</span>
           </div>
         </div>
@@ -635,7 +635,7 @@
             <span class="score-row-icon">🐩</span>
             <div>
               <span>Doodle/Poodle</span>
-              <div class="rescue-value">Rescue: Yes (Poodle Mix)</div>
+              <div class="rescue-value">Rescue: Yes (Goldendoodle)</div>
             </div>
           </div>
           <div class="score-row-right">
@@ -665,6 +665,15 @@
         </div>
         
         
+        <div class="score-row">
+          <div class="score-row-label">
+            <span class="score-row-icon">-</span>
+            <span>Pending Status</span>
+          </div>
+          <div class="score-row-right">
+            <span class="score-points negative">-8</span>
+          </div>
+        </div>
       </div>
     </div>
     
@@ -680,7 +689,19 @@
         <h2 class="section-title">Timeline</h2>
       </div>
       <div class="timeline">
-        <div class="timeline-empty">No events recorded yet</div>
+        
+        <div class="timeline-item">
+          <span class="timeline-icon">📢</span>
+          <span class="timeline-date">2026-01-10</span>
+          <span class="timeline-text">Application submitted - now pending</span>
+        </div>
+      
+        <div class="timeline-item">
+          <span class="timeline-icon">📢</span>
+          <span class="timeline-date">2025-12-27</span>
+          <span class="timeline-text">Adopted! 🎉</span>
+        </div>
+      
       </div>
     </div>
     
@@ -696,10 +717,10 @@
   <div class="toast" id="toast">Saved!</div>
   
   <script>
-    const dogId = 'doo_hunter';
+    const dogId = 'doo_scout_pilgrim';
     const rescueValues = {
-      weight: null,
-      age: null,
+      weight: 34,
+      age: 4.0,
       shedding: 'Low',
       energy: 'Medium',
       goodDogs: 'Unknown',
@@ -767,7 +788,7 @@
       score += breedScore;
       
       // Pending penalty
-      
+      score += -8;
       
       // Manual modifier
       score += scoreModifier;
