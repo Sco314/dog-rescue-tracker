@@ -460,7 +460,7 @@
           </div>
           <div class="fact">
             <div class="fact-label">Age</div>
-            <div class="fact-value">8 mos</div>
+            <div class="fact-value">11 mos</div>
           </div>
           <div class="fact">
             <div class="fact-label">Sex</div>
@@ -491,7 +491,7 @@
       <div class="score-main">
         <button class="score-adjust-btn" onclick="adjustScore(-1)">−</button>
         <div>
-          <div class="score-value" id="totalScore">6</div>
+          <div class="score-value" id="totalScore">8</div>
           <div class="score-label">Total Score</div>
         </div>
         <button class="score-adjust-btn" onclick="adjustScore(+1)">+</button>
@@ -521,13 +521,13 @@
             <span class="score-row-icon">🎂</span>
             <div>
               <span>Age (years)</span>
-              <div class="rescue-value">Rescue: 0.7 yrs</div>
+              <div class="rescue-value">Rescue: 0.9 yrs</div>
             </div>
           </div>
           <div class="score-row-right">
             <input type="number" class="score-input " id="age" 
-                   value="0.7" min="0" max="20" step="0.5" placeholder="?" onchange="updateScore()">
-            <span class="score-points" id="agePoints">0</span>
+                   value="0.9" min="0" max="20" step="0.5" placeholder="?" onchange="updateScore()">
+            <span class="score-points" id="agePoints">+2</span>
           </div>
         </div>
         
@@ -684,6 +684,12 @@
         <div class="timeline-item">
           <span class="timeline-icon">📝</span>
           <span class="timeline-date">2026-01-13</span>
+          <span class="timeline-text">Fit Score: 6 → 5</span>
+        </div>
+      
+        <div class="timeline-item">
+          <span class="timeline-icon">📝</span>
+          <span class="timeline-date">2026-01-13</span>
           <span class="timeline-text">Fit Score: 6 → 4</span>
         </div>
       
@@ -735,12 +741,6 @@
           <span class="timeline-text">Fit Score: 0 → 4</span>
         </div>
       
-        <div class="timeline-item">
-          <span class="timeline-icon">📝</span>
-          <span class="timeline-date">2026-01-11</span>
-          <span class="timeline-text">Fit Score: 0 → 4</span>
-        </div>
-      
       </div>
     </div>
     
@@ -759,7 +759,7 @@
     const dogId = 'doo_skipper';
     const rescueValues = {
       weight: 60,
-      age: 0.7,
+      age: 0.9,
       shedding: 'Low',
       energy: 'High',
       goodDogs: 'Unknown',
