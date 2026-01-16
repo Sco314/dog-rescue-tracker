@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>GiGi - Dog Details</title>
+  <title>RoxyMae - Dog Details</title>
   <style>
     :root {
       --bg-primary: #121212;
@@ -431,19 +431,19 @@
     <!-- Hero Section -->
     <div class="hero">
       <div class="photo-section">
-        <img src="https://static.wixstatic.com/media/922814_effc17967b8945bbb87e769e792bce55~mv2.jpg/v1/fill/w_400,h_400,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/IMG_2698_edited.jpg" alt="GiGi" class="main-photo" id="mainPhoto" onerror="this.style.display='none'; document.getElementById('photoPlaceholder').style.display='flex';">
+        <img src="https://static.wixstatic.com/media/922814_6f4081eb7e174636b2fca9df45363005~mv2.png/v1/fill/w_400,h_400,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/IMG_2698_edited.png" alt="RoxyMae" class="main-photo" id="mainPhoto" onerror="this.style.display='none'; document.getElementById('photoPlaceholder').style.display='flex';">
         <div class="photo-placeholder" id="photoPlaceholder" style="display: none;">🐕</div>
         
         <!-- Thumbnail gallery (ready for multiple photos) -->
         <div class="photo-thumbnails" id="photoThumbnails">
-          <img src="https://static.wixstatic.com/media/922814_effc17967b8945bbb87e769e792bce55~mv2.jpg/v1/fill/w_400,h_400,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/IMG_2698_edited.jpg" class="photo-thumb active" onclick="setMainPhoto(this.src)">
+          <img src="https://static.wixstatic.com/media/922814_6f4081eb7e174636b2fca9df45363005~mv2.png/v1/fill/w_400,h_400,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/IMG_2698_edited.png" class="photo-thumb active" onclick="setMainPhoto(this.src)">
         </div>
         <div class="photo-count" id="photoCount">1 photo</div>
       </div>
       
       <div class="hero-info">
         <div class="name-row">
-          <h1 class="dog-name">GiGi</h1>
+          <h1 class="dog-name">RoxyMae</h1>
           <button class="watch-btn " id="watchBtn" onclick="toggleWatch()" title="Add to watch list">☆</button>
         </div>
         
@@ -452,11 +452,11 @@
         <div class="key-facts">
           <div class="fact">
             <div class="fact-label">Breed</div>
-            <div class="fact-value">Mini Aussiedoodle</div>
+            <div class="fact-value">Sheepadoodle</div>
           </div>
           <div class="fact">
             <div class="fact-label">Weight</div>
-            <div class="fact-value">21 lbs</div>
+            <div class="fact-value">70 lbs</div>
           </div>
           <div class="fact">
             <div class="fact-label">Age</div>
@@ -491,7 +491,7 @@
       <div class="score-main">
         <button class="score-adjust-btn" onclick="adjustScore(-1)">−</button>
         <div>
-          <div class="score-value" id="totalScore">4</div>
+          <div class="score-value" id="totalScore">6</div>
           <div class="score-label">Total Score</div>
         </div>
         <button class="score-adjust-btn" onclick="adjustScore(+1)">+</button>
@@ -505,13 +505,13 @@
             <span class="score-row-icon">⚖️</span>
             <div>
               <span>Weight (lbs)</span>
-              <div class="rescue-value">Rescue: 21 lbs</div>
+              <div class="rescue-value">Rescue: 70 lbs</div>
             </div>
           </div>
           <div class="score-row-right">
             <input type="number" class="score-input " id="weight" 
-                   value="21" min="0" max="200" placeholder="?" onchange="updateScore()">
-            <span class="score-points" id="weightPoints">0</span>
+                   value="70" min="0" max="200" placeholder="?" onchange="updateScore()">
+            <span class="score-points" id="weightPoints">+2</span>
           </div>
         </div>
         
@@ -635,7 +635,7 @@
             <span class="score-row-icon">🐩</span>
             <div>
               <span>Doodle/Poodle</span>
-              <div class="rescue-value">Rescue: Yes (Mini Aussiedoodle)</div>
+              <div class="rescue-value">Rescue: Yes (Sheepadoodle)</div>
             </div>
           </div>
           <div class="score-row-right">
@@ -682,21 +682,9 @@
       <div class="timeline">
         
         <div class="timeline-item">
-          <span class="timeline-icon">📢</span>
-          <span class="timeline-date">2026-01-16</span>
-          <span class="timeline-text">Status: Available → Upcoming</span>
-        </div>
-      
-        <div class="timeline-item">
-          <span class="timeline-icon">📢</span>
-          <span class="timeline-date">2026-01-15</span>
-          <span class="timeline-text">Status: Upcoming → Available</span>
-        </div>
-      
-        <div class="timeline-item">
           <span class="timeline-icon">🆕</span>
-          <span class="timeline-date">2025-12-27</span>
-          <span class="timeline-text">First seen: Upcoming (Fit Score: 3)</span>
+          <span class="timeline-date">2026-01-16</span>
+          <span class="timeline-text">First seen: Upcoming (Fit Score: 5)</span>
         </div>
       
       </div>
@@ -714,9 +702,9 @@
   <div class="toast" id="toast">Saved!</div>
   
   <script>
-    const dogId = 'doo_gigi';
+    const dogId = 'doo_roxymae';
     const rescueValues = {
-      weight: 21,
+      weight: 70,
       age: 4.0,
       shedding: 'Low',
       energy: 'Medium',
