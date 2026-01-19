@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Charlie - Dog Details</title>
+  <title>Shadow Dancer - Dog Details</title>
   <style>
     :root {
       --bg-primary: #121212;
@@ -109,9 +109,9 @@
       border-radius: 20px;
       font-weight: 600;
       font-size: 0.9rem;
-      background: #10b98122;
-      color: #10b981;
-      border: 1px solid #10b98144;
+      background: #f59e0b22;
+      color: #f59e0b;
+      border: 1px solid #f59e0b44;
       width: fit-content;
     }
     
@@ -420,7 +420,7 @@
 </head>
 <body>
   <div class="header">
-    <div class="header-title">Poodle Patch Rescue</div>
+    <div class="header-title">Doodle Dandy Rescue</div>
     <div class="header-actions">
       <button class="header-btn cancel" onclick="cancelAndClose()">Cancel</button>
       <button class="header-btn save" onclick="saveAndClose()">Save & Close</button>
@@ -431,36 +431,36 @@
     <!-- Hero Section -->
     <div class="hero">
       <div class="photo-section">
-        <img src="https://poodlepatchrescue.com/wp-content/uploads/2024/03/imagejpeg_0-2-300x300.jpeg" alt="Charlie" class="main-photo" id="mainPhoto" onerror="this.style.display='none'; document.getElementById('photoPlaceholder').style.display='flex';">
+        <img src="https://static.wixstatic.com/media/922814_971dbca772fa456286df39238f6091d9~mv2.jpg/v1/fill/w_400,h_400,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/Image-place-holder.jpg" alt="Shadow Dancer" class="main-photo" id="mainPhoto" onerror="this.style.display='none'; document.getElementById('photoPlaceholder').style.display='flex';">
         <div class="photo-placeholder" id="photoPlaceholder" style="display: none;">🐕</div>
         
         <!-- Thumbnail gallery (ready for multiple photos) -->
         <div class="photo-thumbnails" id="photoThumbnails">
-          <img src="https://poodlepatchrescue.com/wp-content/uploads/2024/03/imagejpeg_0-2-300x300.jpeg" class="photo-thumb active" onclick="setMainPhoto(this.src)">
+          <img src="https://static.wixstatic.com/media/922814_971dbca772fa456286df39238f6091d9~mv2.jpg/v1/fill/w_400,h_400,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/Image-place-holder.jpg" class="photo-thumb active" onclick="setMainPhoto(this.src)">
         </div>
         <div class="photo-count" id="photoCount">1 photo</div>
       </div>
       
       <div class="hero-info">
         <div class="name-row">
-          <h1 class="dog-name">Charlie</h1>
+          <h1 class="dog-name">Shadow Dancer</h1>
           <button class="watch-btn " id="watchBtn" onclick="toggleWatch()" title="Add to watch list">☆</button>
         </div>
         
-        <div class="status-badge">✅ Available</div>
+        <div class="status-badge">P Pending</div>
         
         <div class="key-facts">
           <div class="fact">
             <div class="fact-label">Breed</div>
-            <div class="fact-value">Standard Poodle</div>
+            <div class="fact-value">Labradoodle</div>
           </div>
           <div class="fact">
             <div class="fact-label">Weight</div>
-            <div class="fact-value">83 lbs</div>
+            <div class="fact-value">45 lbs</div>
           </div>
           <div class="fact">
             <div class="fact-label">Age</div>
-            <div class="fact-value">?</div>
+            <div class="fact-value">7 mos</div>
           </div>
           <div class="fact">
             <div class="fact-label">Sex</div>
@@ -468,12 +468,12 @@
           </div>
           <div class="fact">
             <div class="fact-label">Location</div>
-            <div class="fact-value">Texarkana, TX</div>
+            <div class="fact-value">HOU</div>
           </div>
         </div>
         
         <div class="rescue-link">
-          <a href="https://poodlepatchrescue.com/charlie/" target="_blank">
+          <a href="https://www.doodledandyrescue.org/adoption-pending-doodles" target="_blank">
             <span>🔗</span> View on rescue website
           </a>
         </div>
@@ -491,7 +491,7 @@
       <div class="score-main">
         <button class="score-adjust-btn" onclick="adjustScore(-1)">−</button>
         <div>
-          <div class="score-value" id="totalScore">3</div>
+          <div class="score-value" id="totalScore">0</div>
           <div class="score-label">Total Score</div>
         </div>
         <button class="score-adjust-btn" onclick="adjustScore(+1)">+</button>
@@ -505,12 +505,12 @@
             <span class="score-row-icon">⚖️</span>
             <div>
               <span>Weight (lbs)</span>
-              <div class="rescue-value">Rescue: 83 lbs</div>
+              <div class="rescue-value">Rescue: 45 lbs</div>
             </div>
           </div>
           <div class="score-row-right">
             <input type="number" class="score-input " id="weight" 
-                   value="83" min="0" max="200" placeholder="?" onchange="updateScore()">
+                   value="45" min="0" max="200" placeholder="?" onchange="updateScore()">
             <span class="score-points" id="weightPoints">+2</span>
           </div>
         </div>
@@ -521,12 +521,12 @@
             <span class="score-row-icon">🎂</span>
             <div>
               <span>Age (years)</span>
-              <div class="rescue-value">Rescue: unknown</div>
+              <div class="rescue-value">Rescue: 0.6 yrs</div>
             </div>
           </div>
           <div class="score-row-right">
             <input type="number" class="score-input " id="age" 
-                   value="" min="0" max="20" step="0.5" placeholder="?" onchange="updateScore()">
+                   value="0.6" min="0" max="20" step="0.5" placeholder="?" onchange="updateScore()">
             <span class="score-points" id="agePoints">0</span>
           </div>
         </div>
@@ -558,17 +558,17 @@
             <span class="score-row-icon">⚡</span>
             <div>
               <span>Energy</span>
-              <div class="rescue-value">Rescue: Unknown</div>
+              <div class="rescue-value">Rescue: High</div>
             </div>
           </div>
           <div class="score-row-right">
             <select class="score-select " id="energy" onchange="updateScore()">
               <option value="Low" >Low</option>
               <option value="Medium" >Medium</option>
-              <option value="High" >High</option>
-              <option value="Unknown" selected>Unknown</option>
+              <option value="High" selected>High</option>
+              <option value="Unknown" >Unknown</option>
             </select>
-            <span class="score-points" id="energyPoints">+1</span>
+            <span class="score-points" id="energyPoints">0</span>
           </div>
         </div>
         
@@ -635,7 +635,7 @@
             <span class="score-row-icon">🐩</span>
             <div>
               <span>Doodle/Poodle</span>
-              <div class="rescue-value">Rescue: Yes (Standard Poodle)</div>
+              <div class="rescue-value">Rescue: Yes (Labradoodle)</div>
             </div>
           </div>
           <div class="score-row-right">
@@ -657,7 +657,7 @@
           <div class="score-row-right">
             <div class="adjust-row">
               <button class="mini-adjust-btn" onclick="adjustScore(-1)">−</button>
-              <span class="score-points negative" id="modifierPoints" style="min-width: 30px; text-align: center;">-1</span>
+              <span class="score-points neutral" id="modifierPoints" style="min-width: 30px; text-align: center;">0</span>
               <button class="mini-adjust-btn" onclick="adjustScore(+1)">+</button>
             </div>
             <button class="reset-inline-btn" onclick="resetOverrides()">Reset All</button>
@@ -665,25 +665,23 @@
         </div>
         
         
+        <div class="score-row">
+          <div class="score-row-label">
+            <span class="score-row-icon">-</span>
+            <span>Pending Status</span>
+          </div>
+          <div class="score-row-right">
+            <span class="score-points negative">-8</span>
+          </div>
+        </div>
       </div>
     </div>
     
     <!-- Bio Section -->
-    <div class="section">
-      <div class="section-header">
-        <h2 class="section-title">About Charlie</h2>
-      </div>
-      <p class="bio-text">Charlie Posted on March 10, 2024 March 29, 2025 by Amanda 83 lbs now, he was 74 when we got him. Standard Poodle or Poodle lab mix we believe. Breeder asked us to take several. All were treated for hook and whip worms. Fostered  in Texarkana, TX  He is doing fabulous in his foster home. He loves lounging on the couch and running around in the yard with the other poodles. He’s also an excellent car rider. Like any new rescue dog he will take a little bit of time to acclimate so someone with patie</p>
-    </div>
+    
     
     <!-- Adoption Requirements -->
-    <div class="section">
-      <div class="section-header">
-        <h2 class="section-title">Adoption Info</h2>
-      </div>
-      <p class="bio-text">Within 350 miles</p>
-      <p style="margin-top: 15px;"><strong>Adoption Fee:</strong> $300</p>
-    </div>
+    
     
     <!-- Timeline Section -->
     <div class="section">
@@ -693,63 +691,27 @@
       <div class="timeline">
         
         <div class="timeline-item">
-          <span class="timeline-icon">📝</span>
+          <span class="timeline-icon">📢</span>
           <span class="timeline-date">2026-01-19</span>
-          <span class="timeline-text">Fit Score: 3 → 5</span>
+          <span class="timeline-text">Application submitted - now pending</span>
         </div>
       
         <div class="timeline-item">
-          <span class="timeline-icon">📝</span>
-          <span class="timeline-date">2026-01-19</span>
-          <span class="timeline-text">Fit Score: 3 → 5</span>
+          <span class="timeline-icon">📢</span>
+          <span class="timeline-date">2026-01-13</span>
+          <span class="timeline-text">Adopted! 🎉</span>
         </div>
       
         <div class="timeline-item">
-          <span class="timeline-icon">📝</span>
-          <span class="timeline-date">2026-01-19</span>
-          <span class="timeline-text">Fit Score: 3 → 5</span>
+          <span class="timeline-icon">📢</span>
+          <span class="timeline-date">2026-01-08</span>
+          <span class="timeline-text">Status: Upcoming → Available</span>
         </div>
       
         <div class="timeline-item">
-          <span class="timeline-icon">📝</span>
-          <span class="timeline-date">2026-01-18</span>
-          <span class="timeline-text">Fit Score: 3 → 5</span>
-        </div>
-      
-        <div class="timeline-item">
-          <span class="timeline-icon">📝</span>
-          <span class="timeline-date">2026-01-18</span>
-          <span class="timeline-text">Fit Score: 3 → 5</span>
-        </div>
-      
-        <div class="timeline-item">
-          <span class="timeline-icon">📝</span>
-          <span class="timeline-date">2026-01-18</span>
-          <span class="timeline-text">Fit Score: 3 → 5</span>
-        </div>
-      
-        <div class="timeline-item">
-          <span class="timeline-icon">📝</span>
-          <span class="timeline-date">2026-01-18</span>
-          <span class="timeline-text">Fit Score: 3 → 5</span>
-        </div>
-      
-        <div class="timeline-item">
-          <span class="timeline-icon">📝</span>
-          <span class="timeline-date">2026-01-18</span>
-          <span class="timeline-text">Fit Score: 3 → 5</span>
-        </div>
-      
-        <div class="timeline-item">
-          <span class="timeline-icon">📝</span>
-          <span class="timeline-date">2026-01-18</span>
-          <span class="timeline-text">Fit Score: 3 → 5</span>
-        </div>
-      
-        <div class="timeline-item">
-          <span class="timeline-icon">📝</span>
-          <span class="timeline-date">2026-01-17</span>
-          <span class="timeline-text">Fit Score: 3 → 5</span>
+          <span class="timeline-icon">🆕</span>
+          <span class="timeline-date">2025-12-10</span>
+          <span class="timeline-text">First seen: Upcoming (Fit Score: 4)</span>
         </div>
       
       </div>
@@ -767,19 +729,19 @@
   <div class="toast" id="toast">Saved!</div>
   
   <script>
-    const dogId = 'poo_charlie';
+    const dogId = 'doo_shadow_dancer';
     const rescueValues = {
-      weight: 83,
-      age: null,
+      weight: 45,
+      age: 0.6,
       shedding: 'Low',
-      energy: 'Unknown',
+      energy: 'High',
       goodDogs: 'Unknown',
       goodKids: 'Unknown',
       goodCats: 'Unknown',
       breed: 'Yes'
     };
     
-    let scoreModifier = -1;
+    let scoreModifier = 0;
     let watchList = false;
     
     // Score calculation constants
@@ -838,7 +800,7 @@
       score += breedScore;
       
       // Pending penalty
-      
+      score += -8;
       
       // Manual modifier
       score += scoreModifier;
