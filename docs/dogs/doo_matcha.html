@@ -109,9 +109,9 @@
       border-radius: 20px;
       font-weight: 600;
       font-size: 0.9rem;
-      background: #f59e0b22;
-      color: #f59e0b;
-      border: 1px solid #f59e0b44;
+      background: #3b82f622;
+      color: #3b82f6;
+      border: 1px solid #3b82f644;
       width: fit-content;
     }
     
@@ -420,7 +420,7 @@
 </head>
 <body>
   <div class="header">
-    <div class="header-title">Doodle Dandy Rescue</div>
+    <div class="header-title">Doodle Rock Rescue</div>
     <div class="header-actions">
       <button class="header-btn cancel" onclick="cancelAndClose()">Cancel</button>
       <button class="header-btn save" onclick="saveAndClose()">Save & Close</button>
@@ -431,12 +431,12 @@
     <!-- Hero Section -->
     <div class="hero">
       <div class="photo-section">
-        <img src="https://static.wixstatic.com/media/922814_8481daa42d4f419c83a96b12803d6c36~mv2.jpg/v1/fill/w_400,h_400,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/Image-place-holder.jpg" alt="Matcha" class="main-photo" id="mainPhoto" onerror="this.style.display='none'; document.getElementById('photoPlaceholder').style.display='flex';">
+        <img src="https://doodlerockrescue.org/wp-content/uploads/2025/08/IMG_6272-scaled-wpcf_200x200.jpeg" alt="Matcha" class="main-photo" id="mainPhoto" onerror="this.style.display='none'; document.getElementById('photoPlaceholder').style.display='flex';">
         <div class="photo-placeholder" id="photoPlaceholder" style="display: none;">🐕</div>
         
         <!-- Thumbnail gallery (ready for multiple photos) -->
         <div class="photo-thumbnails" id="photoThumbnails">
-          <img src="https://static.wixstatic.com/media/922814_8481daa42d4f419c83a96b12803d6c36~mv2.jpg/v1/fill/w_400,h_400,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/Image-place-holder.jpg" class="photo-thumb active" onclick="setMainPhoto(this.src)">
+          <img src="https://doodlerockrescue.org/wp-content/uploads/2025/08/IMG_6272-scaled-wpcf_200x200.jpeg" class="photo-thumb active" onclick="setMainPhoto(this.src)">
         </div>
         <div class="photo-count" id="photoCount">1 photo</div>
       </div>
@@ -447,33 +447,33 @@
           <button class="watch-btn active" id="watchBtn" onclick="toggleWatch()" title="Add to watch list">⭐</button>
         </div>
         
-        <div class="status-badge">P Pending</div>
+        <div class="status-badge">🔜 Upcoming</div>
         
         <div class="key-facts">
           <div class="fact">
             <div class="fact-label">Breed</div>
-            <div class="fact-value">Doodle</div>
+            <div class="fact-value">Poodle Mix</div>
           </div>
           <div class="fact">
             <div class="fact-label">Weight</div>
-            <div class="fact-value">55 lbs</div>
+            <div class="fact-value">?</div>
           </div>
           <div class="fact">
             <div class="fact-label">Age</div>
-            <div class="fact-value">3 yrs</div>
+            <div class="fact-value">?</div>
           </div>
           <div class="fact">
             <div class="fact-label">Sex</div>
-            <div class="fact-value">Male</div>
+            <div class="fact-value">?</div>
           </div>
           <div class="fact">
             <div class="fact-label">Location</div>
-            <div class="fact-value">DFW</div>
+            <div class="fact-value">Dallas, TX</div>
           </div>
         </div>
         
         <div class="rescue-link">
-          <a href="https://www.doodledandyrescue.org/adoption-pending-doodles" target="_blank">
+          <a href="https://doodlerockrescue.org/adopt/coming-soon-for-adoption/" target="_blank">
             <span>🔗</span> View on rescue website
           </a>
         </div>
@@ -491,7 +491,7 @@
       <div class="score-main">
         <button class="score-adjust-btn" onclick="adjustScore(-1)">−</button>
         <div>
-          <div class="score-value" id="totalScore">0</div>
+          <div class="score-value" id="totalScore">4</div>
           <div class="score-label">Total Score</div>
         </div>
         <button class="score-adjust-btn" onclick="adjustScore(+1)">+</button>
@@ -505,13 +505,13 @@
             <span class="score-row-icon">⚖️</span>
             <div>
               <span>Weight (lbs)</span>
-              <div class="rescue-value">Rescue: 55 lbs</div>
+              <div class="rescue-value">Rescue: unknown</div>
             </div>
           </div>
           <div class="score-row-right">
             <input type="number" class="score-input " id="weight" 
-                   value="55" min="0" max="200" placeholder="?" onchange="updateScore()">
-            <span class="score-points" id="weightPoints">+2</span>
+                   value="" min="0" max="200" placeholder="?" onchange="updateScore()">
+            <span class="score-points" id="weightPoints">0</span>
           </div>
         </div>
         
@@ -521,13 +521,13 @@
             <span class="score-row-icon">🎂</span>
             <div>
               <span>Age (years)</span>
-              <div class="rescue-value">Rescue: 3.0 yrs</div>
+              <div class="rescue-value">Rescue: unknown</div>
             </div>
           </div>
           <div class="score-row-right">
             <input type="number" class="score-input " id="age" 
-                   value="3.0" min="0" max="20" step="0.5" placeholder="?" onchange="updateScore()">
-            <span class="score-points" id="agePoints">+1</span>
+                   value="" min="0" max="20" step="0.5" placeholder="?" onchange="updateScore()">
+            <span class="score-points" id="agePoints">0</span>
           </div>
         </div>
         
@@ -635,7 +635,7 @@
             <span class="score-row-icon">🐩</span>
             <div>
               <span>Doodle/Poodle</span>
-              <div class="rescue-value">Rescue: Yes (Doodle)</div>
+              <div class="rescue-value">Rescue: Yes (Poodle Mix)</div>
             </div>
           </div>
           <div class="score-row-right">
@@ -665,15 +665,6 @@
         </div>
         
         
-        <div class="score-row">
-          <div class="score-row-label">
-            <span class="score-row-icon">-</span>
-            <span>Pending Status</span>
-          </div>
-          <div class="score-row-right">
-            <span class="score-points negative">-8</span>
-          </div>
-        </div>
       </div>
     </div>
     
@@ -692,25 +683,13 @@
         
         <div class="timeline-item">
           <span class="timeline-icon">📝</span>
-          <span class="timeline-date">2026-02-02</span>
-          <span class="timeline-text">Weight: ? → 55 lbs; Good with kids: Unknown; Good with dogs: Unknown (+2 more)</span>
-        </div>
-      
-        <div class="timeline-item">
-          <span class="timeline-icon">📢</span>
-          <span class="timeline-date">2026-02-02</span>
-          <span class="timeline-text">Application submitted - now pending</span>
-        </div>
-      
-        <div class="timeline-item">
-          <span class="timeline-icon">📝</span>
-          <span class="timeline-date">2026-02-02</span>
+          <span class="timeline-date">2026-02-03</span>
           <span class="timeline-text">Fit Score: 6 → 4</span>
         </div>
       
         <div class="timeline-item">
           <span class="timeline-icon">📢</span>
-          <span class="timeline-date">2026-02-02</span>
+          <span class="timeline-date">2026-02-03</span>
           <span class="timeline-text">Status: Pending → Upcoming</span>
         </div>
       
@@ -748,6 +727,18 @@
           <span class="timeline-icon">📢</span>
           <span class="timeline-date">2026-02-02</span>
           <span class="timeline-text">Application submitted - now pending</span>
+        </div>
+      
+        <div class="timeline-item">
+          <span class="timeline-icon">📝</span>
+          <span class="timeline-date">2026-02-02</span>
+          <span class="timeline-text">Fit Score: 6 → 4</span>
+        </div>
+      
+        <div class="timeline-item">
+          <span class="timeline-icon">📢</span>
+          <span class="timeline-date">2026-02-02</span>
+          <span class="timeline-text">Status: Pending → Upcoming</span>
         </div>
       
       </div>
@@ -767,8 +758,8 @@
   <script>
     const dogId = 'doo_matcha';
     const rescueValues = {
-      weight: 55,
-      age: 3.0,
+      weight: null,
+      age: null,
       shedding: 'Low',
       energy: 'Medium',
       goodDogs: 'Unknown',
@@ -836,7 +827,7 @@
       score += breedScore;
       
       // Pending penalty
-      score += -8;
+      
       
       // Manual modifier
       score += scoreModifier;
