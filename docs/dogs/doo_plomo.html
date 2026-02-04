@@ -456,7 +456,7 @@
           </div>
           <div class="fact">
             <div class="fact-label">Weight</div>
-            <div class="fact-value">39 lbs</div>
+            <div class="fact-value">58 lbs</div>
           </div>
           <div class="fact">
             <div class="fact-label">Age</div>
@@ -491,7 +491,7 @@
       <div class="score-main">
         <button class="score-adjust-btn" onclick="adjustScore(-1)">−</button>
         <div>
-          <div class="score-value" id="totalScore">6</div>
+          <div class="score-value" id="totalScore">8</div>
           <div class="score-label">Total Score</div>
         </div>
         <button class="score-adjust-btn" onclick="adjustScore(+1)">+</button>
@@ -505,13 +505,13 @@
             <span class="score-row-icon">⚖️</span>
             <div>
               <span>Weight (lbs)</span>
-              <div class="rescue-value">Rescue: 39 lbs</div>
+              <div class="rescue-value">Rescue: 58 lbs</div>
             </div>
           </div>
           <div class="score-row-right">
             <input type="number" class="score-input " id="weight" 
-                   value="39" min="0" max="200" placeholder="?" onchange="updateScore()">
-            <span class="score-points" id="weightPoints">0</span>
+                   value="58" min="0" max="200" placeholder="?" onchange="updateScore()">
+            <span class="score-points" id="weightPoints">+2</span>
           </div>
         </div>
         
@@ -684,6 +684,12 @@
         <div class="timeline-item">
           <span class="timeline-icon">📝</span>
           <span class="timeline-date">2026-02-04</span>
+          <span class="timeline-text">Weight: 39 → 58 lbs</span>
+        </div>
+      
+        <div class="timeline-item">
+          <span class="timeline-icon">📝</span>
+          <span class="timeline-date">2026-02-04</span>
           <span class="timeline-text">Fit Score: 6 → 4</span>
         </div>
       
@@ -720,12 +726,6 @@
         <div class="timeline-item">
           <span class="timeline-icon">📝</span>
           <span class="timeline-date">2026-02-03</span>
-          <span class="timeline-text">Fit Score: 6 → 4</span>
-        </div>
-      
-        <div class="timeline-item">
-          <span class="timeline-icon">📝</span>
-          <span class="timeline-date">2026-02-02</span>
           <span class="timeline-text">Fit Score: 6 → 4</span>
         </div>
       
@@ -758,7 +758,7 @@
   <script>
     const dogId = 'doo_plomo';
     const rescueValues = {
-      weight: 39,
+      weight: 58,
       age: 3.0,
       shedding: 'Low',
       energy: 'Medium',
