@@ -109,9 +109,9 @@
       border-radius: 20px;
       font-weight: 600;
       font-size: 0.9rem;
-      background: #10b98122;
-      color: #10b981;
-      border: 1px solid #10b98144;
+      background: #f59e0b22;
+      color: #f59e0b;
+      border: 1px solid #f59e0b44;
       width: fit-content;
     }
     
@@ -447,7 +447,7 @@
           <button class="watch-btn " id="watchBtn" onclick="toggleWatch()" title="Add to watch list">☆</button>
         </div>
         
-        <div class="status-badge">✅ Available</div>
+        <div class="status-badge">P Pending</div>
         
         <div class="key-facts">
           <div class="fact">
@@ -491,7 +491,7 @@
       <div class="score-main">
         <button class="score-adjust-btn" onclick="adjustScore(-1)">−</button>
         <div>
-          <div class="score-value" id="totalScore">11</div>
+          <div class="score-value" id="totalScore">3</div>
           <div class="score-label">Total Score</div>
         </div>
         <button class="score-adjust-btn" onclick="adjustScore(+1)">+</button>
@@ -665,6 +665,15 @@
         </div>
         
         
+        <div class="score-row">
+          <div class="score-row-label">
+            <span class="score-row-icon">-</span>
+            <span>Pending Status</span>
+          </div>
+          <div class="score-row-right">
+            <span class="score-points negative">-8</span>
+          </div>
+        </div>
       </div>
     </div>
     
@@ -681,6 +690,12 @@
       </div>
       <div class="timeline">
         
+        <div class="timeline-item">
+          <span class="timeline-icon">📢</span>
+          <span class="timeline-date">2026-02-12</span>
+          <span class="timeline-text">Application submitted - now pending</span>
+        </div>
+      
         <div class="timeline-item">
           <span class="timeline-icon">📝</span>
           <span class="timeline-date">2025-12-08</span>
@@ -779,7 +794,7 @@
       score += breedScore;
       
       // Pending penalty
-      
+      score += -8;
       
       // Manual modifier
       score += scoreModifier;
