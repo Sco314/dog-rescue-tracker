@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sheldon2 - Dog Details</title>
+  <title>Abby - Dog Details</title>
   <style>
     :root {
       --bg-primary: #121212;
@@ -109,9 +109,9 @@
       border-radius: 20px;
       font-weight: 600;
       font-size: 0.9rem;
-      background: #10b98122;
-      color: #10b981;
-      border: 1px solid #10b98144;
+      background: #3b82f622;
+      color: #3b82f6;
+      border: 1px solid #3b82f644;
       width: fit-content;
     }
     
@@ -431,49 +431,49 @@
     <!-- Hero Section -->
     <div class="hero">
       <div class="photo-section">
-        <img src="https://static.wixstatic.com/media/922814_96a86fe3ce7c4f86adc760c2a802e661~mv2.jpg/v1/fill/w_400,h_400,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/Image-empty-state.jpg" alt="Sheldon2" class="main-photo" id="mainPhoto" onerror="this.style.display='none'; document.getElementById('photoPlaceholder').style.display='flex';">
+        <img src="https://static.wixstatic.com/media/ff3e4c_3e455de6994d4a719f832656728ef9e8~mv2.png/v1/fill/w_400,h_400,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/IMG_2698_edited.png" alt="Abby" class="main-photo" id="mainPhoto" onerror="this.style.display='none'; document.getElementById('photoPlaceholder').style.display='flex';">
         <div class="photo-placeholder" id="photoPlaceholder" style="display: none;">🐕</div>
         
         <!-- Thumbnail gallery (ready for multiple photos) -->
         <div class="photo-thumbnails" id="photoThumbnails">
-          <img src="https://static.wixstatic.com/media/922814_96a86fe3ce7c4f86adc760c2a802e661~mv2.jpg/v1/fill/w_400,h_400,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/Image-empty-state.jpg" class="photo-thumb active" onclick="setMainPhoto(this.src)">
+          <img src="https://static.wixstatic.com/media/ff3e4c_3e455de6994d4a719f832656728ef9e8~mv2.png/v1/fill/w_400,h_400,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/IMG_2698_edited.png" class="photo-thumb active" onclick="setMainPhoto(this.src)">
         </div>
         <div class="photo-count" id="photoCount">1 photo</div>
       </div>
       
       <div class="hero-info">
         <div class="name-row">
-          <h1 class="dog-name">Sheldon2</h1>
+          <h1 class="dog-name">Abby</h1>
           <button class="watch-btn " id="watchBtn" onclick="toggleWatch()" title="Add to watch list">☆</button>
         </div>
         
-        <div class="status-badge">✅ Available</div>
+        <div class="status-badge">🔜 Upcoming</div>
         
         <div class="key-facts">
           <div class="fact">
             <div class="fact-label">Breed</div>
-            <div class="fact-value">Goldendoodle</div>
+            <div class="fact-value">Double Doodle</div>
           </div>
           <div class="fact">
             <div class="fact-label">Weight</div>
-            <div class="fact-value">12 lbs</div>
+            <div class="fact-value">53 lbs</div>
           </div>
           <div class="fact">
             <div class="fact-label">Age</div>
-            <div class="fact-value">4 mos</div>
+            <div class="fact-value">2 yrs</div>
           </div>
           <div class="fact">
             <div class="fact-label">Sex</div>
-            <div class="fact-value">Male</div>
+            <div class="fact-value">Female</div>
           </div>
           <div class="fact">
             <div class="fact-label">Location</div>
-            <div class="fact-value">?</div>
+            <div class="fact-value">HOU</div>
           </div>
         </div>
         
         <div class="rescue-link">
-          <a href="https://www.doodledandyrescue.org/all-adoptable-doodles" target="_blank">
+          <a href="https://www.doodledandyrescue.org/doodles-coming-soon" target="_blank">
             <span>🔗</span> View on rescue website
           </a>
         </div>
@@ -491,7 +491,7 @@
       <div class="score-main">
         <button class="score-adjust-btn" onclick="adjustScore(-1)">−</button>
         <div>
-          <div class="score-value" id="totalScore">2</div>
+          <div class="score-value" id="totalScore">7</div>
           <div class="score-label">Total Score</div>
         </div>
         <button class="score-adjust-btn" onclick="adjustScore(+1)">+</button>
@@ -505,13 +505,13 @@
             <span class="score-row-icon">⚖️</span>
             <div>
               <span>Weight (lbs)</span>
-              <div class="rescue-value">Rescue: 12 lbs</div>
+              <div class="rescue-value">Rescue: 53 lbs</div>
             </div>
           </div>
           <div class="score-row-right">
             <input type="number" class="score-input " id="weight" 
-                   value="12" min="0" max="200" placeholder="?" onchange="updateScore()">
-            <span class="score-points" id="weightPoints">0</span>
+                   value="53" min="0" max="200" placeholder="?" onchange="updateScore()">
+            <span class="score-points" id="weightPoints">+2</span>
           </div>
         </div>
         
@@ -521,13 +521,13 @@
             <span class="score-row-icon">🎂</span>
             <div>
               <span>Age (years)</span>
-              <div class="rescue-value">Rescue: 0.3 yrs</div>
+              <div class="rescue-value">Rescue: 2.0 yrs</div>
             </div>
           </div>
           <div class="score-row-right">
             <input type="number" class="score-input " id="age" 
-                   value="0.3" min="0" max="20" step="0.5" placeholder="?" onchange="updateScore()">
-            <span class="score-points" id="agePoints">0</span>
+                   value="2.0" min="0" max="20" step="0.5" placeholder="?" onchange="updateScore()">
+            <span class="score-points" id="agePoints">+1</span>
           </div>
         </div>
         
@@ -558,17 +558,17 @@
             <span class="score-row-icon">⚡</span>
             <div>
               <span>Energy</span>
-              <div class="rescue-value">Rescue: High</div>
+              <div class="rescue-value">Rescue: Medium</div>
             </div>
           </div>
           <div class="score-row-right">
             <select class="score-select " id="energy" onchange="updateScore()">
               <option value="Low" >Low</option>
-              <option value="Medium" >Medium</option>
-              <option value="High" selected>High</option>
+              <option value="Medium" selected>Medium</option>
+              <option value="High" >High</option>
               <option value="Unknown" >Unknown</option>
             </select>
-            <span class="score-points" id="energyPoints">0</span>
+            <span class="score-points" id="energyPoints">+2</span>
           </div>
         </div>
         
@@ -635,7 +635,7 @@
             <span class="score-row-icon">🐩</span>
             <div>
               <span>Doodle/Poodle</span>
-              <div class="rescue-value">Rescue: Yes (Goldendoodle)</div>
+              <div class="rescue-value">Rescue: Yes (Double Doodle)</div>
             </div>
           </div>
           <div class="score-row-right">
@@ -682,33 +682,9 @@
       <div class="timeline">
         
         <div class="timeline-item">
-          <span class="timeline-icon">📝</span>
-          <span class="timeline-date">2026-02-12</span>
-          <span class="timeline-text">Weight: 9 → 12 lbs</span>
-        </div>
-      
-        <div class="timeline-item">
-          <span class="timeline-icon">📢</span>
-          <span class="timeline-date">2026-02-12</span>
-          <span class="timeline-text">Status: Upcoming → Available</span>
-        </div>
-      
-        <div class="timeline-item">
-          <span class="timeline-icon">📢</span>
-          <span class="timeline-date">2026-02-04</span>
-          <span class="timeline-text">Status: Adopted/Removed → Upcoming</span>
-        </div>
-      
-        <div class="timeline-item">
-          <span class="timeline-icon">📢</span>
-          <span class="timeline-date">2026-02-04</span>
-          <span class="timeline-text">Adopted! 🎉</span>
-        </div>
-      
-        <div class="timeline-item">
           <span class="timeline-icon">🆕</span>
-          <span class="timeline-date">2026-01-29</span>
-          <span class="timeline-text">First seen: Upcoming (Fit Score: 2)</span>
+          <span class="timeline-date">2026-02-12</span>
+          <span class="timeline-text">First seen: Upcoming (Fit Score: 7)</span>
         </div>
       
       </div>
@@ -726,12 +702,12 @@
   <div class="toast" id="toast">Saved!</div>
   
   <script>
-    const dogId = 'doo_sheldon2';
+    const dogId = 'doo_abby';
     const rescueValues = {
-      weight: 12,
-      age: 0.3,
+      weight: 53,
+      age: 2.0,
       shedding: 'Low',
-      energy: 'High',
+      energy: 'Medium',
       goodDogs: 'Unknown',
       goodKids: 'Unknown',
       goodCats: 'Unknown',

@@ -109,9 +109,9 @@
       border-radius: 20px;
       font-weight: 600;
       font-size: 0.9rem;
-      background: #3b82f622;
-      color: #3b82f6;
-      border: 1px solid #3b82f644;
+      background: #10b98122;
+      color: #10b981;
+      border: 1px solid #10b98144;
       width: fit-content;
     }
     
@@ -431,12 +431,12 @@
     <!-- Hero Section -->
     <div class="hero">
       <div class="photo-section">
-        <img src="https://static.wixstatic.com/media/922814_ebc60c5ffb9248e3990f8fbf69e15401~mv2.png/v1/fill/w_400,h_400,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/IMG_2698_edited.png" alt="Ozzy2" class="main-photo" id="mainPhoto" onerror="this.style.display='none'; document.getElementById('photoPlaceholder').style.display='flex';">
+        <img src="https://static.wixstatic.com/media/922814_893d0f41736f489da39d7435d0f3cc3c~mv2.jpg/v1/fill/w_400,h_400,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/Image-empty-state.jpg" alt="Ozzy2" class="main-photo" id="mainPhoto" onerror="this.style.display='none'; document.getElementById('photoPlaceholder').style.display='flex';">
         <div class="photo-placeholder" id="photoPlaceholder" style="display: none;">🐕</div>
         
         <!-- Thumbnail gallery (ready for multiple photos) -->
         <div class="photo-thumbnails" id="photoThumbnails">
-          <img src="https://static.wixstatic.com/media/922814_ebc60c5ffb9248e3990f8fbf69e15401~mv2.png/v1/fill/w_400,h_400,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/IMG_2698_edited.png" class="photo-thumb active" onclick="setMainPhoto(this.src)">
+          <img src="https://static.wixstatic.com/media/922814_893d0f41736f489da39d7435d0f3cc3c~mv2.jpg/v1/fill/w_400,h_400,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/Image-empty-state.jpg" class="photo-thumb active" onclick="setMainPhoto(this.src)">
         </div>
         <div class="photo-count" id="photoCount">1 photo</div>
       </div>
@@ -447,7 +447,7 @@
           <button class="watch-btn " id="watchBtn" onclick="toggleWatch()" title="Add to watch list">☆</button>
         </div>
         
-        <div class="status-badge">🔜 Upcoming</div>
+        <div class="status-badge">✅ Available</div>
         
         <div class="key-facts">
           <div class="fact">
@@ -456,11 +456,11 @@
           </div>
           <div class="fact">
             <div class="fact-label">Weight</div>
-            <div class="fact-value">40 lbs</div>
+            <div class="fact-value">60 lbs</div>
           </div>
           <div class="fact">
             <div class="fact-label">Age</div>
-            <div class="fact-value">?</div>
+            <div class="fact-value">2 yrs</div>
           </div>
           <div class="fact">
             <div class="fact-label">Sex</div>
@@ -468,12 +468,12 @@
           </div>
           <div class="fact">
             <div class="fact-label">Location</div>
-            <div class="fact-value">HOU</div>
+            <div class="fact-value">?</div>
           </div>
         </div>
         
         <div class="rescue-link">
-          <a href="https://www.doodledandyrescue.org/doodles-coming-soon" target="_blank">
+          <a href="https://www.doodledandyrescue.org/all-adoptable-doodles" target="_blank">
             <span>🔗</span> View on rescue website
           </a>
         </div>
@@ -491,7 +491,7 @@
       <div class="score-main">
         <button class="score-adjust-btn" onclick="adjustScore(-1)">−</button>
         <div>
-          <div class="score-value" id="totalScore">6</div>
+          <div class="score-value" id="totalScore">7</div>
           <div class="score-label">Total Score</div>
         </div>
         <button class="score-adjust-btn" onclick="adjustScore(+1)">+</button>
@@ -505,12 +505,12 @@
             <span class="score-row-icon">⚖️</span>
             <div>
               <span>Weight (lbs)</span>
-              <div class="rescue-value">Rescue: 40 lbs</div>
+              <div class="rescue-value">Rescue: 60 lbs</div>
             </div>
           </div>
           <div class="score-row-right">
             <input type="number" class="score-input " id="weight" 
-                   value="40" min="0" max="200" placeholder="?" onchange="updateScore()">
+                   value="60" min="0" max="200" placeholder="?" onchange="updateScore()">
             <span class="score-points" id="weightPoints">+2</span>
           </div>
         </div>
@@ -521,13 +521,13 @@
             <span class="score-row-icon">🎂</span>
             <div>
               <span>Age (years)</span>
-              <div class="rescue-value">Rescue: unknown</div>
+              <div class="rescue-value">Rescue: 2.0 yrs</div>
             </div>
           </div>
           <div class="score-row-right">
             <input type="number" class="score-input " id="age" 
-                   value="" min="0" max="20" step="0.5" placeholder="?" onchange="updateScore()">
-            <span class="score-points" id="agePoints">0</span>
+                   value="2.0" min="0" max="20" step="0.5" placeholder="?" onchange="updateScore()">
+            <span class="score-points" id="agePoints">+1</span>
           </div>
         </div>
         
@@ -682,6 +682,18 @@
       <div class="timeline">
         
         <div class="timeline-item">
+          <span class="timeline-icon">📝</span>
+          <span class="timeline-date">2026-02-12</span>
+          <span class="timeline-text">Weight: 40 → 60 lbs; Fit Score: 6 → 7</span>
+        </div>
+      
+        <div class="timeline-item">
+          <span class="timeline-icon">📢</span>
+          <span class="timeline-date">2026-02-12</span>
+          <span class="timeline-text">Status: Upcoming → Available</span>
+        </div>
+      
+        <div class="timeline-item">
           <span class="timeline-icon">📢</span>
           <span class="timeline-date">2026-02-04</span>
           <span class="timeline-text">Status: Adopted/Removed → Upcoming</span>
@@ -716,8 +728,8 @@
   <script>
     const dogId = 'doo_ozzy2';
     const rescueValues = {
-      weight: 40,
-      age: null,
+      weight: 60,
+      age: 2.0,
       shedding: 'Low',
       energy: 'Medium',
       goodDogs: 'Unknown',
