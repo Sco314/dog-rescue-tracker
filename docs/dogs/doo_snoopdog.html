@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>LilyP - Dog Details</title>
+  <title>Snoopdog - Dog Details</title>
   <style>
     :root {
       --bg-primary: #121212;
@@ -431,19 +431,19 @@
     <!-- Hero Section -->
     <div class="hero">
       <div class="photo-section">
-        <img src="https://static.wixstatic.com/media/922814_755fa36b87b8471a9a11c6af4a0126c1~mv2.jpg/v1/fill/w_400,h_400,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/Image-place-holder.jpg" alt="LilyP" class="main-photo" id="mainPhoto" onerror="this.style.display='none'; document.getElementById('photoPlaceholder').style.display='flex';">
+        <img src="https://static.wixstatic.com/media/ff3e4c_84182130c5464ca7be8fcfb5180becb4~mv2.jpg/v1/fill/w_400,h_400,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/Image-place-holder.jpg" alt="Snoopdog" class="main-photo" id="mainPhoto" onerror="this.style.display='none'; document.getElementById('photoPlaceholder').style.display='flex';">
         <div class="photo-placeholder" id="photoPlaceholder" style="display: none;">🐕</div>
         
         <!-- Thumbnail gallery (ready for multiple photos) -->
         <div class="photo-thumbnails" id="photoThumbnails">
-          <img src="https://static.wixstatic.com/media/922814_755fa36b87b8471a9a11c6af4a0126c1~mv2.jpg/v1/fill/w_400,h_400,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/Image-place-holder.jpg" class="photo-thumb active" onclick="setMainPhoto(this.src)">
+          <img src="https://static.wixstatic.com/media/ff3e4c_84182130c5464ca7be8fcfb5180becb4~mv2.jpg/v1/fill/w_400,h_400,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/Image-place-holder.jpg" class="photo-thumb active" onclick="setMainPhoto(this.src)">
         </div>
         <div class="photo-count" id="photoCount">1 photo</div>
       </div>
       
       <div class="hero-info">
         <div class="name-row">
-          <h1 class="dog-name">LilyP</h1>
+          <h1 class="dog-name">Snoopdog</h1>
           <button class="watch-btn " id="watchBtn" onclick="toggleWatch()" title="Add to watch list">☆</button>
         </div>
         
@@ -456,7 +456,7 @@
           </div>
           <div class="fact">
             <div class="fact-label">Weight</div>
-            <div class="fact-value">40 lbs</div>
+            <div class="fact-value">59 lbs</div>
           </div>
           <div class="fact">
             <div class="fact-label">Age</div>
@@ -464,11 +464,11 @@
           </div>
           <div class="fact">
             <div class="fact-label">Sex</div>
-            <div class="fact-value">Female</div>
+            <div class="fact-value">Male</div>
           </div>
           <div class="fact">
             <div class="fact-label">Location</div>
-            <div class="fact-value">?</div>
+            <div class="fact-value">DFW</div>
           </div>
         </div>
         
@@ -505,12 +505,12 @@
             <span class="score-row-icon">⚖️</span>
             <div>
               <span>Weight (lbs)</span>
-              <div class="rescue-value">Rescue: 40 lbs</div>
+              <div class="rescue-value">Rescue: 59 lbs</div>
             </div>
           </div>
           <div class="score-row-right">
             <input type="number" class="score-input " id="weight" 
-                   value="40" min="0" max="200" placeholder="?" onchange="updateScore()">
+                   value="59" min="0" max="200" placeholder="?" onchange="updateScore()">
             <span class="score-points" id="weightPoints">+2</span>
           </div>
         </div>
@@ -692,8 +692,44 @@
         
         <div class="timeline-item">
           <span class="timeline-icon">📢</span>
-          <span class="timeline-date">2026-02-07</span>
+          <span class="timeline-date">2026-03-08</span>
           <span class="timeline-text">Application submitted - now pending</span>
+        </div>
+      
+        <div class="timeline-item">
+          <span class="timeline-icon">📢</span>
+          <span class="timeline-date">2026-03-04</span>
+          <span class="timeline-text">Adopted! 🎉</span>
+        </div>
+      
+        <div class="timeline-item">
+          <span class="timeline-icon">📢</span>
+          <span class="timeline-date">2026-02-26</span>
+          <span class="timeline-text">Status: Adopted/Removed → Available</span>
+        </div>
+      
+        <div class="timeline-item">
+          <span class="timeline-icon">📢</span>
+          <span class="timeline-date">2026-02-26</span>
+          <span class="timeline-text">Adopted! 🎉</span>
+        </div>
+      
+        <div class="timeline-item">
+          <span class="timeline-icon">📝</span>
+          <span class="timeline-date">2026-02-26</span>
+          <span class="timeline-text">Weight: 65 → 59 lbs</span>
+        </div>
+      
+        <div class="timeline-item">
+          <span class="timeline-icon">📢</span>
+          <span class="timeline-date">2026-02-26</span>
+          <span class="timeline-text">Status: Upcoming → Available</span>
+        </div>
+      
+        <div class="timeline-item">
+          <span class="timeline-icon">📢</span>
+          <span class="timeline-date">2026-02-04</span>
+          <span class="timeline-text">Status: Adopted/Removed → Upcoming</span>
         </div>
       
         <div class="timeline-item">
@@ -703,14 +739,8 @@
         </div>
       
         <div class="timeline-item">
-          <span class="timeline-icon">📢</span>
-          <span class="timeline-date">2026-01-29</span>
-          <span class="timeline-text">Status: Upcoming → Available</span>
-        </div>
-      
-        <div class="timeline-item">
           <span class="timeline-icon">🆕</span>
-          <span class="timeline-date">2025-12-10</span>
+          <span class="timeline-date">2026-01-22</span>
           <span class="timeline-text">First seen: Upcoming (Fit Score: 7)</span>
         </div>
       
@@ -729,9 +759,9 @@
   <div class="toast" id="toast">Saved!</div>
   
   <script>
-    const dogId = 'doo_lilyp';
+    const dogId = 'doo_snoopdog';
     const rescueValues = {
-      weight: 40,
+      weight: 59,
       age: 2.0,
       shedding: 'Low',
       energy: 'Medium',
