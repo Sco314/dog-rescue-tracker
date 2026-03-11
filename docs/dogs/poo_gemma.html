@@ -456,7 +456,7 @@
           </div>
           <div class="fact">
             <div class="fact-label">Weight</div>
-            <div class="fact-value">?</div>
+            <div class="fact-value">45 lbs</div>
           </div>
           <div class="fact">
             <div class="fact-label">Age</div>
@@ -491,7 +491,7 @@
       <div class="score-main">
         <button class="score-adjust-btn" onclick="adjustScore(-1)">−</button>
         <div>
-          <div class="score-value" id="totalScore">3</div>
+          <div class="score-value" id="totalScore">5</div>
           <div class="score-label">Total Score</div>
         </div>
         <button class="score-adjust-btn" onclick="adjustScore(+1)">+</button>
@@ -505,13 +505,13 @@
             <span class="score-row-icon">⚖️</span>
             <div>
               <span>Weight (lbs)</span>
-              <div class="rescue-value">Rescue: unknown</div>
+              <div class="rescue-value">Rescue: 45 lbs</div>
             </div>
           </div>
           <div class="score-row-right">
             <input type="number" class="score-input " id="weight" 
-                   value="" min="0" max="200" placeholder="?" onchange="updateScore()">
-            <span class="score-points" id="weightPoints">0</span>
+                   value="45" min="0" max="200" placeholder="?" onchange="updateScore()">
+            <span class="score-points" id="weightPoints">+2</span>
           </div>
         </div>
         
@@ -673,7 +673,7 @@
       <div class="section-header">
         <h2 class="section-title">About Gemma</h2>
       </div>
-      <p class="bio-text">Gemma Posted on February 17, 2026 February 27, 2026 by Amanda 2/26/ 26 small Red standard female, 2 years old, heartworm treatment  is complete and she is scheduled to spay March 11. Very energetic girl would do well in active household, perhaps lure training. No small dogs or cats. Available for adoption after spay. She is vaccinated, microchipped, on heartworm prevention and house trained. We adopt within 350 miles of Texarkana TX or Hot Springs AR (exceptions are made for excellent applicants</p>
+      <p class="bio-text">Gemma Posted on February 17, 2026 March 10, 2026 by Amanda 2/26/ 26 45 lb, 2 year old Red standard female, Heartworm  treatment  is complete and she is scheduled to spay March 11. Very energetic girl would do well in active household, perhaps lure training. No small dogs or cats. Available for adoption after spay. She is vaccinated, microchipped, on heartworm prevention and house trained. We adopt within 350 miles of Texarkana TX or Hot Springs AR (exceptions are made for excellent applicants -w</p>
     </div>
     
     <!-- Adoption Requirements -->
@@ -692,6 +692,12 @@
       </div>
       <div class="timeline">
         
+        <div class="timeline-item">
+          <span class="timeline-icon">📝</span>
+          <span class="timeline-date">2026-03-11</span>
+          <span class="timeline-text">Weight: ? → 45 lbs; Fit Score: 4 → 6</span>
+        </div>
+      
         <div class="timeline-item">
           <span class="timeline-icon">🆕</span>
           <span class="timeline-date">2026-02-17</span>
@@ -715,7 +721,7 @@
   <script>
     const dogId = 'poo_gemma';
     const rescueValues = {
-      weight: null,
+      weight: 45,
       age: 2.0,
       shedding: 'Low',
       energy: 'Unknown',
