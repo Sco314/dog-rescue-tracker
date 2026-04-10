@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Idgie - Dog Details</title>
+  <title>Azalea - Dog Details</title>
   <style>
     :root {
       --bg-primary: #121212;
@@ -420,7 +420,7 @@
 </head>
 <body>
   <div class="header">
-    <div class="header-title">Doodle Dandy Rescue</div>
+    <div class="header-title">Doodle Rock Rescue</div>
     <div class="header-actions">
       <button class="header-btn cancel" onclick="cancelAndClose()">Cancel</button>
       <button class="header-btn save" onclick="saveAndClose()">Save & Close</button>
@@ -431,19 +431,19 @@
     <!-- Hero Section -->
     <div class="hero">
       <div class="photo-section">
-        <img src="https://static.wixstatic.com/media/ff3e4c_214729004df64571a46bbdc177c25213~mv2.png/v1/fill/w_400,h_400,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/IMG_2698_edited.png" alt="Idgie" class="main-photo" id="mainPhoto" onerror="this.style.display='none'; document.getElementById('photoPlaceholder').style.display='flex';">
+        <img src="https://doodlerockrescue.org/wp-content/uploads/2026/04/IMG_9435-scaled-wpcf_200x200.jpeg" alt="Azalea" class="main-photo" id="mainPhoto" onerror="this.style.display='none'; document.getElementById('photoPlaceholder').style.display='flex';">
         <div class="photo-placeholder" id="photoPlaceholder" style="display: none;">🐕</div>
         
         <!-- Thumbnail gallery (ready for multiple photos) -->
         <div class="photo-thumbnails" id="photoThumbnails">
-          <img src="https://static.wixstatic.com/media/ff3e4c_214729004df64571a46bbdc177c25213~mv2.png/v1/fill/w_400,h_400,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/IMG_2698_edited.png" class="photo-thumb active" onclick="setMainPhoto(this.src)">
+          <img src="https://doodlerockrescue.org/wp-content/uploads/2026/04/IMG_9435-scaled-wpcf_200x200.jpeg" class="photo-thumb active" onclick="setMainPhoto(this.src)">
         </div>
         <div class="photo-count" id="photoCount">1 photo</div>
       </div>
       
       <div class="hero-info">
         <div class="name-row">
-          <h1 class="dog-name">Idgie</h1>
+          <h1 class="dog-name">Azalea</h1>
           <button class="watch-btn " id="watchBtn" onclick="toggleWatch()" title="Add to watch list">☆</button>
         </div>
         
@@ -452,28 +452,28 @@
         <div class="key-facts">
           <div class="fact">
             <div class="fact-label">Breed</div>
-            <div class="fact-value">Doodle</div>
+            <div class="fact-value">Poodle Mix</div>
           </div>
           <div class="fact">
             <div class="fact-label">Weight</div>
-            <div class="fact-value">47 lbs</div>
+            <div class="fact-value">?</div>
           </div>
           <div class="fact">
             <div class="fact-label">Age</div>
-            <div class="fact-value">2 yrs</div>
+            <div class="fact-value">?</div>
           </div>
           <div class="fact">
             <div class="fact-label">Sex</div>
-            <div class="fact-value">Female</div>
+            <div class="fact-value">?</div>
           </div>
           <div class="fact">
             <div class="fact-label">Location</div>
-            <div class="fact-value">?</div>
+            <div class="fact-value">Dallas, TX</div>
           </div>
         </div>
         
         <div class="rescue-link">
-          <a href="https://www.doodledandyrescue.org/doodles-coming-soon" target="_blank">
+          <a href="https://doodlerockrescue.org/adopt/coming-soon-for-adoption/" target="_blank">
             <span>🔗</span> View on rescue website
           </a>
         </div>
@@ -491,7 +491,7 @@
       <div class="score-main">
         <button class="score-adjust-btn" onclick="adjustScore(-1)">−</button>
         <div>
-          <div class="score-value" id="totalScore">7</div>
+          <div class="score-value" id="totalScore">4</div>
           <div class="score-label">Total Score</div>
         </div>
         <button class="score-adjust-btn" onclick="adjustScore(+1)">+</button>
@@ -505,13 +505,13 @@
             <span class="score-row-icon">⚖️</span>
             <div>
               <span>Weight (lbs)</span>
-              <div class="rescue-value">Rescue: 47 lbs</div>
+              <div class="rescue-value">Rescue: unknown</div>
             </div>
           </div>
           <div class="score-row-right">
             <input type="number" class="score-input " id="weight" 
-                   value="47" min="0" max="200" placeholder="?" onchange="updateScore()">
-            <span class="score-points" id="weightPoints">+2</span>
+                   value="" min="0" max="200" placeholder="?" onchange="updateScore()">
+            <span class="score-points" id="weightPoints">0</span>
           </div>
         </div>
         
@@ -521,13 +521,13 @@
             <span class="score-row-icon">🎂</span>
             <div>
               <span>Age (years)</span>
-              <div class="rescue-value">Rescue: 2.0 yrs</div>
+              <div class="rescue-value">Rescue: unknown</div>
             </div>
           </div>
           <div class="score-row-right">
             <input type="number" class="score-input " id="age" 
-                   value="2.0" min="0" max="20" step="0.5" placeholder="?" onchange="updateScore()">
-            <span class="score-points" id="agePoints">+1</span>
+                   value="" min="0" max="20" step="0.5" placeholder="?" onchange="updateScore()">
+            <span class="score-points" id="agePoints">0</span>
           </div>
         </div>
         
@@ -635,7 +635,7 @@
             <span class="score-row-icon">🐩</span>
             <div>
               <span>Doodle/Poodle</span>
-              <div class="rescue-value">Rescue: Yes (Doodle)</div>
+              <div class="rescue-value">Rescue: Yes (Poodle Mix)</div>
             </div>
           </div>
           <div class="score-row-right">
@@ -682,21 +682,9 @@
       <div class="timeline">
         
         <div class="timeline-item">
-          <span class="timeline-icon">📢</span>
-          <span class="timeline-date">2026-02-04</span>
-          <span class="timeline-text">Status: Adopted/Removed → Upcoming</span>
-        </div>
-      
-        <div class="timeline-item">
-          <span class="timeline-icon">📢</span>
-          <span class="timeline-date">2026-02-04</span>
-          <span class="timeline-text">Adopted! 🎉</span>
-        </div>
-      
-        <div class="timeline-item">
           <span class="timeline-icon">🆕</span>
-          <span class="timeline-date">2026-01-22</span>
-          <span class="timeline-text">First seen: Upcoming (Fit Score: 7)</span>
+          <span class="timeline-date">2026-04-10</span>
+          <span class="timeline-text">First seen: Upcoming (Fit Score: 4)</span>
         </div>
       
       </div>
@@ -714,10 +702,10 @@
   <div class="toast" id="toast">Saved!</div>
   
   <script>
-    const dogId = 'doo_idgie';
+    const dogId = 'doo_azalea';
     const rescueValues = {
-      weight: 47,
-      age: 2.0,
+      weight: null,
+      age: null,
       shedding: 'Low',
       energy: 'Medium',
       goodDogs: 'Unknown',
