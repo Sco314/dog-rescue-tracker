@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Fluffernut - Dog Details</title>
+  <title>Time Out - Dog Details</title>
   <style>
     :root {
       --bg-primary: #121212;
@@ -431,19 +431,19 @@
     <!-- Hero Section -->
     <div class="hero">
       <div class="photo-section">
-        <img src="https://static.wixstatic.com/media/ff3e4c_c59afb4f6d0544108fa6272754382f7a~mv2.jpg/v1/fill/w_400,h_400,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/Image-place-holder.jpg" alt="Fluffernut" class="main-photo" id="mainPhoto" onerror="this.style.display='none'; document.getElementById('photoPlaceholder').style.display='flex';">
+        <img src="" alt="Time Out" class="main-photo" id="mainPhoto" onerror="this.style.display='none'; document.getElementById('photoPlaceholder').style.display='flex';">
         <div class="photo-placeholder" id="photoPlaceholder" style="display: none;">🐕</div>
         
         <!-- Thumbnail gallery (ready for multiple photos) -->
         <div class="photo-thumbnails" id="photoThumbnails">
-          <img src="https://static.wixstatic.com/media/ff3e4c_c59afb4f6d0544108fa6272754382f7a~mv2.jpg/v1/fill/w_400,h_400,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/Image-place-holder.jpg" class="photo-thumb active" onclick="setMainPhoto(this.src)">
+          
         </div>
-        <div class="photo-count" id="photoCount">1 photo</div>
+        <div class="photo-count" id="photoCount">No photos</div>
       </div>
       
       <div class="hero-info">
         <div class="name-row">
-          <h1 class="dog-name">Fluffernut</h1>
+          <h1 class="dog-name">Time Out</h1>
           <button class="watch-btn " id="watchBtn" onclick="toggleWatch()" title="Add to watch list">☆</button>
         </div>
         
@@ -452,7 +452,7 @@
         <div class="key-facts">
           <div class="fact">
             <div class="fact-label">Breed</div>
-            <div class="fact-value">Maltipoo</div>
+            <div class="fact-value">The mission of Doodle Dandy Rescue is to rescue, rehabilitate & rehome Doodle dogs in crisis so that they are adoptable into safe and loving homes in Texas.</div>
           </div>
           <div class="fact">
             <div class="fact-label">Weight</div>
@@ -460,15 +460,15 @@
           </div>
           <div class="fact">
             <div class="fact-label">Age</div>
-            <div class="fact-value">3 yrs</div>
+            <div class="fact-value">?</div>
           </div>
           <div class="fact">
             <div class="fact-label">Sex</div>
-            <div class="fact-value">Male</div>
+            <div class="fact-value">?</div>
           </div>
           <div class="fact">
             <div class="fact-label">Location</div>
-            <div class="fact-value">HOU</div>
+            <div class="fact-value">?</div>
           </div>
         </div>
         
@@ -521,13 +521,13 @@
             <span class="score-row-icon">🎂</span>
             <div>
               <span>Age (years)</span>
-              <div class="rescue-value">Rescue: 3.0 yrs</div>
+              <div class="rescue-value">Rescue: unknown</div>
             </div>
           </div>
           <div class="score-row-right">
             <input type="number" class="score-input " id="age" 
-                   value="3.0" min="0" max="20" step="0.5" placeholder="?" onchange="updateScore()">
-            <span class="score-points" id="agePoints">+1</span>
+                   value="" min="0" max="20" step="0.5" placeholder="?" onchange="updateScore()">
+            <span class="score-points" id="agePoints">0</span>
           </div>
         </div>
         
@@ -635,7 +635,7 @@
             <span class="score-row-icon">🐩</span>
             <div>
               <span>Doodle/Poodle</span>
-              <div class="rescue-value">Rescue: Yes (Maltipoo)</div>
+              <div class="rescue-value">Rescue: Yes (The mission of Doodle Dandy Rescue is to rescue, rehabilitate & rehome Doodle dogs in crisis so that they are adoptable into safe and loving homes in Texas.)</div>
             </div>
           </div>
           <div class="score-row-right">
@@ -691,27 +691,9 @@
       <div class="timeline">
         
         <div class="timeline-item">
-          <span class="timeline-icon">📢</span>
-          <span class="timeline-date">2026-03-27</span>
-          <span class="timeline-text">Application submitted - now pending</span>
-        </div>
-      
-        <div class="timeline-item">
-          <span class="timeline-icon">📢</span>
-          <span class="timeline-date">2026-03-26</span>
-          <span class="timeline-text">Adopted! 🎉</span>
-        </div>
-      
-        <div class="timeline-item">
-          <span class="timeline-icon">📢</span>
-          <span class="timeline-date">2026-03-23</span>
-          <span class="timeline-text">Status: Upcoming → Available</span>
-        </div>
-      
-        <div class="timeline-item">
           <span class="timeline-icon">🆕</span>
-          <span class="timeline-date">2026-03-02</span>
-          <span class="timeline-text">First seen: Upcoming (Fit Score: 4)</span>
+          <span class="timeline-date">2026-04-11</span>
+          <span class="timeline-text">First seen: Pending (Fit Score: 4)</span>
         </div>
       
       </div>
@@ -729,10 +711,10 @@
   <div class="toast" id="toast">Saved!</div>
   
   <script>
-    const dogId = 'doo_fluffernut';
+    const dogId = 'doo_time out';
     const rescueValues = {
       weight: null,
-      age: 3.0,
+      age: null,
       shedding: 'Low',
       energy: 'Medium',
       goodDogs: 'Unknown',
