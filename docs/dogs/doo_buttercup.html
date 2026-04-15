@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Minimal - Dog Details</title>
+  <title>Buttercup - Dog Details</title>
   <style>
     :root {
       --bg-primary: #121212;
@@ -431,19 +431,19 @@
     <!-- Hero Section -->
     <div class="hero">
       <div class="photo-section">
-        <img src="" alt="Minimal" class="main-photo" id="mainPhoto" onerror="this.style.display='none'; document.getElementById('photoPlaceholder').style.display='flex';">
+        <img src="https://static.wixstatic.com/media/ff3e4c_36d5b2b32a3a464c8fd1e05436486801~mv2.jpg/v1/fill/w_400,h_400,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/Image-empty-state.jpg" alt="Buttercup" class="main-photo" id="mainPhoto" onerror="this.style.display='none'; document.getElementById('photoPlaceholder').style.display='flex';">
         <div class="photo-placeholder" id="photoPlaceholder" style="display: none;">🐕</div>
         
         <!-- Thumbnail gallery (ready for multiple photos) -->
         <div class="photo-thumbnails" id="photoThumbnails">
-          
+          <img src="https://static.wixstatic.com/media/ff3e4c_36d5b2b32a3a464c8fd1e05436486801~mv2.jpg/v1/fill/w_400,h_400,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/Image-empty-state.jpg" class="photo-thumb active" onclick="setMainPhoto(this.src)">
         </div>
-        <div class="photo-count" id="photoCount">No photos</div>
+        <div class="photo-count" id="photoCount">1 photo</div>
       </div>
       
       <div class="hero-info">
         <div class="name-row">
-          <h1 class="dog-name">Minimal</h1>
+          <h1 class="dog-name">Buttercup</h1>
           <button class="watch-btn " id="watchBtn" onclick="toggleWatch()" title="Add to watch list">☆</button>
         </div>
         
@@ -452,15 +452,15 @@
         <div class="key-facts">
           <div class="fact">
             <div class="fact-label">Breed</div>
-            <div class="fact-value">Goldendoodle</div>
+            <div class="fact-value">Doodle</div>
           </div>
           <div class="fact">
             <div class="fact-label">Weight</div>
-            <div class="fact-value">?</div>
+            <div class="fact-value">13 lbs</div>
           </div>
           <div class="fact">
             <div class="fact-label">Age</div>
-            <div class="fact-value">9 mos</div>
+            <div class="fact-value">10 mos</div>
           </div>
           <div class="fact">
             <div class="fact-label">Sex</div>
@@ -505,12 +505,12 @@
             <span class="score-row-icon">⚖️</span>
             <div>
               <span>Weight (lbs)</span>
-              <div class="rescue-value">Rescue: unknown</div>
+              <div class="rescue-value">Rescue: 13 lbs</div>
             </div>
           </div>
           <div class="score-row-right">
             <input type="number" class="score-input " id="weight" 
-                   value="" min="0" max="200" placeholder="?" onchange="updateScore()">
+                   value="13" min="0" max="200" placeholder="?" onchange="updateScore()">
             <span class="score-points" id="weightPoints">0</span>
           </div>
         </div>
@@ -635,7 +635,7 @@
             <span class="score-row-icon">🐩</span>
             <div>
               <span>Doodle/Poodle</span>
-              <div class="rescue-value">Rescue: Yes (Goldendoodle)</div>
+              <div class="rescue-value">Rescue: Yes (Doodle)</div>
             </div>
           </div>
           <div class="score-row-right">
@@ -682,39 +682,33 @@
       <div class="timeline">
         
         <div class="timeline-item">
-          <span class="timeline-icon">📝</span>
+          <span class="timeline-icon">📢</span>
           <span class="timeline-date">2026-04-15</span>
+          <span class="timeline-text">Status: Adopted/Removed → Available</span>
+        </div>
+      
+        <div class="timeline-item">
+          <span class="timeline-icon">📢</span>
+          <span class="timeline-date">2026-04-14</span>
+          <span class="timeline-text">Adopted! 🎉</span>
+        </div>
+      
+        <div class="timeline-item">
+          <span class="timeline-icon">📝</span>
+          <span class="timeline-date">2026-04-10</span>
           <span class="timeline-text">energy_level: Medium → High; Fit Score: 5 → 3</span>
         </div>
       
         <div class="timeline-item">
-          <span class="timeline-icon">📝</span>
-          <span class="timeline-date">2026-04-14</span>
-          <span class="timeline-text">energy_level: High → Medium; Fit Score: 4 → 5</span>
-        </div>
-      
-        <div class="timeline-item">
-          <span class="timeline-icon">📝</span>
-          <span class="timeline-date">2026-04-14</span>
-          <span class="timeline-text">energy_level: Medium → High; Fit Score: 0 → 4</span>
-        </div>
-      
-        <div class="timeline-item">
-          <span class="timeline-icon">📝</span>
-          <span class="timeline-date">2026-04-13</span>
-          <span class="timeline-text">Fit Score: 4 → 0</span>
-        </div>
-      
-        <div class="timeline-item">
-          <span class="timeline-icon">📝</span>
-          <span class="timeline-date">2026-04-12</span>
-          <span class="timeline-text">Fit Score: 5 → 4</span>
+          <span class="timeline-icon">📢</span>
+          <span class="timeline-date">2026-04-09</span>
+          <span class="timeline-text">Status: Upcoming → Available</span>
         </div>
       
         <div class="timeline-item">
           <span class="timeline-icon">🆕</span>
-          <span class="timeline-date">2026-04-09</span>
-          <span class="timeline-text">First seen: Available (Fit Score: 5)</span>
+          <span class="timeline-date">2026-03-10</span>
+          <span class="timeline-text">First seen: Upcoming (Fit Score: 5)</span>
         </div>
       
       </div>
@@ -732,9 +726,9 @@
   <div class="toast" id="toast">Saved!</div>
   
   <script>
-    const dogId = 'doo_minimal';
+    const dogId = 'doo_buttercup';
     const rescueValues = {
-      weight: null,
+      weight: 13,
       age: 0.8,
       shedding: 'Low',
       energy: 'High',
