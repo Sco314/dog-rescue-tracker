@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Moon Pie - Dog Details</title>
+  <title>Leah - Dog Details</title>
   <style>
     :root {
       --bg-primary: #121212;
@@ -420,7 +420,7 @@
 </head>
 <body>
   <div class="header">
-    <div class="header-title">Doodle Rock Rescue</div>
+    <div class="header-title">Doodle Dandy Rescue</div>
     <div class="header-actions">
       <button class="header-btn cancel" onclick="cancelAndClose()">Cancel</button>
       <button class="header-btn save" onclick="saveAndClose()">Save & Close</button>
@@ -431,19 +431,19 @@
     <!-- Hero Section -->
     <div class="hero">
       <div class="photo-section">
-        <img src="https://doodlerockrescue.org/wp-content/uploads/2026/04/IMG_5846-wpcf_200x200.jpeg" alt="Moon Pie" class="main-photo" id="mainPhoto" onerror="this.style.display='none'; document.getElementById('photoPlaceholder').style.display='flex';">
+        <img src="https://static.wixstatic.com/media/ff3e4c_70904bcc7f0648e1ba18186a6b8c8967~mv2.jpg/v1/fill/w_400,h_400,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/IMG_2698_edited.jpg" alt="Leah" class="main-photo" id="mainPhoto" onerror="this.style.display='none'; document.getElementById('photoPlaceholder').style.display='flex';">
         <div class="photo-placeholder" id="photoPlaceholder" style="display: none;">🐕</div>
         
         <!-- Thumbnail gallery (ready for multiple photos) -->
         <div class="photo-thumbnails" id="photoThumbnails">
-          <img src="https://doodlerockrescue.org/wp-content/uploads/2026/04/IMG_5846-wpcf_200x200.jpeg" class="photo-thumb active" onclick="setMainPhoto(this.src)">
+          <img src="https://static.wixstatic.com/media/ff3e4c_70904bcc7f0648e1ba18186a6b8c8967~mv2.jpg/v1/fill/w_400,h_400,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/IMG_2698_edited.jpg" class="photo-thumb active" onclick="setMainPhoto(this.src)">
         </div>
         <div class="photo-count" id="photoCount">1 photo</div>
       </div>
       
       <div class="hero-info">
         <div class="name-row">
-          <h1 class="dog-name">Moon Pie</h1>
+          <h1 class="dog-name">Leah</h1>
           <button class="watch-btn " id="watchBtn" onclick="toggleWatch()" title="Add to watch list">☆</button>
         </div>
         
@@ -452,11 +452,11 @@
         <div class="key-facts">
           <div class="fact">
             <div class="fact-label">Breed</div>
-            <div class="fact-value">Poodle Mix</div>
+            <div class="fact-value">Adoradoodle</div>
           </div>
           <div class="fact">
             <div class="fact-label">Weight</div>
-            <div class="fact-value">?</div>
+            <div class="fact-value">12 lbs</div>
           </div>
           <div class="fact">
             <div class="fact-label">Age</div>
@@ -464,16 +464,16 @@
           </div>
           <div class="fact">
             <div class="fact-label">Sex</div>
-            <div class="fact-value">?</div>
+            <div class="fact-value">Female</div>
           </div>
           <div class="fact">
             <div class="fact-label">Location</div>
-            <div class="fact-value">Dallas, TX</div>
+            <div class="fact-value">?</div>
           </div>
         </div>
         
         <div class="rescue-link">
-          <a href="https://doodlerockrescue.org/adopt/coming-soon-for-adoption/" target="_blank">
+          <a href="https://www.doodledandyrescue.org/doodles-coming-soon" target="_blank">
             <span>🔗</span> View on rescue website
           </a>
         </div>
@@ -505,12 +505,12 @@
             <span class="score-row-icon">⚖️</span>
             <div>
               <span>Weight (lbs)</span>
-              <div class="rescue-value">Rescue: unknown</div>
+              <div class="rescue-value">Rescue: 12 lbs</div>
             </div>
           </div>
           <div class="score-row-right">
             <input type="number" class="score-input " id="weight" 
-                   value="" min="0" max="200" placeholder="?" onchange="updateScore()">
+                   value="12" min="0" max="200" placeholder="?" onchange="updateScore()">
             <span class="score-points" id="weightPoints">0</span>
           </div>
         </div>
@@ -635,7 +635,7 @@
             <span class="score-row-icon">🐩</span>
             <div>
               <span>Doodle/Poodle</span>
-              <div class="rescue-value">Rescue: Yes (Poodle Mix)</div>
+              <div class="rescue-value">Rescue: Yes (Adoradoodle)</div>
             </div>
           </div>
           <div class="score-row-right">
@@ -683,7 +683,7 @@
         
         <div class="timeline-item">
           <span class="timeline-icon">🆕</span>
-          <span class="timeline-date">2026-04-10</span>
+          <span class="timeline-date">2026-04-17</span>
           <span class="timeline-text">First seen: Upcoming (Fit Score: 4)</span>
         </div>
       
@@ -702,9 +702,9 @@
   <div class="toast" id="toast">Saved!</div>
   
   <script>
-    const dogId = 'doo_moon_pie';
+    const dogId = 'doo_leah';
     const rescueValues = {
-      weight: null,
+      weight: 12,
       age: null,
       shedding: 'Low',
       energy: 'Medium',
