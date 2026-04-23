@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Patron - Dog Details</title>
+  <title>Matcha - Dog Details</title>
   <style>
     :root {
       --bg-primary: #121212;
@@ -431,20 +431,20 @@
     <!-- Hero Section -->
     <div class="hero">
       <div class="photo-section">
-        <img src="https://doodlerockrescue.org/wp-content/uploads/2026/04/IMG_5878-wpcf_200x200.jpeg" alt="Patron" class="main-photo" id="mainPhoto" onerror="this.style.display='none'; document.getElementById('photoPlaceholder').style.display='flex';">
+        <img src="https://doodlerockrescue.org/wp-content/uploads/2025/08/IMG_6272-scaled-wpcf_200x200.jpeg" alt="Matcha" class="main-photo" id="mainPhoto" onerror="this.style.display='none'; document.getElementById('photoPlaceholder').style.display='flex';">
         <div class="photo-placeholder" id="photoPlaceholder" style="display: none;">🐕</div>
         
         <!-- Thumbnail gallery (ready for multiple photos) -->
         <div class="photo-thumbnails" id="photoThumbnails">
-          <img src="https://doodlerockrescue.org/wp-content/uploads/2026/04/IMG_5878-wpcf_200x200.jpeg" class="photo-thumb active" onclick="setMainPhoto(this.src)">
+          <img src="https://doodlerockrescue.org/wp-content/uploads/2025/08/IMG_6272-scaled-wpcf_200x200.jpeg" class="photo-thumb active" onclick="setMainPhoto(this.src)">
         </div>
         <div class="photo-count" id="photoCount">1 photo</div>
       </div>
       
       <div class="hero-info">
         <div class="name-row">
-          <h1 class="dog-name">Patron</h1>
-          <button class="watch-btn " id="watchBtn" onclick="toggleWatch()" title="Add to watch list">☆</button>
+          <h1 class="dog-name">Matcha</h1>
+          <button class="watch-btn active" id="watchBtn" onclick="toggleWatch()" title="Add to watch list">⭐</button>
         </div>
         
         <div class="status-badge">🔜 Upcoming</div>
@@ -682,9 +682,63 @@
       <div class="timeline">
         
         <div class="timeline-item">
-          <span class="timeline-icon">🆕</span>
+          <span class="timeline-icon">📢</span>
+          <span class="timeline-date">2026-04-23</span>
+          <span class="timeline-text">Status: Adopted/Removed → Upcoming</span>
+        </div>
+      
+        <div class="timeline-item">
+          <span class="timeline-icon">📢</span>
+          <span class="timeline-date">2026-04-22</span>
+          <span class="timeline-text">Adopted! 🎉</span>
+        </div>
+      
+        <div class="timeline-item">
+          <span class="timeline-icon">📢</span>
+          <span class="timeline-date">2026-04-20</span>
+          <span class="timeline-text">Status: Adopted/Removed → Upcoming</span>
+        </div>
+      
+        <div class="timeline-item">
+          <span class="timeline-icon">📢</span>
           <span class="timeline-date">2026-04-10</span>
-          <span class="timeline-text">First seen: Upcoming (Fit Score: 4)</span>
+          <span class="timeline-text">Adopted! 🎉</span>
+        </div>
+      
+        <div class="timeline-item">
+          <span class="timeline-icon">📝</span>
+          <span class="timeline-date">2026-02-03</span>
+          <span class="timeline-text">Fit Score: 6 → 4</span>
+        </div>
+      
+        <div class="timeline-item">
+          <span class="timeline-icon">📢</span>
+          <span class="timeline-date">2026-02-03</span>
+          <span class="timeline-text">Status: Pending → Upcoming</span>
+        </div>
+      
+        <div class="timeline-item">
+          <span class="timeline-icon">📝</span>
+          <span class="timeline-date">2026-02-02</span>
+          <span class="timeline-text">Weight: ? → 55 lbs; Good with kids: Unknown; Good with dogs: Unknown (+2 more)</span>
+        </div>
+      
+        <div class="timeline-item">
+          <span class="timeline-icon">📢</span>
+          <span class="timeline-date">2026-02-02</span>
+          <span class="timeline-text">Application submitted - now pending</span>
+        </div>
+      
+        <div class="timeline-item">
+          <span class="timeline-icon">📝</span>
+          <span class="timeline-date">2026-02-02</span>
+          <span class="timeline-text">Fit Score: 6 → 4</span>
+        </div>
+      
+        <div class="timeline-item">
+          <span class="timeline-icon">📢</span>
+          <span class="timeline-date">2026-02-02</span>
+          <span class="timeline-text">Status: Pending → Upcoming</span>
         </div>
       
       </div>
@@ -702,7 +756,7 @@
   <div class="toast" id="toast">Saved!</div>
   
   <script>
-    const dogId = 'doo_patron';
+    const dogId = 'doo_matcha';
     const rescueValues = {
       weight: null,
       age: null,
@@ -715,7 +769,7 @@
     };
     
     let scoreModifier = 0;
-    let watchList = false;
+    let watchList = true;
     
     // Score calculation constants
     const SHEDDING_SCORES = { 'None': 2, 'Low': 1, 'Moderate': 0, 'High': -1, 'Unknown': 1 };
