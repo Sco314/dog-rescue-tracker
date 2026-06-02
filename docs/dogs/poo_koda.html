@@ -109,9 +109,9 @@
       border-radius: 20px;
       font-weight: 600;
       font-size: 0.9rem;
-      background: #10b98122;
-      color: #10b981;
-      border: 1px solid #10b98144;
+      background: #f59e0b22;
+      color: #f59e0b;
+      border: 1px solid #f59e0b44;
       width: fit-content;
     }
     
@@ -447,7 +447,7 @@
           <button class="watch-btn " id="watchBtn" onclick="toggleWatch()" title="Add to watch list">☆</button>
         </div>
         
-        <div class="status-badge">✅ Available</div>
+        <div class="status-badge">P Pending</div>
         
         <div class="key-facts">
           <div class="fact">
@@ -491,7 +491,7 @@
       <div class="score-main">
         <button class="score-adjust-btn" onclick="adjustScore(-1)">−</button>
         <div>
-          <div class="score-value" id="totalScore">2</div>
+          <div class="score-value" id="totalScore">0</div>
           <div class="score-label">Total Score</div>
         </div>
         <button class="score-adjust-btn" onclick="adjustScore(+1)">+</button>
@@ -665,6 +665,15 @@
         </div>
         
         
+        <div class="score-row">
+          <div class="score-row-label">
+            <span class="score-row-icon">-</span>
+            <span>Pending Status</span>
+          </div>
+          <div class="score-row-right">
+            <span class="score-points negative">-8</span>
+          </div>
+        </div>
       </div>
     </div>
     
@@ -673,7 +682,7 @@
       <div class="section-header">
         <h2 class="section-title">About Koda</h2>
       </div>
-      <p class="bio-text">Koda Posted on April 30, 2025 May 12, 2026 by Amanda Koda’s DOB is 6/28/24.   He is neutered, current on vaccinations and on heartworm prevention.   He is a big, lovable goofball.   He loves to play fetch.    He would do well in a home with another dog around his age, size and energy level.    He loves car rides. He is happy to ride anywhere you are going.    He is housetrained. He would loves to sleep in the bed with foster mom. Currently in Little Rock AR. Back story—We got him out of the shel</p>
+      <p class="bio-text">Koda pending Posted on April 30, 2025 June 1, 2026 by Amanda Koda’s DOB is 6/28/24.   He is neutered, current on vaccinations and on heartworm prevention.   He is a big, lovable goofball.   He loves to play fetch.    He would do well in a home with another dog around his age, size and energy level.    He loves car rides. He is happy to ride anywhere you are going.    He is housetrained. He would loves to sleep in the bed with foster mom. Currently in Little Rock AR. Back story—We got him out of </p>
     </div>
     
     <!-- Adoption Requirements -->
@@ -692,6 +701,12 @@
       </div>
       <div class="timeline">
         
+        <div class="timeline-item">
+          <span class="timeline-icon">📢</span>
+          <span class="timeline-date">2026-06-02</span>
+          <span class="timeline-text">Application submitted - now pending</span>
+        </div>
+      
         <div class="timeline-item">
           <span class="timeline-icon">📢</span>
           <span class="timeline-date">2026-04-29</span>
@@ -790,7 +805,7 @@
       score += breedScore;
       
       // Pending penalty
-      
+      score += -8;
       
       // Manual modifier
       score += scoreModifier;
