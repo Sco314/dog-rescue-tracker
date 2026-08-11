@@ -456,11 +456,11 @@
           </div>
           <div class="fact">
             <div class="fact-label">Weight</div>
-            <div class="fact-value">35 lbs</div>
+            <div class="fact-value">40 lbs</div>
           </div>
           <div class="fact">
             <div class="fact-label">Age</div>
-            <div class="fact-value">2.5 yrs</div>
+            <div class="fact-value">2.9 yrs</div>
           </div>
           <div class="fact">
             <div class="fact-label">Sex</div>
@@ -491,7 +491,7 @@
       <div class="score-main">
         <button class="score-adjust-btn" onclick="adjustScore(-1)">−</button>
         <div>
-          <div class="score-value" id="totalScore">5</div>
+          <div class="score-value" id="totalScore">7</div>
           <div class="score-label">Total Score</div>
         </div>
         <button class="score-adjust-btn" onclick="adjustScore(+1)">+</button>
@@ -505,13 +505,13 @@
             <span class="score-row-icon">⚖️</span>
             <div>
               <span>Weight (lbs)</span>
-              <div class="rescue-value">Rescue: 35 lbs</div>
+              <div class="rescue-value">Rescue: 40 lbs</div>
             </div>
           </div>
           <div class="score-row-right">
             <input type="number" class="score-input " id="weight" 
-                   value="35" min="0" max="200" placeholder="?" onchange="updateScore()">
-            <span class="score-points" id="weightPoints">0</span>
+                   value="40" min="0" max="200" placeholder="?" onchange="updateScore()">
+            <span class="score-points" id="weightPoints">+2</span>
           </div>
         </div>
         
@@ -521,12 +521,12 @@
             <span class="score-row-icon">🎂</span>
             <div>
               <span>Age (years)</span>
-              <div class="rescue-value">Rescue: 2.5 yrs</div>
+              <div class="rescue-value">Rescue: 2.9 yrs</div>
             </div>
           </div>
           <div class="score-row-right">
             <input type="number" class="score-input " id="age" 
-                   value="2.5" min="0" max="20" step="0.5" placeholder="?" onchange="updateScore()">
+                   value="2.9" min="0" max="20" step="0.5" placeholder="?" onchange="updateScore()">
             <span class="score-points" id="agePoints">+1</span>
           </div>
         </div>
@@ -683,6 +683,12 @@
         
         <div class="timeline-item">
           <span class="timeline-icon">📝</span>
+          <span class="timeline-date">2026-08-11</span>
+          <span class="timeline-text">Weight: 35 → 40 lbs; Fit Score: 5 → 7</span>
+        </div>
+      
+        <div class="timeline-item">
+          <span class="timeline-icon">📝</span>
           <span class="timeline-date">2026-08-01</span>
           <span class="timeline-text">Fit Score: 4 → 5</span>
         </div>
@@ -710,8 +716,8 @@
   <script>
     const dogId = 'doo_ivey';
     const rescueValues = {
-      weight: 35,
-      age: 2.5,
+      weight: 40,
+      age: 2.9,
       shedding: 'Low',
       energy: 'Medium',
       goodDogs: 'Unknown',
