@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Blitz - Dog Details</title>
+  <title>Raffy - Dog Details</title>
   <style>
     :root {
       --bg-primary: #121212;
@@ -431,20 +431,20 @@
     <!-- Hero Section -->
     <div class="hero">
       <div class="photo-section">
-        <img src="https://doodlerockrescue.org/wp-content/uploads/2026/08/IMG_0992-1-scaled-wpcf_200x200.jpeg" alt="Blitz" class="main-photo" id="mainPhoto" onerror="this.style.display='none'; document.getElementById('photoPlaceholder').style.display='flex';">
+        <img src="https://doodlerockrescue.org/wp-content/uploads/2026/08/IMG_3663-scaled-wpcf_200x200.jpeg" alt="Raffy" class="main-photo" id="mainPhoto" onerror="this.style.display='none'; document.getElementById('photoPlaceholder').style.display='flex';">
         <div class="photo-placeholder" id="photoPlaceholder" style="display: none;">🐕</div>
         
         <!-- Thumbnail gallery (ready for multiple photos) -->
         <div class="photo-thumbnails" id="photoThumbnails">
-          <img src="https://doodlerockrescue.org/wp-content/uploads/2026/08/IMG_0992-1-scaled-wpcf_200x200.jpeg" class="photo-thumb active" onclick="setMainPhoto(this.src)">
+          <img src="https://doodlerockrescue.org/wp-content/uploads/2026/08/IMG_3663-scaled-wpcf_200x200.jpeg" class="photo-thumb active" onclick="setMainPhoto(this.src)">
         </div>
         <div class="photo-count" id="photoCount">1 photo</div>
       </div>
       
       <div class="hero-info">
         <div class="name-row">
-          <h1 class="dog-name">Blitz</h1>
-          <button class="watch-btn active" id="watchBtn" onclick="toggleWatch()" title="Add to watch list">⭐</button>
+          <h1 class="dog-name">Raffy</h1>
+          <button class="watch-btn " id="watchBtn" onclick="toggleWatch()" title="Add to watch list">☆</button>
         </div>
         
         <div class="status-badge">🔜 Upcoming</div>
@@ -491,7 +491,7 @@
       <div class="score-main">
         <button class="score-adjust-btn" onclick="adjustScore(-1)">−</button>
         <div>
-          <div class="score-value" id="totalScore">8</div>
+          <div class="score-value" id="totalScore">4</div>
           <div class="score-label">Total Score</div>
         </div>
         <button class="score-adjust-btn" onclick="adjustScore(+1)">+</button>
@@ -657,7 +657,7 @@
           <div class="score-row-right">
             <div class="adjust-row">
               <button class="mini-adjust-btn" onclick="adjustScore(-1)">−</button>
-              <span class="score-points positive" id="modifierPoints" style="min-width: 30px; text-align: center;">+4</span>
+              <span class="score-points neutral" id="modifierPoints" style="min-width: 30px; text-align: center;">0</span>
               <button class="mini-adjust-btn" onclick="adjustScore(+1)">+</button>
             </div>
             <button class="reset-inline-btn" onclick="resetOverrides()">Reset All</button>
@@ -682,63 +682,9 @@
       <div class="timeline">
         
         <div class="timeline-item">
-          <span class="timeline-icon">📝</span>
+          <span class="timeline-icon">🆕</span>
           <span class="timeline-date">2026-08-25</span>
-          <span class="timeline-text">Fit Score: 8 → 4</span>
-        </div>
-      
-        <div class="timeline-item">
-          <span class="timeline-icon">📝</span>
-          <span class="timeline-date">2026-08-24</span>
-          <span class="timeline-text">Fit Score: 8 → 4</span>
-        </div>
-      
-        <div class="timeline-item">
-          <span class="timeline-icon">📝</span>
-          <span class="timeline-date">2026-08-24</span>
-          <span class="timeline-text">Fit Score: 8 → 4</span>
-        </div>
-      
-        <div class="timeline-item">
-          <span class="timeline-icon">📝</span>
-          <span class="timeline-date">2026-08-24</span>
-          <span class="timeline-text">Fit Score: 8 → 4</span>
-        </div>
-      
-        <div class="timeline-item">
-          <span class="timeline-icon">📝</span>
-          <span class="timeline-date">2026-08-24</span>
-          <span class="timeline-text">Fit Score: 8 → 4</span>
-        </div>
-      
-        <div class="timeline-item">
-          <span class="timeline-icon">📝</span>
-          <span class="timeline-date">2026-08-24</span>
-          <span class="timeline-text">Fit Score: 8 → 4</span>
-        </div>
-      
-        <div class="timeline-item">
-          <span class="timeline-icon">📝</span>
-          <span class="timeline-date">2026-08-24</span>
-          <span class="timeline-text">Fit Score: 8 → 4</span>
-        </div>
-      
-        <div class="timeline-item">
-          <span class="timeline-icon">📝</span>
-          <span class="timeline-date">2026-08-23</span>
-          <span class="timeline-text">Fit Score: 8 → 4</span>
-        </div>
-      
-        <div class="timeline-item">
-          <span class="timeline-icon">📝</span>
-          <span class="timeline-date">2026-08-23</span>
-          <span class="timeline-text">Fit Score: 8 → 4</span>
-        </div>
-      
-        <div class="timeline-item">
-          <span class="timeline-icon">📝</span>
-          <span class="timeline-date">2026-08-23</span>
-          <span class="timeline-text">Fit Score: 8 → 4</span>
+          <span class="timeline-text">First seen: Upcoming (Fit Score: 4)</span>
         </div>
       
       </div>
@@ -756,7 +702,7 @@
   <div class="toast" id="toast">Saved!</div>
   
   <script>
-    const dogId = 'doo_blitz';
+    const dogId = 'doo_raffy';
     const rescueValues = {
       weight: null,
       age: null,
@@ -768,8 +714,8 @@
       breed: 'Yes'
     };
     
-    let scoreModifier = 4;
-    let watchList = true;
+    let scoreModifier = 0;
+    let watchList = false;
     
     // Score calculation constants
     const SHEDDING_SCORES = { 'None': 2, 'Low': 1, 'Moderate': 0, 'High': -1, 'Unknown': 1 };
