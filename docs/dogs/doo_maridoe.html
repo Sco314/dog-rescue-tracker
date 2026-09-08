@@ -431,12 +431,12 @@
     <!-- Hero Section -->
     <div class="hero">
       <div class="photo-section">
-        <img src="https://doodlerockrescue.org/wp-content/uploads/2026/07/IMG_0823-wpcf_250x250.jpeg" alt="Maridoe" class="main-photo" id="mainPhoto" onerror="this.style.display='none'; document.getElementById('photoPlaceholder').style.display='flex';">
+        <img src="https://staging.doodlerockrescue.org/wp-content/uploads/2019/01/DRR-Loading-Logo-e1548290131315.png" alt="Maridoe" class="main-photo" id="mainPhoto" onerror="this.style.display='none'; document.getElementById('photoPlaceholder').style.display='flex';">
         <div class="photo-placeholder" id="photoPlaceholder" style="display: none;">🐕</div>
         
         <!-- Thumbnail gallery (ready for multiple photos) -->
         <div class="photo-thumbnails" id="photoThumbnails">
-          <img src="https://doodlerockrescue.org/wp-content/uploads/2026/07/IMG_0823-wpcf_250x250.jpeg" class="photo-thumb active" onclick="setMainPhoto(this.src)">
+          <img src="https://staging.doodlerockrescue.org/wp-content/uploads/2019/01/DRR-Loading-Logo-e1548290131315.png" class="photo-thumb active" onclick="setMainPhoto(this.src)">
         </div>
         <div class="photo-count" id="photoCount">1 photo</div>
       </div>
@@ -460,7 +460,7 @@
           </div>
           <div class="fact">
             <div class="fact-label">Age</div>
-            <div class="fact-value">56 mos</div>
+            <div class="fact-value">3 yrs</div>
           </div>
           <div class="fact">
             <div class="fact-label">Sex</div>
@@ -491,7 +491,7 @@
       <div class="score-main">
         <button class="score-adjust-btn" onclick="adjustScore(-1)">−</button>
         <div>
-          <div class="score-value" id="totalScore">6</div>
+          <div class="score-value" id="totalScore">7</div>
           <div class="score-label">Total Score</div>
         </div>
         <button class="score-adjust-btn" onclick="adjustScore(+1)">+</button>
@@ -521,13 +521,13 @@
             <span class="score-row-icon">🎂</span>
             <div>
               <span>Age (years)</span>
-              <div class="rescue-value">Rescue: 4.7 yrs</div>
+              <div class="rescue-value">Rescue: 3.0 yrs</div>
             </div>
           </div>
           <div class="score-row-right">
             <input type="number" class="score-input " id="age" 
-                   value="4.7" min="0" max="20" step="0.5" placeholder="?" onchange="updateScore()">
-            <span class="score-points" id="agePoints">0</span>
+                   value="3.0" min="0" max="20" step="0.5" placeholder="?" onchange="updateScore()">
+            <span class="score-points" id="agePoints">+1</span>
           </div>
         </div>
         
@@ -683,6 +683,12 @@
         
         <div class="timeline-item">
           <span class="timeline-icon">📝</span>
+          <span class="timeline-date">2026-09-08</span>
+          <span class="timeline-text">Fit Score: 5 → 6</span>
+        </div>
+      
+        <div class="timeline-item">
+          <span class="timeline-icon">📝</span>
           <span class="timeline-date">2026-09-07</span>
           <span class="timeline-text">Fit Score: 6 → 5</span>
         </div>
@@ -729,7 +735,7 @@
     const dogId = 'doo_maridoe';
     const rescueValues = {
       weight: 27,
-      age: 4.7,
+      age: 3.0,
       shedding: 'Low',
       energy: 'High',
       goodDogs: 'Yes',
